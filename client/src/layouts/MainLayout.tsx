@@ -1,9 +1,9 @@
 import { useTranslation } from "react-i18next";
 import { AppShell, Group, Text } from "@mantine/core";
-import { Outlet } from "react-router";
 import { ColorSchemeButton } from "../components/ColorSchemeButton";
+import type { ReactNode } from "react";
 
-export const MainLayout = () => {
+export const MainLayout = ({ children }: { children: ReactNode }) => {
   const { t } = useTranslation();
 
   return (
@@ -22,9 +22,7 @@ export const MainLayout = () => {
         </Group>
       </AppShell.Header>
 
-      <AppShell.Main>
-        <Outlet />
-      </AppShell.Main>
+      <AppShell.Main>{children}</AppShell.Main>
     </AppShell>
   );
 };

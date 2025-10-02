@@ -1,3 +1,3 @@
-export const Rooms = () => {
+export const GameList = () => {
   return <div>JoinRoom</div>;
 };
