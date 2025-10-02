@@ -1,19 +1,18 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { MantineProvider } from "@mantine/core";
-import { BrowserRouter } from "react-router";
 import "@mantine/core/styles.css";
-import App from "./App.tsx";
+import "./i18n";
+import { RouterProvider } from "react-router";
+import { router } from "./routes";
 
 const rootElement = document.getElementById("root");
 if (rootElement) {
   createRoot(rootElement).render(
     <StrictMode>
       <MantineProvider>
-        <BrowserRouter>
-          <App />
-        </BrowserRouter>
+        <RouterProvider router={router} />;
       </MantineProvider>
-    </StrictMode>,
+    </StrictMode>
   );
 }
