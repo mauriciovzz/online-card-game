@@ -1,23 +1,25 @@
 import { Route, Routes } from "react-router";
-import { MainLayout } from "./layouts/MainLayout";
-import { Home } from "./pages/Home";
-import { Settings } from "./pages/Settings";
-import { Faq } from "./pages/Faq";
-import { GameList } from "./pages/GameList";
-import { GameRoom } from "./pages/GameRoom";
-import { GameCreation } from "./pages/GameCreation";
+import { Home } from "./pages/Home/Home";
+import { Rooms } from "./pages/Rooms";
+import { Game } from "./pages/Game";
+import { Lobby } from "./pages/Lobby/Lobby";
+import { GameContextLayout } from "./layouts/GameContextLayout";
 
 export const App = () => {
   return (
-    <MainLayout>
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/game-creation" element={<GameCreation />} />
-        <Route path="/rooms" element={<GameList />} />
-        <Route path="/settings" element={<Settings />} />
-        <Route path="/faq" element={<Faq />} />
-        <Route path="/game-room/:id" element={<GameRoom />} />
-      </Routes>
-    </MainLayout>
+    <Routes>
+      <Route path="/" element={<Home />} />
+      <Route path="/rooms" element={<Rooms />} />
+      <Route element={<GameContextLayout />}>
+        <Route
+          path="/room/:roomId/lobby"
+          element={<Lobby />}
+        />
+        <Route
+          path="/room/:roomId/game"
+          element={<Game />}
+        />
+      </Route>
+    </Routes>
   );
 };

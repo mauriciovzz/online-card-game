@@ -1,3 +1,25 @@
 {
-  "appTitle": "JCR"
+  "createGame": "Crear partida",
+  "joinGame": "Unirse a una partida",
+  "rules": "Reglas",
+  "lenguage": "EN",
+  "playerName": "Nombre del jugador",
+
+  "NAME_TAKEN": "nombre en uso",
+  "NAME_MIN_LENGTH": "minimo 2 caracteres",  
+  "NAME_MAX_LENGTH": "maximo 15 caracteres",
+  "NAME_EMPTY": "no puede estar vacio",
+
+  "newRoom": "Nueva partida",  
+  "roomName": "Nombre de la partida",
+  "roomNamePlaceholder": "El nombre es...",
+  "turnDuration": "Duracion de los turnos",	
+  "numberPlayers": "Numero de jugadores",	
+  "mirror": "Espejito", 
+  "stair": "Escalerita", 
+  "stack": "Acumular",	
+  "createRoom": "Crear partida",
+
+  "ROOM_MIN_LENGTH": "no puede estar vacio",  
+  "ROOM_MAX_LENGTH": "maximo 20 caracteres"
 }

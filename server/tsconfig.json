@@ -1,17 +1,18 @@
 {
   "compilerOptions": {
     // File Layout
-    // "rootDir": "./src",
+    "rootDir": "./src",
     "outDir": "./build/",
 
     // Environment Settings
     "module": "commonjs",
     "target": "ES6",
-    "types": [],
-    // For nodejs:
-    // "lib": ["esnext"],
-    // "types": ["node"],
-    // and npm install -D @types/node
+    "types": ["node"],
+
+    "baseUrl": "./src",
+    "paths": {
+      "@/*": ["*"]
+    },
 
     // Other Outputs
     // "sourceMap": true,
@@ -38,8 +39,7 @@
     // "noUncheckedSideEffectImports": true,
     // "moduleDetection": "force",
     // "skipLibCheck": true,
-
-    "esModuleInterop": true
-  }
+    "esModuleInterop": true,
+  },
+  "include": ["src/**/*"]
 }
-

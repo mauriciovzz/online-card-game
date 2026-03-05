@@ -4,10 +4,15 @@ import { useColorScheme } from "../hooks/useColorScheme";
 
 interface HeaderTypes {
   toggle: () => void;
-  icon: React.ForwardRefExoticComponent<IconProps & React.RefAttributes<Icon>>;
+  icon: React.ForwardRefExoticComponent<
+    IconProps & React.RefAttributes<Icon>
+  >;
 }
 
-export const ActionButton = ({ toggle, icon }: HeaderTypes) => {
+export const ActionButton = ({
+  toggle,
+  icon,
+}: HeaderTypes) => {
   const ButtonIcon = icon;
   const { colorScheme } = useColorScheme();
 

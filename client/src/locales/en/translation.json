@@ -1,3 +1,25 @@
 {
-  "appTitle": "TCG"
+  "createGame": "Create game",
+  "joinGame": "Join a game",
+  "rules": "Rules",
+  "lenguage": "ES",
+  "playerName": "Player name",
+
+  "NAME_TAKEN": "name already in use",
+  "NAME_MIN_LENGTH": "min length is 2",  
+  "NAME_MAX_LENGTH": "max length is 15",
+  "NAME_EMPTY": "can't be empty",
+
+  "newRoom": "New room",
+  "roomName": "Room name",
+  "roomNamePlaceholder": "The name is...",
+  "turnDuration": "Turn duration",	
+  "numberPlayers": "Number of players",	
+  "mirror": "Mirror", 
+  "stair": "Stair", 
+  "stack": "Stack",		
+  "createRoom": "Create room",	
+
+  "ROOM_MIN_LENGTH": "can't be empty",  
+  "ROOM_MAX_LENGTH": "max length is 20"
 }

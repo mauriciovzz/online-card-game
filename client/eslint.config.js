@@ -31,7 +31,7 @@ export default defineConfig([
           prettier: eslintPluginPrettier,
         },
         rules: {
-          'prettier/prettier': 'error', // show Prettier violations as lint errors
+          'prettier/prettier': 'error',
         },
       },
     ],
