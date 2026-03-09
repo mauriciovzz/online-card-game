@@ -17,6 +17,7 @@ import type {
   CreateRoom,
   RoomId,
   RoomRules,
+  SocketRes,
 } from "../../types/types";
 import { useTranslation } from "react-i18next";
 
@@ -82,8 +83,10 @@ export const CreateRoomWindow = ({
   useEffect(() => {
     if (!socket) return;
 
-    const handleCreated = ({ roomId }: RoomId) => {
-      onCreate(roomId);
+    const handleCreated = (res: SocketRes<RoomId>) => {
+      if (res.success) {
+        onCreate(res.data.roomId);
+      }
     };
 
     socket.on("room:created", handleCreated);
@@ -94,8 +97,6 @@ export const CreateRoomWindow = ({
   }, [form, onCreate, socket]);
 
   const submitCreateRoom = (newRoom: CreateRoom) => {
-    console.log("hey", newRoom);
-
     if (socket) {
       socket.emit("room:create", newRoom);
     }

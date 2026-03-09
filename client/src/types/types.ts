@@ -10,12 +10,6 @@ export interface ShortRoomInfo {
   };
 }
 
-export interface PlayerSlot {
-  id: string;
-  name: string;
-  color: string;
-}
-
 export interface OtherPlayerState {
   id: string;
   numCards: number;
@@ -28,15 +22,16 @@ export interface GameState {
   players: OtherPlayerState[];
 }
 
-export interface Message {
-  playerName: string;
-  playerId: string;
-  color: string;
-  date: string;
-  message: string;
-}
-
 // NEW
+
+/* PLAYERS */
+
+export interface PlayerSlot {
+  id: string;
+  name: string;
+  pos: number;
+  color: string;
+}
 
 /* ROOMS */
 
@@ -75,6 +70,10 @@ export interface UserName {
   name: string;
 }
 
+export interface AvailableRooms {
+  availableRooms: Room[];
+}
+
 interface SuccessResponse<T> {
   success: true;
   data: T;
@@ -88,3 +87,13 @@ interface ErrorResponse {
 export type SocketRes<T> =
   | SuccessResponse<T>
   | ErrorResponse;
+
+/* CHAT */
+
+export interface Message {
+  date: Date;
+  playerId: string;
+  userName: string;
+  color: string;
+  message: string;
+}

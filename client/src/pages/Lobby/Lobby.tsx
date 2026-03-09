@@ -4,20 +4,21 @@ import {
   Button,
   Group,
   CloseButton,
-  Grid,
   Box,
+  SimpleGrid,
 } from "@mantine/core";
 import { InputLabel } from "../../components/InputLabel";
 import { PageLayout } from "../../layouts/PageLayout";
 import { Chat } from "../../components/Chat";
-import { useGame } from "../../contexts/GameContext";
-import { PlayerSlotBox } from "./PlayerSlotBox";
+import { useRoom } from "../../contexts/RoomContext";
 import { ChatButton } from "../../components/chatButton";
+import LobbySlot from "./RoomSlot";
 
 export const Lobby = () => {
   const { roomId } = useParams();
   const { socket } = useSocket();
   const navigate = useNavigate();
+
   const {
     room,
     messages,
@@ -26,7 +27,9 @@ export const Lobby = () => {
     openChat,
     closeChat,
     sendMessage,
-  } = useGame();
+  } = useRoom();
+
+  const { name, capacity, players } = room;
 
   const leaveRoomLobby = () => {
     if (!socket) return;
@@ -41,37 +44,37 @@ export const Lobby = () => {
     socket.emit("room:startGame", { roomId });
   };
 
-  const isAdmin = room.roomAdmin === socket?.id;
+  const isAdmin = room.adminId === socket?.id;
 
   if (!socket) return;
 
   return (
     <PageLayout>
       <Group justify="space-between">
-        {room.roomName}
+        {name}
         <CloseButton onClick={leaveRoomLobby} />
       </Group>
 
       <Box>
         <InputLabel text="Players" />
-        <Grid w="100%" gutter="xs" columns={2}>
-          {Array.from({ length: 4 }, (_, index) => (
-            <Grid.Col key={index} span={1}>
-              <PlayerSlotBox
-                index={index}
-                player={room.players[index]}
-                capacity={room.capacity}
-              />
-            </Grid.Col>
+        <SimpleGrid cols={2} spacing="xs">
+          {[1, 2, 3, 4].map((key) => (
+            <LobbySlot
+              key={key}
+              index={key - 1}
+              availableSlot={key <= Number(capacity)}
+              player={players.find((p) => p.pos === key)}
+            />
           ))}
-        </Grid>
+        </SimpleGrid>
       </Box>
 
       <Box>
         <InputLabel text="Rules" />
-        <Group>
-          <Button flex={1}>Mirror</Button>
-          <Button flex={1}>Stair</Button>
+        <Group grow gap="xs">
+          <Button>Mirror</Button>
+          <Button>Stair</Button>
+          <Button>Stack</Button>
         </Group>
       </Box>
 

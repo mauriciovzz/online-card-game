@@ -3,14 +3,14 @@ import { Home } from "./pages/Home/Home";
 import { Rooms } from "./pages/Rooms";
 import { Game } from "./pages/Game";
 import { Lobby } from "./pages/Lobby/Lobby";
-import { GameContextLayout } from "./layouts/GameContextLayout";
+import { RoomContextLayout } from "./layouts/RoomContextLayout";
 
 export const App = () => {
   return (
     <Routes>
       <Route path="/" element={<Home />} />
       <Route path="/rooms" element={<Rooms />} />
-      <Route element={<GameContextLayout />}>
+      <Route element={<RoomContextLayout />}>
         <Route
           path="/room/:roomId/lobby"
           element={<Lobby />}

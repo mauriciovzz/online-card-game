@@ -5,14 +5,19 @@ import {
   useRef,
   useCallback,
 } from "react";
-import { GameContext } from "./GameContext";
+import { GameContext } from "./RoomContext";
 import { Spinner } from "../../components/Spinner";
-import type { Room, Message } from "../../types/types";
+import type {
+  Room,
+  Message,
+  SocketRes,
+  RoomId,
+} from "../../types/types";
 import { useNavigate, useParams } from "react-router";
 import { useSocket } from "../SocketContext";
 import { useDisclosure } from "@mantine/hooks";
 
-export const GameProvider = ({
+export const RoomProvider = ({
   children,
 }: {
   children: ReactNode;
@@ -22,9 +27,9 @@ export const GameProvider = ({
   const navigate = useNavigate();
 
   const [room, setRoom] = useState<Room | null>(null);
+
   const [messages, setMessages] = useState<Message[]>([]);
   const [unreadMessages, setUnreadMessages] = useState(0);
-
   const [chatOpened, chatHandlers] = useDisclosure(false);
 
   const chatOpenedRef = useRef(chatOpened);
@@ -33,29 +38,43 @@ export const GameProvider = ({
     chatOpenedRef.current = chatOpened;
   }, [chatOpened]);
 
-  const handleNewMessage = useCallback(
-    (newMessage: Message) => {
-      setMessages((prev) => [...prev, newMessage]);
+  const sendMessage = (message: string) => {
+    if (!socket || !room) return;
+    socket.emit("chat:sendMessage", { message });
+  };
 
-      if (!chatOpenedRef.current) {
-        setUnreadMessages((prev) => prev + 1);
+  const openChat = () => {
+    setUnreadMessages(0);
+    chatHandlers.open();
+  };
+
+  const handleNewMessage = useCallback(
+    (res: SocketRes<Message>) => {
+      if (res.success) {
+        console.log(res);
+        setMessages((prev) => [...prev, res.data]);
+
+        if (!chatOpenedRef.current) {
+          setUnreadMessages((prev) => prev + 1);
+        }
       }
     },
     []
   );
 
-  const handleUpdatedInfo = useCallback(
-    (newRoomData: Room) => {
-      setRoom(newRoomData);
-      console.log(newRoomData);
+  const handleNewInfo = useCallback(
+    (res: SocketRes<Room>) => {
+      if (res.success) {
+        setRoom(res.data);
+      }
     },
     []
   );
 
   const handleGameStarted = useCallback(
-    ({ roomId }: { roomId: string }) => {
-      if (roomId) {
-        void navigate(`/room/${roomId}/game`);
+    (res: SocketRes<RoomId>) => {
+      if (res.success) {
+        void navigate(`/room/${res.data.roomId}/game`);
       }
     },
     [navigate]
@@ -64,38 +83,24 @@ export const GameProvider = ({
   useEffect(() => {
     if (!socket) return;
 
-    socket.emit("room:getInfo", { roomId });
+    socket.emit("room:getInfo");
 
     socket.on("chat:newMessage", handleNewMessage);
-    socket.on("room:updatedInfo", handleUpdatedInfo);
+    socket.on("room:newInfo", handleNewInfo);
     socket.on("room:gameStarted", handleGameStarted);
 
     return () => {
       socket.off("chat:newMessage", handleNewMessage);
-      socket.off("room:updatedInfo", handleUpdatedInfo);
+      socket.off("room:newInfo", handleNewInfo);
       socket.off("room:gameStarted", handleGameStarted);
     };
   }, [
     handleGameStarted,
     handleNewMessage,
-    handleUpdatedInfo,
+    handleNewInfo,
     roomId,
     socket,
   ]);
-
-  const sendMessage = (message: string) => {
-    if (!socket || !room) return;
-
-    socket.emit("chat:sendMessage", {
-      roomId: room.roomId,
-      message,
-    });
-  };
-
-  const openChat = () => {
-    setUnreadMessages(0);
-    chatHandlers.open();
-  };
 
   if (!room) return <Spinner />;
 

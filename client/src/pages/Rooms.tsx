@@ -10,47 +10,46 @@ import { useSocket } from "../contexts/SocketContext";
 import { useColorScheme } from "../hooks/useColorScheme";
 import { useNavigate } from "react-router";
 import { PageLayout } from "../layouts/PageLayout";
-import type { ShortRoomInfo } from "../types/types";
+import type {
+  AvailableRooms,
+  Room,
+  RoomId,
+  SocketRes,
+} from "../types/types";
 
 export const Rooms = () => {
   const { socket } = useSocket();
   const navigate = useNavigate();
   const { themeBorderColor } = useColorScheme();
 
-  const [rooms, setRooms] = useState<ShortRoomInfo[]>([]);
+  const [rooms, setRooms] = useState<Room[]>([]);
 
   useEffect(() => {
     if (!socket) return;
 
-    socket.emit("room:getList");
+    socket.emit("room:getAvailable");
 
-    const handleList = ({
-      availableRooms,
-    }: {
-      availableRooms: ShortRoomInfo[];
-    }) => {
-      setRooms(availableRooms);
-    };
-
-    const handleJoined = ({
-      success,
-      response,
-    }: {
-      success: boolean;
-      response: string;
-    }) => {
-      if (success) {
-        void navigate(`/room/${response}/lobby`);
-      } else {
-        console.log(response);
+    const handleNewList = (
+      res: SocketRes<AvailableRooms>
+    ) => {
+      if (res.success) {
+        setRooms(res.data.availableRooms);
       }
     };
 
-    socket.on("room:list", handleList);
+    const handleJoined = (res: SocketRes<RoomId>) => {
+      if (res.success) {
+        void navigate(`/room/${res.data.roomId}/lobby`);
+      } else {
+        console.log(res.error);
+      }
+    };
+
+    socket.on("room:list", handleNewList);
     socket.on("room:joined", handleJoined);
 
     return () => {
-      socket.off("room:list", handleList);
+      socket.off("room:list", handleNewList);
       socket.off("room:joined", handleJoined);
     };
   }, [navigate, socket]);
@@ -69,25 +68,26 @@ export const Rooms = () => {
       </Group>
       {rooms.map((room) => (
         <UnstyledButton
-          key={room.roomId}
+          key={room.id}
           onClick={() => {
-            joinRoom(room.roomId);
+            joinRoom(room.id);
           }}
         >
           <Paper
-            key={room.roomName}
+            key={room.name}
             p="xs"
             bd={`1px solid ${themeBorderColor}`}
             bdrs="lg"
           >
             <Group justify="between">
-              <Text>{room.roomName}</Text>
+              <Text>{room.name}</Text>
               <Text>
-                {room.numPlayers}/{room.capacity}
+                {room.players.length}/{room.capacity}
               </Text>
               <Text>
-                {room.rules.useMirror && "mirror"} -{" "}
-                {room.rules.useStair && "stair"}
+                {room.rules.mirror && "mirror"} -{" "}
+                {room.rules.stair && "stair"} -{" "}
+                {room.rules.stack && "stack"}
               </Text>
             </Group>
           </Paper>

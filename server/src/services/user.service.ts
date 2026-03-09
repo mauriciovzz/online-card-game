@@ -1,4 +1,5 @@
 import { users } from "@/stores";
+import { SocketRes, UserName } from "@/types";
 
 const isUserNameTaken = (name: string) => {
   return [...users.values()].includes(name);
@@ -7,12 +8,6 @@ const isUserNameTaken = (name: string) => {
 const generateUserName = () => {
   return `UNO_${Math.floor((Math.random() * 900) + 100)}`;
 };
-
-const errorResponse = (error: string) => ({
-  success: false,
-  error,
-  data: null,
-});
 
 // main functions ---
 
@@ -28,23 +23,22 @@ const generateName = (userId: string) => {
   return name;
 };
 
-const updateName = (userId: string, newName: string) => {
+const updateName = (userId: string, newName: string): SocketRes<UserName> => {
   const trimmedName = newName?.trim();
 
   if (trimmedName.length < 2) 
-    return errorResponse("NAME_MIN_LENGTH");
+    return { success: false, error: "NAME_MIN_LENGTH" }
 
   if (trimmedName.length > 15) 
-    return errorResponse("NAME_MAX_LENGTH");
+    return { success: false, error: "NAME_MAX_LENGTH" }
 
   if (isUserNameTaken(trimmedName)) 
-    return errorResponse("NAME_TAKEN");
+    return { success: false, error: "NAME_TAKEN" }
 
   users.set(userId, trimmedName);
 
   return {
     success: true,
-    error: null,
     data: { name: trimmedName },
   };
 };

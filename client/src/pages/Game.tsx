@@ -9,7 +9,7 @@ import {
   Divider,
 } from "@mantine/core";
 import { Chat } from "../components/Chat";
-import { useGame } from "../contexts/GameContext";
+import { useRoom } from "../contexts/RoomContext";
 import type { GameState } from "../types/types";
 import { ChatButton } from "../components/chatButton";
 
@@ -30,7 +30,7 @@ export const Game = () => {
     openChat,
     closeChat,
     sendMessage,
-  } = useGame();
+  } = useRoom();
 
   const [countdown, setCountdown] = useState(0);
   const intervalRef = useRef<number | null>(null);
@@ -120,7 +120,7 @@ export const Game = () => {
 
   return (
     <Flex direction="column" h="100vh">
-      <Box h={50}>{room.roomName}</Box>
+      <Box h={50}>{room.name}</Box>
 
       <Divider />
 

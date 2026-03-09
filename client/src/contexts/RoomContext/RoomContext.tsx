@@ -15,11 +15,11 @@ export const GameContext = createContext<
   GameContextTypes | undefined
 >(undefined);
 
-export const useGame = () => {
+export const useRoom = () => {
   const context = useContext(GameContext);
   if (!context) {
     throw new Error(
-      "useGame must be used within a TasksProvider"
+      "useRoom must be used within a TasksProvider"
     );
   }
   return context;

@@ -109,11 +109,40 @@ export type LeaveGameRes =
       wasCurrentPlayer: boolean;
     };
 
+/* SOCKET RESPONSE */
+
+export interface RoomId {
+  roomId: string;
+}
+
+export interface UserName {
+  name: string;
+}
+
+export interface AvailableRooms {
+  availableRooms: Room[];
+}
+
+interface SuccessResponse<T> {
+  success: true;
+  data: T;
+}
+
+interface ErrorResponse {
+  success: false;
+  error: string;
+}
+
+export type SocketRes<T> =
+  | SuccessResponse<T>
+  | ErrorResponse;
+
 /* CHAT */
 
 export interface Message { 
   date: Date; 
-  username: string; 
-  CardColor: string; 
+  playerId: string;
+  userName: string; 
+  color: string; 
   message: string;
 };

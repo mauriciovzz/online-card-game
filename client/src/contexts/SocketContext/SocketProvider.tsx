@@ -2,7 +2,10 @@ import { type ReactNode, useState, useEffect } from "react";
 import { io, Socket } from "socket.io-client";
 import { SocketContext } from "./SocketContext";
 import { Spinner } from "../../components/Spinner";
-import type { UserName } from "../../types/types";
+import type {
+  SocketRes,
+  UserName,
+} from "../../types/types";
 
 export const SocketProvider = ({
   children,
@@ -17,9 +20,14 @@ export const SocketProvider = ({
 
     setSocket(newSocket);
 
-    newSocket.on("user:connected", ({ name }: UserName) => {
-      setUserName(name);
-    });
+    newSocket.on(
+      "user:connected",
+      (res: SocketRes<UserName>) => {
+        if (res.success) {
+          setUserName(res.data.name);
+        }
+      }
+    );
 
     return () => {
       newSocket.disconnect();

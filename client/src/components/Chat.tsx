@@ -13,7 +13,6 @@ import { IconSend2 } from "@tabler/icons-react";
 import type { Message } from "../types/types";
 import { useForm } from "@mantine/form";
 import { useEffect, useRef } from "react";
-import dayjs from "dayjs";
 
 interface ChatProps {
   opened: boolean;
@@ -109,33 +108,41 @@ export const Chat = ({
           onScrollPositionChange={handleScroll}
         >
           <Stack gap={3}>
-            {messages.map((m) => {
+            {messages.map((m, i) => {
               const isMine = m.playerId === currentPlayerId;
+              const isPrevMine =
+                i === 0
+                  ? isMine
+                  : messages[i - 1].playerId ===
+                    messages[i].playerId;
 
               return (
-                <Group
-                  key={m.playerId + m.date}
-                  w="100%"
-                  justify={isMine ? "right" : "left"}
+                <Stack
+                  key={`${m.playerId}-${String(m.date)}`}
+                  gap={0}
                 >
-                  <Box
-                    bd="1px solid gray"
-                    bdrs="lg"
-                    p="xs"
-                    maw="66%"
-                  >
-                    {!isMine && (
-                      <Text size="xs" c={m.color} fw={700}>
-                        {m.playerName}
-                      </Text>
-                    )}
-
-                    <Text>{m.message}</Text>
-                    <Text size="xs">
-                      {dayjs(m.date).format("hh:ss a")}
+                  {!isMine && !isPrevMine && (
+                    <Text size="xs" c={m.color} fw={700}>
+                      {m.userName}
                     </Text>
-                  </Box>
-                </Group>
+                  )}
+                  <Group
+                    w="100%"
+                    justify={isMine ? "right" : "left"}
+                  >
+                    <Box
+                      bd={`1px solid ${m.color}`}
+                      bdrs="md"
+                      p="xs"
+                      maw="66%"
+                    >
+                      <Text size="sm">{m.message}</Text>
+                      {/* <Text size="xs">
+                        {dayjs(m.date).format("hh:mm a")}
+                      </Text> */}
+                    </Box>
+                  </Group>
+                </Stack>
               );
             })}
           </Stack>

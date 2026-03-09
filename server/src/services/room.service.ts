@@ -34,6 +34,7 @@ const create = (socket: Socket, payload: CreateRoomProps) => {
   });
 
   socket.join(id);
+  socket.data.roomId = id;
 
   return id;
 };
