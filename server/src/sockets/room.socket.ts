@@ -19,7 +19,7 @@ export const roomSocket = (io: Server, socket: Socket) => {
   });
 
   socket.on("room:getAvailable", () => {
-    emit(socket, "room:list", roomService.getAvailable());
+    emit(socket, "room:newList", roomService.getAvailable());
   });
 
   socket.on("room:getInfo", () => {
@@ -48,7 +48,6 @@ export const roomSocket = (io: Server, socket: Socket) => {
     };  
 
     roomService.join(socket, room);
-
     emit(socket, "room:joined", { roomId});
 
     broadcastRoomList(io, roomService.getAvailable());

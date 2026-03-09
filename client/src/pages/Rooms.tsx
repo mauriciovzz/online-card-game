@@ -45,11 +45,11 @@ export const Rooms = () => {
       }
     };
 
-    socket.on("room:list", handleNewList);
+    socket.on("room:newList", handleNewList);
     socket.on("room:joined", handleJoined);
 
     return () => {
-      socket.off("room:list", handleNewList);
+      socket.off("room:newList", handleNewList);
       socket.off("room:joined", handleJoined);
     };
   }, [navigate, socket]);

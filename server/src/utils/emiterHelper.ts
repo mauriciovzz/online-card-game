@@ -1,5 +1,5 @@
 import { Server, Socket } from "socket.io";
-import { Room, Card, GameState, LeaveRoomRes, Message } from "@/types";
+import { Room, Card, GameState, LeaveRoomRes, Message, AvailableRooms } from "@/types";
 import { users } from "@/stores/users.store";
 import logger from "./logger";
 
@@ -52,15 +52,19 @@ export const emitMessage = (
 
 export const broadcastRoomList = (
   io: Server,
-  rooms: { availableRooms: Room[] },
+  rooms: AvailableRooms,
 ) => {
-  io.emit("room:list", rooms);
+  io.emit("room:newList", { 
+    success: true,
+    error: null,
+    data: rooms,
+  });
 };
 
 export const emitRoomLeft = (
   io: Server,
   socket: Socket,
-  availableRooms: { availableRooms: Room[] },
+  availableRooms: AvailableRooms,
   res: LeaveRoomRes,
 ) => {
   broadcastRoomList(io, availableRooms);
