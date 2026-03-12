@@ -29,7 +29,7 @@ const updateName = (userId: string, newName: string): SocketRes<UserName> => {
   if (trimmedName.length < 2) 
     return { success: false, error: "NAME_MIN_LENGTH" }
 
-  if (trimmedName.length > 15) 
+  if (trimmedName.length > 10) 
     return { success: false, error: "NAME_MAX_LENGTH" }
 
   if (isUserNameTaken(trimmedName)) 
