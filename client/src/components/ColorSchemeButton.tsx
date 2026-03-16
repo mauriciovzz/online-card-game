@@ -1,22 +1,29 @@
-import { ActionIcon } from "@mantine/core";
+import { useCallback } from "react";
 import { IconMoon, IconSun } from "@tabler/icons-react";
-import { useColorScheme } from "../hooks/useColorScheme";
+
+import { CustomActionIcon } from "./CustomActionIcon";
+
+import {
+  useMantineColorScheme,
+  useComputedColorScheme,
+} from "@mantine/core";
 
 export const ColorSchemeButton = () => {
-  const { colorScheme, toggleColorScheme } =
-    useColorScheme();
-  const ButtonIcon =
-    colorScheme === "dark" ? IconSun : IconMoon;
+  const scheme = useComputedColorScheme("light");
+  const isDark = scheme === "dark";
+
+  const { setColorScheme } = useMantineColorScheme();
+
+  const toggleColorScheme = useCallback(() => {
+    setColorScheme(isDark ? "light" : "dark");
+  }, [isDark, setColorScheme]);
+
+  const ButtonIcon = scheme === "dark" ? IconSun : IconMoon;
 
   return (
-    <ActionIcon
-      size={36}
-      variant="default"
-      aria-label="ChangeHabitStyle"
+    <CustomActionIcon
+      icon={ButtonIcon}
       onClick={toggleColorScheme}
-      color={colorScheme === "dark" ? "white" : "black"}
-    >
-      <ButtonIcon size={19} stroke={1.5} />
-    </ActionIcon>
+    />
   );
 };

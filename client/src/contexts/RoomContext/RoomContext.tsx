@@ -1,5 +1,6 @@
 import { createContext, useContext } from "react";
-import type { Message, Room } from "../../types/types";
+
+import type { Message, Room } from "@/types";
 
 interface GameContextTypes {
   room: Room;

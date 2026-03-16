@@ -1,25 +1,28 @@
 {
-  "createGame": "Create a match",
-  "joinGame": "Join a match",
+  "createMatch": "Create a match",
+  "joinMatch": "Join a match",
+  "noMatches": "No matches available",
+  "finishUpdatingName": "Finish updating your name",
   "rules": "Rules",
   "lenguage": "ES",
-  "playerName": "Player name",
+  "playerName": "Name",
+  "namePlaceholder": "The name is...",
 
   "NAME_TAKEN": "name already in use",
-  "NAME_MIN_LENGTH": "min length is 2",  
-  "NAME_MAX_LENGTH": "max length is 15",
-  "NAME_EMPTY": "can't be empty",
+  "NAME_MAX_LENGTH": "max length is 10",
+  "EMPTY": "can't be empty",
 
   "newRoom": "New room",
+  "createRoom": "Create room",	
   "roomName": "Room name",
-  "roomNamePlaceholder": "The name is...",
   "turnDuration": "Turn duration",	
   "numberPlayers": "Number of players",	
   "mirror": "Mirror", 
+  "mirrorInfo": "Play same number and color card twice.", 
   "stair": "Stair", 
+  "stairInfo": "Play number cards in increasing order, any color.",
   "stack": "Stack",		
-  "createRoom": "Create room",	
+  "stackInfo": "Action card's effects combine.",
 
-  "ROOM_MIN_LENGTH": "can't be empty",  
-  "ROOM_MAX_LENGTH": "max length is 20"
+  "ROOM_MAX_LENGTH": "max length is 15"
 }

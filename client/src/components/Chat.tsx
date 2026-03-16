@@ -1,3 +1,4 @@
+import { useEffect, useRef } from "react";
 import {
   ActionIcon,
   Modal,
@@ -9,10 +10,10 @@ import {
   Text,
   Divider,
 } from "@mantine/core";
-import { IconSend2 } from "@tabler/icons-react";
-import type { Message } from "../types/types";
 import { useForm } from "@mantine/form";
-import { useEffect, useRef } from "react";
+import { IconSend2 } from "@tabler/icons-react";
+
+import type { Message } from "@/types";
 
 interface ChatProps {
   opened: boolean;

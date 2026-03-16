@@ -1,12 +1,20 @@
-import { Flex, Loader } from "@mantine/core";
-import { PageLayout } from "../layouts/PageLayout";
+import {
+  Flex,
+  Loader,
+  useMantineTheme,
+} from "@mantine/core";
+
+import { useIsDark } from "@/hooks/useIsDark";
 
 export const Spinner = () => {
+  const isDark = useIsDark();
+  const theme = useMantineTheme();
+
+  const color = isDark ? theme.colors.dark[0] : theme.black;
+
   return (
-    <PageLayout>
-      <Flex h="100%" w="100%" align="center" justify="center">
-        <Loader color="blue" size="xl" />
-      </Flex>
-    </PageLayout>
+    <Flex h="100%" w="100%" align="center" justify="center">
+      <Loader size="sm" color={color} />
+    </Flex>
   );
 };

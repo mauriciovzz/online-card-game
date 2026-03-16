@@ -1,0 +1,72 @@
+import {
+  Group,
+  Badge,
+  useMantineTheme,
+} from "@mantine/core";
+
+import { useIsDark } from "@/hooks/useIsDark";
+
+import type { PlayerSlot } from "@/types";
+
+const colors = ["blue", "red", "yellow", "green"];
+
+interface SlotBadgeProps {
+  i: number;
+  roomCapacity: number;
+  player?: PlayerSlot;
+}
+
+export const SlotBadge = ({
+  i,
+  roomCapacity,
+  player,
+}: SlotBadgeProps) => {
+  const isDark = useIsDark();
+  const theme = useMantineTheme();
+
+  const enabled = i <= roomCapacity;
+
+  const color = enabled
+    ? colors[i - 1]
+    : isDark
+      ? theme.colors.dark[4]
+      : theme.colors.gray[3];
+
+  const variant = enabled
+    ? player
+      ? "filled"
+      : "outline"
+    : "filled";
+
+  return (
+    <Badge
+      variant={variant}
+      color={color}
+      size="sm"
+      radius="sm"
+    />
+  );
+};
+
+interface PlayersSlotsProps {
+  players: PlayerSlot[];
+  roomCapacity: number;
+}
+
+export const PlayersSlots = ({
+  players,
+  roomCapacity,
+}: PlayersSlotsProps) => {
+  return (
+    <Group w={84} gap={4}>
+      {[1, 2, 3, 4].map((i) => (
+        <SlotBadge
+          key={i}
+          i={i}
+          player={players.find((p) => p.pos === i)}
+          roomCapacity={roomCapacity}
+        />
+      ))}
+    </Group>
+  );
+};

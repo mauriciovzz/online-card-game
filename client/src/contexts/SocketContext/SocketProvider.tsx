@@ -1,44 +1,64 @@
-import { type ReactNode, useState, useEffect } from "react";
+import {
+  type ReactNode,
+  useState,
+  useEffect,
+  useRef,
+} from "react";
 import { io, Socket } from "socket.io-client";
-import { SocketContext } from "./SocketContext";
-import { Spinner } from "../../components/Spinner";
-import type {
-  SocketRes,
-  UserName,
-} from "../../types/types";
 
-export const SocketProvider = ({
-  children,
-}: {
+import { PageLayout } from "@/layouts";
+import { Spinner } from "@/components";
+import { SocketContext } from "./SocketContext";
+
+import type { SocketRes, UserName } from "@/types";
+
+const SOCKET_URL = import.meta.env.VITE_SOCKET_URL;
+
+interface Props {
   children: ReactNode;
-}) => {
-  const [socket, setSocket] = useState<Socket | null>(null);
+}
+
+export const SocketProvider = ({ children }: Props) => {
+  const socketRef = useRef<Socket | null>(null);
+
   const [userName, setUserName] = useState("");
+  const [isReady, setIsReady] = useState(false);
 
   useEffect(() => {
-    const newSocket = io("http://localhost:3003");
+    const newSocket = io(SOCKET_URL);
 
-    setSocket(newSocket);
+    socketRef.current = newSocket;
 
-    newSocket.on(
-      "user:connected",
-      (res: SocketRes<UserName>) => {
-        if (res.success) {
-          setUserName(res.data.name);
-        }
+    const handleConnected = (res: SocketRes<UserName>) => {
+      if (res.success) {
+        setUserName(res.data.name);
+        setIsReady(true);
       }
-    );
+    };
+
+    newSocket.on("user:connected", handleConnected);
 
     return () => {
+      newSocket.off("user:connected", handleConnected);
       newSocket.disconnect();
     };
   }, []);
 
-  if (userName.length === 0) return <Spinner />;
+  if (!isReady) {
+    return (
+      <PageLayout>
+        <Spinner />
+      </PageLayout>
+    );
+  }
 
   return (
     <SocketContext.Provider
-      value={{ socket, userName, setUserName }}
+      value={{
+        socket: socketRef.current,
+        userName,
+        setUserName,
+      }}
     >
       {children}
     </SocketContext.Provider>

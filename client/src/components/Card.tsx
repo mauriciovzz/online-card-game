@@ -1,8 +1,11 @@
-import { em } from "@mantine/core";
-import { useMediaQuery } from "@mantine/hooks";
+import { useIsMobile } from "@/hooks/useIsMobile";
 
-export const Card = ({ svgGroup }: { svgGroup: string }) => {
-  const isMobile = useMediaQuery(`(max-width: ${em(750)})`);
+export const Card = ({
+  svgGroup,
+}: {
+  svgGroup: string;
+}) => {
+  const isMobile = useIsMobile();
   let scale = isMobile ? 1 : 2;
 
   if (!svgGroup) return null;
@@ -10,14 +13,21 @@ export const Card = ({ svgGroup }: { svgGroup: string }) => {
   // Extract x, y from the <rect> element inside the group
   const extractCoordinates = (group: Element) => {
     const rect = group.querySelector("rect");
-    const x = rect ? parseFloat(rect.getAttribute("x") ?? "0") : 0;
-    const y = rect ? parseFloat(rect.getAttribute("y") ?? "0") : 0;
+    const x = rect
+      ? parseFloat(rect.getAttribute("x") ?? "0")
+      : 0;
+    const y = rect
+      ? parseFloat(rect.getAttribute("y") ?? "0")
+      : 0;
     return { x, y };
   };
 
   const transformSvg = (svgString: string) => {
     const parser = new DOMParser();
-    const doc = parser.parseFromString(svgString, "image/svg+xml");
+    const doc = parser.parseFromString(
+      svgString,
+      "image/svg+xml"
+    );
 
     // Get outermost <g>
     const g = doc.querySelector("g");
@@ -50,7 +60,9 @@ export const Card = ({ svgGroup }: { svgGroup: string }) => {
     <svg
       xmlns="http://www.w3.org/2000/svg"
       style={{ width: 60 * scale, height: 90 * scale }}
-      dangerouslySetInnerHTML={{ __html: transformSvg(svgGroup) }}
+      dangerouslySetInnerHTML={{
+        __html: transformSvg(svgGroup),
+      }}
     />
   );
 };

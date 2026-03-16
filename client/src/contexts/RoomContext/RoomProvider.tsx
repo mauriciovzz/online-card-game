@@ -5,17 +5,20 @@ import {
   useRef,
   useCallback,
 } from "react";
+import { useDisclosure } from "@mantine/hooks";
+import { useNavigate, useParams } from "react-router";
+
+import { useSocket } from "@/contexts/SocketContext";
+import { PageLayout } from "@/layouts";
+import { Spinner } from "@/components";
 import { GameContext } from "./RoomContext";
-import { Spinner } from "../../components/Spinner";
+
 import type {
   Room,
   Message,
   SocketRes,
   RoomId,
-} from "../../types/types";
-import { useNavigate, useParams } from "react-router";
-import { useSocket } from "../SocketContext";
-import { useDisclosure } from "@mantine/hooks";
+} from "@/types";
 
 export const RoomProvider = ({
   children,
@@ -102,7 +105,13 @@ export const RoomProvider = ({
     socket,
   ]);
 
-  if (!room) return <Spinner />;
+  if (!room) {
+    return (
+      <PageLayout>
+        <Spinner />
+      </PageLayout>
+    );
+  }
 
   return (
     <GameContext.Provider

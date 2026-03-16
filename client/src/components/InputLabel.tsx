@@ -1,5 +1,13 @@
 import { Text } from "@mantine/core";
 
-export const InputLabel = ({ text }: { text: string }) => {
-  return <Text fw={550}>{text}</Text>;
+interface Props {
+  text: string;
+  size?: string;
+}
+export const InputLabel = ({ text, size }: Props) => {
+  return (
+    <Text fw={550} size={size}>
+      {text}
+    </Text>
+  );
 };

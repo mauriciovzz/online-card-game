@@ -10,8 +10,8 @@ import {
 } from "@mantine/core";
 import { Chat } from "../components/Chat";
 import { useRoom } from "../contexts/RoomContext";
-import type { GameState } from "../types/types";
-import { ChatButton } from "../components/chatButton";
+import type { GameState } from "../types";
+import { ChatButton } from "../components/ChatButton";
 
 interface Turn {
   currentPlayerId: string;
@@ -118,6 +118,8 @@ export const Game = () => {
     socket.emit("game:endTurn", { roomId });
   };
 
+  if (!socket) return;
+
   return (
     <Flex direction="column" h="100vh">
       <Box h={50}>{room.name}</Box>
@@ -151,6 +153,7 @@ export const Game = () => {
           close={closeChat}
           messages={messages}
           sendMessage={sendMessage}
+          currentPlayerId={socket.id ?? ""}
         />
       </Box>
 

@@ -1,5 +1,5 @@
 import { Flex, Loader, Text } from "@mantine/core";
-import type { PlayerSlot } from "../../types/types";
+import type { PlayerSlot } from "../../types";
 import { IconCancel } from "@tabler/icons-react";
 
 interface LobbySlotProps {

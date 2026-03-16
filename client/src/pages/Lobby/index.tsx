@@ -11,7 +11,7 @@ import { InputLabel } from "../../components/InputLabel";
 import { PageLayout } from "../../layouts/PageLayout";
 import { Chat } from "../../components/Chat";
 import { useRoom } from "../../contexts/RoomContext";
-import { ChatButton } from "../../components/chatButton";
+import { ChatButton } from "../../components/ChatButton";
 import LobbySlot from "./RoomSlot";
 
 export const Lobby = () => {
@@ -35,7 +35,7 @@ export const Lobby = () => {
     if (!socket) return;
 
     socket.emit("room:leave", { roomId });
-    void navigate("/rooms");
+    void navigate("/");
   };
 
   const startGame = () => {
