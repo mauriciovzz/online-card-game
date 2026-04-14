@@ -1,0 +1,30 @@
+import type { ReactNode } from "react";
+import { Flex, Paper, Stack } from "@mantine/core";
+
+import { Label } from "@/components";
+import { useIsMobile } from "@/hooks/useIsMobile";
+
+interface Props {
+  text: string;
+  info: string | ReactNode;
+}
+
+export const InfoBox = ({ text, info }: Props) => {
+  const size = useIsMobile() ? 42 : 36;
+
+  return (
+    <Stack flex={1} gap={0} style={{ userSelect: "none" }}>
+      <Label text={text} />
+      <Paper h={size} withBorder bdrs="md">
+        <Flex
+          h="100%"
+          w="100%"
+          justify="center"
+          align="center"
+        >
+          {info}
+        </Flex>
+      </Paper>
+    </Stack>
+  );
+};

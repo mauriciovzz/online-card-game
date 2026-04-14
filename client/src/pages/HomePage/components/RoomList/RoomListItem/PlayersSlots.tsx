@@ -1,10 +1,6 @@
-import {
-  Group,
-  Badge,
-  useMantineTheme,
-} from "@mantine/core";
+import { Flex, Badge } from "@mantine/core";
 
-import { useIsDark } from "@/hooks/useIsDark";
+import { useThemeColor } from "@/hooks/useThemeColor";
 
 import type { PlayerSlot } from "@/types";
 
@@ -21,16 +17,11 @@ export const SlotBadge = ({
   roomCapacity,
   player,
 }: SlotBadgeProps) => {
-  const isDark = useIsDark();
-  const theme = useMantineTheme();
+  const themeColor = useThemeColor();
 
   const enabled = i <= roomCapacity;
 
-  const color = enabled
-    ? colors[i - 1]
-    : isDark
-      ? theme.colors.dark[4]
-      : theme.colors.gray[3];
+  const color = enabled ? colors[i - 1] : themeColor;
 
   const variant = enabled
     ? player
@@ -58,7 +49,7 @@ export const PlayersSlots = ({
   roomCapacity,
 }: PlayersSlotsProps) => {
   return (
-    <Group w={84} gap={4}>
+    <Flex w={84} h={20} wrap="wrap" gap={4}>
       {[1, 2, 3, 4].map((i) => (
         <SlotBadge
           key={i}
@@ -67,6 +58,6 @@ export const PlayersSlots = ({
           roomCapacity={roomCapacity}
         />
       ))}
-    </Group>
+    </Flex>
   );
 };

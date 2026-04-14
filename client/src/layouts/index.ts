@@ -1,4 +1,5 @@
-import { PageLayout } from "./PageLayout";
 import { RoomContextLayout } from "./RoomContextLayout";
+import { SpinnerLayout } from "./SpinnerLayout";
+import { MainLayout } from "./MainLayout";
 
-export { PageLayout, RoomContextLayout };
+export { RoomContextLayout, SpinnerLayout, MainLayout };

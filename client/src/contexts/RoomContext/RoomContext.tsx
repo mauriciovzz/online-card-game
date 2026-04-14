@@ -1,23 +1,20 @@
 import { createContext, useContext } from "react";
 
-import type { Message, Room } from "@/types";
+import type { Room } from "@/types";
 
-interface GameContextTypes {
+interface RoomContextTypes {
   room: Room;
-  messages: Message[];
-  unreadMessages: number;
-  chatOpened: boolean;
-  openChat: () => void;
-  closeChat: () => void;
-  sendMessage: (message: string) => void;
+  getPlayerColor: (
+    playerId: string
+  ) => { string: string; css: string } | undefined;
 }
 
-export const GameContext = createContext<
-  GameContextTypes | undefined
+export const RoomContext = createContext<
+  RoomContextTypes | undefined
 >(undefined);
 
 export const useRoom = () => {
-  const context = useContext(GameContext);
+  const context = useContext(RoomContext);
   if (!context) {
     throw new Error(
       "useRoom must be used within a TasksProvider"

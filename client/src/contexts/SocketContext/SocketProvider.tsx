@@ -6,8 +6,7 @@ import {
 } from "react";
 import { io, Socket } from "socket.io-client";
 
-import { PageLayout } from "@/layouts";
-import { Spinner } from "@/components";
+import { SpinnerLayout } from "@/layouts";
 import { SocketContext } from "./SocketContext";
 
 import type { SocketRes, UserName } from "@/types";
@@ -45,11 +44,7 @@ export const SocketProvider = ({ children }: Props) => {
   }, []);
 
   if (!isReady) {
-    return (
-      <PageLayout>
-        <Spinner />
-      </PageLayout>
-    );
+    return <SpinnerLayout />;
   }
 
   return (

@@ -1,8 +1,8 @@
 import { Group, Text, Divider } from "@mantine/core";
 
+import { SelectedRules } from "@/components";
 import { ItemButton } from "./ItemButton";
 import { PlayersSlots } from "./PlayersSlots";
-import { RulesIcons } from "./RulesIcons";
 
 import type { Room, RoomId } from "@/types";
 
@@ -28,7 +28,7 @@ export const RoomsListItem = ({
 
         <Divider orientation="vertical" />
 
-        <RulesIcons rules={room.rules} />
+        <SelectedRules rules={room.rules} isSmall />
 
         <Divider orientation="vertical" />
 

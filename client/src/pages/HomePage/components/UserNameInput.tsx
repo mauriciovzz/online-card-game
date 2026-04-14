@@ -1,5 +1,11 @@
-import { type Dispatch, type SetStateAction } from "react";
-import { Group } from "@mantine/core";
+import {
+  useCallback,
+  useRef,
+  type Dispatch,
+  type SetStateAction,
+} from "react";
+import { flushSync } from "react-dom";
+import { Group, Stack } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { useTranslation } from "react-i18next";
 import {
@@ -10,11 +16,15 @@ import {
 
 import { useSocket } from "@/contexts/SocketContext";
 import { useUpdateUserName } from "@/hooks/useUpdateUserName";
-import { CustomActionIcon, FormInput } from "@/components";
+import {
+  AppActionIcon,
+  FormInput,
+  LabelWithError,
+} from "@/components";
 
 import type { UserName } from "@/types";
 
-interface UserNameInputProps {
+interface Props {
   isEditable: boolean;
   setIsEditable: Dispatch<SetStateAction<boolean>>;
 }
@@ -22,12 +32,26 @@ interface UserNameInputProps {
 export const UserNameInput = ({
   isEditable,
   setIsEditable,
-}: UserNameInputProps) => {
-  const { socket, userName } = useSocket();
+}: Props) => {
   const { t } = useTranslation();
+  const inputRef = useRef<HTMLInputElement | null>(null);
+
+  const { socket, userName } = useSocket();
+
+  const startEditing = () => {
+    flushSync(() => {
+      setIsEditable(true);
+    });
+    inputRef.current?.focus();
+  };
+
+  const stopEditing = () => {
+    setIsEditable(false);
+    form.setFieldValue("name", userName);
+    inputRef.current?.blur();
+  };
 
   const form = useForm<UserName>({
-    mode: "uncontrolled",
     initialValues: {
       name: userName,
     },
@@ -41,56 +65,61 @@ export const UserNameInput = ({
     },
   });
 
-  const onFormError = (errorName: string) => {
-    form.setFieldError("name", t(errorName));
-  };
+  const isUnchanged = form.values.name === userName;
 
-  useUpdateUserName(setIsEditable, onFormError);
-
-  const startEditing = () => {
-    setIsEditable(true);
-  };
-
-  const stopEditing = () => {
-    setIsEditable(false);
-    form.setFieldValue("name", userName);
-  };
-
-  const handleSubmit = ({ name }: UserName) => {
-    if (!socket || userName === name) return;
+  const handleSubmit = ({ name }: typeof form.values) => {
+    if (!socket || userName.trim() === name.trim()) return;
 
     socket.emit("user:updateName", { newName: name });
   };
 
+  const onFormSuccess = useCallback(() => {
+    setIsEditable(false);
+    inputRef.current?.blur();
+  }, [setIsEditable]);
+
+  const onFormError = useCallback(
+    (errorName: string) => {
+      form.setFieldError("name", t(errorName));
+    },
+    [form, t]
+  );
+
+  useUpdateUserName(onFormSuccess, onFormError);
+
   return (
     <form onSubmit={form.onSubmit(handleSubmit)}>
       <Group gap="sm" w="100%">
-        <FormInput
-          labelText={t("playerName")}
-          errorText={form.errors.name}
-          textSize="md"
-          inputSize="sm"
-          readOnly={!isEditable}
-          form={form}
-          formKey="name"
-        />
+        <Stack gap={0} flex={1}>
+          <LabelWithError
+            text={t("playerName")}
+            error={form.errors.name}
+          />
+          <FormInput
+            ref={inputRef}
+            form={form}
+            formKey="name"
+            readOnly={!isEditable}
+          />
+        </Stack>
 
         <Group gap="sm" mt={24.8}>
           {!isEditable ? (
-            <CustomActionIcon
+            <AppActionIcon
               icon={IconEdit}
               onClick={startEditing}
             />
           ) : (
             <Group gap="sm">
-              <CustomActionIcon
+              <AppActionIcon
                 icon={IconX}
                 onClick={stopEditing}
               />
 
-              <CustomActionIcon
+              <AppActionIcon
                 icon={IconSend2}
                 type="submit"
+                disabled={!form.isValid() || isUnchanged}
               />
             </Group>
           )}

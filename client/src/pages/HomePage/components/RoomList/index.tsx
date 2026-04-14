@@ -2,7 +2,7 @@ import { Flex } from "@mantine/core";
 import { useTranslation } from "react-i18next";
 
 import { useRooms } from "@/hooks/useRooms";
-import { LabeledBox, Spinner } from "@/components";
+import { DeactivatableBox, Spinner } from "@/components";
 import { RoomsListItem } from "./RoomListItem";
 
 interface RoomListProps {
@@ -16,8 +16,7 @@ export const RoomList = ({ disabled }: RoomListProps) => {
   const noRooms = rooms.length === 0;
 
   return (
-    <LabeledBox
-      text={t("joinMatch")}
+    <DeactivatableBox
       disabledText={t("finishUpdatingName")}
       disabled={disabled}
     >
@@ -42,6 +41,6 @@ export const RoomList = ({ disabled }: RoomListProps) => {
           />
         ))
       )}
-    </LabeledBox>
+    </DeactivatableBox>
   );
 };

@@ -2,23 +2,16 @@ import {
   type ReactNode,
   useState,
   useEffect,
-  useRef,
   useCallback,
 } from "react";
-import { useDisclosure } from "@mantine/hooks";
 import { useNavigate, useParams } from "react-router";
 
+import { SpinnerLayout } from "@/layouts";
 import { useSocket } from "@/contexts/SocketContext";
-import { PageLayout } from "@/layouts";
-import { Spinner } from "@/components";
-import { GameContext } from "./RoomContext";
+import { RoomContext } from "./RoomContext";
 
-import type {
-  Room,
-  Message,
-  SocketRes,
-  RoomId,
-} from "@/types";
+import type { Room, SocketRes, RoomId } from "@/types";
+import { PLAYER_COLORS } from "@/constants";
 
 export const RoomProvider = ({
   children,
@@ -30,45 +23,15 @@ export const RoomProvider = ({
   const navigate = useNavigate();
 
   const [room, setRoom] = useState<Room | null>(null);
-
-  const [messages, setMessages] = useState<Message[]>([]);
-  const [unreadMessages, setUnreadMessages] = useState(0);
-  const [chatOpened, chatHandlers] = useDisclosure(false);
-
-  const chatOpenedRef = useRef(chatOpened);
-
-  useEffect(() => {
-    chatOpenedRef.current = chatOpened;
-  }, [chatOpened]);
-
-  const sendMessage = (message: string) => {
-    if (!socket || !room) return;
-    socket.emit("chat:sendMessage", { message });
-  };
-
-  const openChat = () => {
-    setUnreadMessages(0);
-    chatHandlers.open();
-  };
-
-  const handleNewMessage = useCallback(
-    (res: SocketRes<Message>) => {
-      if (res.success) {
-        console.log(res);
-        setMessages((prev) => [...prev, res.data]);
-
-        if (!chatOpenedRef.current) {
-          setUnreadMessages((prev) => prev + 1);
-        }
-      }
-    },
-    []
-  );
+  const [isReady, setIsReady] = useState(false);
 
   const handleNewInfo = useCallback(
     (res: SocketRes<Room>) => {
       if (res.success) {
         setRoom(res.data);
+        setTimeout(() => {
+          setIsReady(true);
+        }, 500);
       }
     },
     []
@@ -88,44 +51,38 @@ export const RoomProvider = ({
 
     socket.emit("room:getInfo");
 
-    socket.on("chat:newMessage", handleNewMessage);
     socket.on("room:newInfo", handleNewInfo);
     socket.on("room:gameStarted", handleGameStarted);
 
     return () => {
-      socket.off("chat:newMessage", handleNewMessage);
       socket.off("room:newInfo", handleNewInfo);
       socket.off("room:gameStarted", handleGameStarted);
     };
-  }, [
-    handleGameStarted,
-    handleNewMessage,
-    handleNewInfo,
-    roomId,
-    socket,
-  ]);
+  }, [handleGameStarted, handleNewInfo, roomId, socket]);
 
-  if (!room) {
-    return (
-      <PageLayout>
-        <Spinner />
-      </PageLayout>
+  const getPlayerColor = (playerId: string) => {
+    const player = room?.players.find(
+      (p) => p.id === playerId
     );
+
+    return player
+      ? PLAYER_COLORS[player.pos - 1]
+      : undefined;
+  };
+  if (!isReady) {
+    return <SpinnerLayout />;
   }
 
+  if (!room) return;
+
   return (
-    <GameContext.Provider
+    <RoomContext.Provider
       value={{
         room,
-        messages,
-        unreadMessages,
-        chatOpened,
-        openChat,
-        closeChat: chatHandlers.close,
-        sendMessage,
+        getPlayerColor,
       }}
     >
       {children}
-    </GameContext.Provider>
+    </RoomContext.Provider>
   );
 };

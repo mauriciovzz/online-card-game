@@ -26,8 +26,8 @@ const generateName = (userId: string) => {
 const updateName = (userId: string, newName: string): SocketRes<UserName> => {
   const trimmedName = newName?.trim();
 
-  if (trimmedName.length < 2) 
-    return { success: false, error: "NAME_MIN_LENGTH" }
+  if (trimmedName.length < 1) 
+    return { success: false, error: "EMPTY" }
 
   if (trimmedName.length > 10) 
     return { success: false, error: "NAME_MAX_LENGTH" }

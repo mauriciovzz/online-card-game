@@ -1,6 +1,7 @@
 {
-  "createMatch": "Create a match",
+  "createMatch": "New match",
   "joinMatch": "Join a match",
+  "return": "Return",
   "noMatches": "No matches available",
   "finishUpdatingName": "Finish updating your name",
   "rules": "Rules",
@@ -16,7 +17,7 @@
   "createRoom": "Create room",	
   "roomName": "Room name",
   "turnDuration": "Turn duration",	
-  "numberPlayers": "Number of players",	
+  "numberPlayers": "Players",	
   "mirror": "Mirror", 
   "mirrorInfo": "Play same number and color card twice.", 
   "stair": "Stair", 
@@ -24,5 +25,9 @@
   "stack": "Stack",		
   "stackInfo": "Action card's effects combine.",
 
-  "ROOM_MAX_LENGTH": "max length is 15"
+  "ROOM_MAX_LENGTH": "max length is 15",
+
+  "startGame": "Start Game",
+  "chatStart": "chat start",
+  "newMessages": "New Messages"
 }

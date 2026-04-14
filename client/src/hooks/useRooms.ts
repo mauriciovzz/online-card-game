@@ -23,7 +23,7 @@ export const useRooms = () => {
         setRooms(res.data.availableRooms);
         setTimeout(() => {
           setIsLoading(false);
-        }, 500);
+        }, 250);
       }
     },
     []

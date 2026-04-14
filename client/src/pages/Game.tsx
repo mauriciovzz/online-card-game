@@ -8,10 +8,8 @@ import {
   Group,
   Divider,
 } from "@mantine/core";
-import { Chat } from "../components/Chat";
 import { useRoom } from "../contexts/RoomContext";
 import type { GameState } from "../types";
-import { ChatButton } from "../components/ChatButton";
 
 interface Turn {
   currentPlayerId: string;

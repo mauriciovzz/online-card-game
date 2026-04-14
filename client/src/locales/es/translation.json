@@ -1,6 +1,7 @@
 {
   "createMatch": "Crear partida",
-  "joinMatch": "Unirse a una partida",
+  "joinMatch": "Nueva partida",
+  "return": "Regresar",
   "noMatches": "No hay partidas disponibles", 
   "finishUpdatingName": "Termina de actualizar tu nombre",
   "rules": "Reglas",
@@ -16,7 +17,7 @@
   "createRoom": "Crear partida",
   "roomName": "Nombre de la partida",
   "turnDuration": "Duración del turno", 
-  "numberPlayers": "Número de jugadores", 
+  "numberPlayers": "Jugadores", 
   "mirror": "Espejito", 
   "mirrorInfo": "Juega cartas que tengan el mismo número y color dos veces.", 
   "stair": "Escalerita", 
@@ -24,5 +25,9 @@
   "stack": "Stack",		
   "stackInfo": "Los efectos de las cartas de acción se combinan.",
 
-  "ROOM_MAX_LENGTH": "máximo 15 caracteres"
+  "ROOM_MAX_LENGTH": "máximo 15 caracteres",
+
+  "startGame": "Iniciar Partida",
+  "chatStart": "inicio del chat",
+  "newMessages": "Nuevos Mensajes"
 }

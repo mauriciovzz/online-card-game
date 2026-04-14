@@ -1,15 +1,11 @@
-import {
-  useEffect,
-  type Dispatch,
-  type SetStateAction,
-} from "react";
+import { useEffect } from "react";
 
 import { useSocket } from "@/contexts/SocketContext";
 
 import type { SocketRes, UserName } from "@/types";
 
 export const useUpdateUserName = (
-  setIsEditable: Dispatch<SetStateAction<boolean>>,
+  onFormSuccess: () => void,
   onFormError: (erroName: string) => void
 ) => {
   const { socket, setUserName } = useSocket();
@@ -22,7 +18,7 @@ export const useUpdateUserName = (
     ) => {
       if (res.success) {
         setUserName(res.data.name);
-        setIsEditable(false);
+        onFormSuccess();
       } else {
         onFormError(res.error);
       }
@@ -33,5 +29,5 @@ export const useUpdateUserName = (
     return () => {
       socket.off("user:nameUpdated", handleNameUpdated);
     };
-  }, [socket, setUserName, setIsEditable, onFormError]);
+  }, [socket, setUserName, onFormSuccess, onFormError]);
 };

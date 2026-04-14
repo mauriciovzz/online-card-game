@@ -1,0 +1,44 @@
+.base {
+  @mixin light {
+    background-color: var(--mantine-color-gray-1);
+  }
+
+  @mixin dark {
+    background-color: var(--mantine-color-dark-8);
+  }
+}
+
+.inner {
+  @mixin light {
+    color: var(--mantine-color-gray-7);
+  }
+
+  @mixin hover {
+    @mixin light {
+      color: black;
+    }
+
+    @mixin dark {
+      color: white;
+    }
+  }
+}
+
+.selected {
+  @mixin light {
+    background-color: white;
+    color: black;
+  }
+
+  @mixin dark {
+    background-color: var(--mantine-color-dark-5);
+    color: white;
+  }
+
+  box-shadow: var(--mantine-shadow-xs);
+}
+
+.readOnly {
+  color: var(--mantine-color-gray-7);
+  cursor: auto;
+}

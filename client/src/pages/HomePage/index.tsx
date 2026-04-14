@@ -3,17 +3,19 @@ import { Group, Title } from "@mantine/core";
 import { useToggle } from "@mantine/hooks";
 import { useTranslation } from "react-i18next";
 
-import { PageLayout } from "@/layouts";
+import { MainLayout } from "@/layouts";
 import {
-  ColorSchemeButton,
-  CustomButton,
-  LanguageButton,
+  ThemeToggler,
+  AppButton,
+  LangToggler,
+  AppActionIcon,
 } from "@/components";
 import {
   CreateMatch,
   RoomList,
   UserNameInput,
 } from "./components";
+import { IconQuestionMark } from "@tabler/icons-react";
 
 export const HomePage = () => {
   const { t } = useTranslation();
@@ -21,10 +23,10 @@ export const HomePage = () => {
   const [isNameEditable, setIsNameEditable] =
     useState(false);
   const [value, toggle] = useToggle(["list", "create"]);
-  const isList = value === "list";
+  const isListView = value === "list";
 
   return (
-    <PageLayout>
+    <MainLayout>
       <Title>Uno Online</Title>
 
       <UserNameInput
@@ -32,32 +34,31 @@ export const HomePage = () => {
         setIsEditable={setIsNameEditable}
       />
 
-      <CustomButton
-        text={isList ? t("createMatch") : t("joinMatch")}
-        disabled={isNameEditable}
-        onClick={toggle}
-      />
-
-      {isList ? (
+      {isListView ? (
         <RoomList disabled={isNameEditable} />
       ) : (
         <CreateMatch disabled={isNameEditable} />
       )}
 
       <Group gap="sm" w="100%">
-        <CustomButton
-          text={t("rules")}
+        <AppButton
+          text={isListView ? t("createMatch") : t("return")}
           expand
           disabled={isNameEditable}
+          onClick={toggle}
+        />
+
+        <AppActionIcon
+          icon={IconQuestionMark}
           onClick={() => {
             console.log("hey");
           }}
         />
 
-        <LanguageButton />
+        <LangToggler />
 
-        <ColorSchemeButton />
+        <ThemeToggler />
       </Group>
-    </PageLayout>
+    </MainLayout>
   );
 };

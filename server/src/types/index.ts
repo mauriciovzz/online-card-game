@@ -23,7 +23,7 @@ export interface PlayerSlot {
   id: string;
   name: string;
   pos: number;
-  color: string;
+  joinedAt: number;
 };
 
 export interface PlayerState extends PlayerSlot { 
@@ -140,9 +140,9 @@ export type SocketRes<T> =
 /* CHAT */
 
 export interface Message { 
-  date: Date; 
-  playerId: string;
-  userName: string; 
-  color: string; 
-  message: string;
+  id: string;
+  senderId: string;
+  senderName: string; 
+  content: string;
+  createdAt: number; 
 };

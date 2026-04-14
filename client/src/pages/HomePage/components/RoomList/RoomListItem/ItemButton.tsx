@@ -3,6 +3,7 @@ import { UnstyledButton } from "@mantine/core";
 import { useHover } from "@mantine/hooks";
 
 import { useIsDark } from "@/hooks/useIsDark";
+import { useThemeColor } from "@/hooks/useThemeColor";
 
 interface Props {
   onClick: () => void;
@@ -14,17 +15,16 @@ export const ItemButton = ({
   children,
 }: Props) => {
   const { hovered, ref } = useHover();
+
   const isDark = useIsDark();
+  const themeColor = useThemeColor();
 
   return (
     <UnstyledButton
       w="100%"
-      p={10}
+      h={54}
+      px={12}
       style={(theme) => {
-        const borderColor = isDark
-          ? theme.colors.dark[4]
-          : theme.colors.gray[3];
-
         const normalBg = isDark
           ? theme.colors.dark[6]
           : "white";
@@ -34,7 +34,7 @@ export const ItemButton = ({
           : theme.colors.gray[0];
 
         return {
-          borderBottom: `1px solid ${borderColor}`,
+          borderBottom: `1px solid ${themeColor}`,
           backgroundColor: hovered ? hoverBg : normalBg,
         };
       }}

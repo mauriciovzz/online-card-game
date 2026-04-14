@@ -1,9 +1,9 @@
 import { Socket } from "socket.io";
-import { Room, CreateRoomProps, LeaveRoomRes } from "@/types";
-import { users, rooms } from "@/stores";
 import crypto from "crypto";
 
-const colors = ["#ff5454", "#ffac00", "#54ac54", "#5454ff"];
+import { users, rooms } from "@/stores";
+
+import { Room, CreateRoomProps, LeaveRoomRes } from "@/types";
 
 const generateId = () => {
   return crypto.randomBytes(4).toString("hex").toUpperCase();
@@ -26,7 +26,7 @@ const create = (socket: Socket, payload: CreateRoomProps) => {
       id: socket.id,
       name: users.get(socket.id) ?? "",
       pos: 1,
-      color: colors[0],
+      joinedAt: new Date().getTime(),
     }],
     state: "WAITING",
     turnDuration: payload.turnDuration,
@@ -66,7 +66,7 @@ const join = (socket: Socket, room: Room) => {
     id: socket.id,
     name: users.get(socket.id) ?? "",
     pos: currentPos,
-    color: colors[currentPos - 1],
+    joinedAt: new Date().getTime(),
   });
 
   room.players.sort((a,b) => a.pos - b.pos);

@@ -30,7 +30,7 @@ export interface PlayerSlot {
   id: string;
   name: string;
   pos: number;
-  color: string;
+  joinedAt: number;
 }
 
 /* ROOMS */
@@ -59,6 +59,8 @@ export type CreateRoom = Omit<
   Room,
   "id" | "adminId" | "players" | "state"
 >;
+
+export type UpdateRoom = Omit<CreateRoom, "capacity">;
 
 /* SOCKET RESPONSE */
 
@@ -90,10 +92,26 @@ export type SocketRes<T> =
 
 /* CHAT */
 
+export type View = "lobby" | "edit";
+
 export interface Message {
-  date: Date;
+  id: string;
+  senderId: string;
+  senderName: string;
+  content: string;
+  createdAt: number;
+}
+
+export interface Typer {
+  userId: string;
+}
+
+export interface MessageCheck {
   playerId: string;
-  userName: string;
-  color: string;
-  message: string;
+  isRead: boolean;
+}
+
+export interface ReadUpdate {
+  playerId: string;
+  lastReadCreatedAt: number;
 }
