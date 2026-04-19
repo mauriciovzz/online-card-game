@@ -142,9 +142,12 @@ const handlePlayerExit = (
   io: Server,
   socket: Socket,
   roomId: string,
-  reason: "LEAVE_ROOM" | "LEAVE_GAME" | "DISCONNECT",
+  reason: "KICKED_ROOM" | "LEAVE_ROOM" | "LEAVE_GAME" | "DISCONNECT",
 ) => {
   switch (reason) {
+    case "KICKED_ROOM" :
+      logger.roomLog(roomId, `${users.get(socket.id)} kicked from the room.`);
+      break;      
     case "LEAVE_ROOM":
       logger.roomLog(roomId, `${users.get(socket.id)} left the room.`);
       break;

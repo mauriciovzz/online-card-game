@@ -1,5 +1,5 @@
-import { CreateMatch } from "./CreateMatch";
 import { RoomList } from "./RoomList";
+import { CreateRoom } from "./CreateRoom";
 import { UserNameInput } from "./UserNameInput";
 
-export { CreateMatch, RoomList, UserNameInput };
+export { RoomList, CreateRoom, UserNameInput };

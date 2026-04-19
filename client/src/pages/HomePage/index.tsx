@@ -11,7 +11,7 @@ import {
   AppActionIcon,
 } from "@/components";
 import {
-  CreateMatch,
+  CreateRoom,
   RoomList,
   UserNameInput,
 } from "./components";
@@ -37,7 +37,7 @@ export const HomePage = () => {
       {isListView ? (
         <RoomList disabled={isNameEditable} />
       ) : (
-        <CreateMatch disabled={isNameEditable} />
+        <CreateRoom disabled={isNameEditable} />
       )}
 
       <Group gap="sm" w="100%">

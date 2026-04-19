@@ -3,15 +3,16 @@ import {
   useState,
   useEffect,
   useCallback,
+  useMemo,
 } from "react";
 import { useNavigate, useParams } from "react-router";
 
+import { PLAYER_SLOTS } from "@/constants";
 import { SpinnerLayout } from "@/layouts";
 import { useSocket } from "@/contexts/SocketContext";
 import { RoomContext } from "./RoomContext";
 
 import type { Room, SocketRes, RoomId } from "@/types";
-import { PLAYER_COLORS } from "@/constants";
 
 export const RoomProvider = ({
   children,
@@ -37,6 +38,10 @@ export const RoomProvider = ({
     []
   );
 
+  const handleKicked = useCallback(() => {
+    void navigate("/");
+  }, [navigate]);
+
   const handleGameStarted = useCallback(
     (res: SocketRes<RoomId>) => {
       if (res.success) {
@@ -52,13 +57,39 @@ export const RoomProvider = ({
     socket.emit("room:getInfo");
 
     socket.on("room:newInfo", handleNewInfo);
+    socket.on("room:kicked", handleKicked);
     socket.on("room:gameStarted", handleGameStarted);
 
     return () => {
       socket.off("room:newInfo", handleNewInfo);
+      socket.off("room:kicked", handleKicked);
       socket.off("room:gameStarted", handleGameStarted);
     };
-  }, [handleGameStarted, handleNewInfo, roomId, socket]);
+  }, [
+    handleGameStarted,
+    handleKicked,
+    handleNewInfo,
+    roomId,
+    socket,
+  ]);
+
+  const isAdmin = useMemo(
+    () => socket?.id === room?.adminId,
+    [socket, room]
+  );
+
+  const leaveRoom = useCallback(() => {
+    if (!socket || !room) return;
+
+    socket.emit("room:leave", { roomId: room.id });
+    void navigate("/");
+  }, [socket, room, navigate]);
+
+  const startGame = useCallback(() => {
+    if (!socket || !room) return;
+
+    socket.emit("room:startGame", { roomId: room.id });
+  }, [socket, room]);
 
   const getPlayerColor = (playerId: string) => {
     const player = room?.players.find(
@@ -66,19 +97,21 @@ export const RoomProvider = ({
     );
 
     return player
-      ? PLAYER_COLORS[player.pos - 1]
+      ? PLAYER_SLOTS[player.pos - 1]
       : undefined;
   };
-  if (!isReady) {
+
+  if (!room || !isReady) {
     return <SpinnerLayout />;
   }
-
-  if (!room) return;
 
   return (
     <RoomContext.Provider
       value={{
         room,
+        isAdmin,
+        leaveRoom,
+        startGame,
         getPlayerColor,
       }}
     >

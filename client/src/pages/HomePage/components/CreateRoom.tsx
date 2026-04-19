@@ -1,42 +1,29 @@
-import { Flex, Stack } from "@mantine/core";
+import { Stack } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router";
 
-import { useSocket } from "@/contexts/SocketContext";
 import { useCreateRoom } from "@/hooks/useCreateRoom";
-import { useIsMobile } from "@/hooks/useIsMobile";
-import { TURN_DURATIONS } from "@/constants";
+import { ROOM_CAPACITY_OPTIONS } from "@/constants";
 import {
-  FormRuleSelector,
   AppButton,
-  FormInput,
   DeactivatableBox,
   Label,
-  LabelWithError,
   FormSegmentedControl,
+  RoomForm,
 } from "@/components";
 
-import type { CreateRoom } from "@/types";
-
-const PLAYERS_OPTIONS = [
-  { value: "2", label: "2" },
-  { value: "3", label: "3" },
-  { value: "4", label: "4" },
-];
+import type { CreateRoomProps } from "@/types";
 
 interface Props {
   disabled: boolean;
 }
 
-export const CreateMatch = ({ disabled }: Props) => {
+export const CreateRoom = ({ disabled }: Props) => {
   const navigate = useNavigate();
   const { t } = useTranslation();
 
-  const { socket } = useSocket();
-  const isMobile = useIsMobile();
-
-  const form = useForm<CreateRoom>({
+  const form = useForm<CreateRoomProps>({
     mode: "uncontrolled",
     initialValues: {
       name: "",
@@ -66,11 +53,10 @@ export const CreateMatch = ({ disabled }: Props) => {
     form.setFieldError("name", t(errorName));
   };
 
-  useCreateRoom(onFormSuccess, onFormError);
-
-  const handleSubmit = (newRoom: CreateRoom) => {
-    socket?.emit("room:create", newRoom);
-  };
+  const { handleSubmit } = useCreateRoom(
+    onFormSuccess,
+    onFormError
+  );
 
   return (
     <DeactivatableBox
@@ -86,45 +72,19 @@ export const CreateMatch = ({ disabled }: Props) => {
           flexDirection: "column",
         }}
       >
-        <Stack flex={1} gap="sm">
-          <Stack gap={0}>
-            <LabelWithError
-              text={t("roomName")}
-              size="sm"
-              error={form.errors.name}
-            />
-            <FormInput
-              form={form}
-              formKey="name"
-              blurOnEnter
-            />
-          </Stack>
-
-          <Flex
-            direction={isMobile ? "column" : "row"}
-            gap="sm"
-          >
-            <Stack gap={0} w="100%">
-              <Label text={t("turnDuration")} size="sm" />
-              <FormSegmentedControl
-                data={TURN_DURATIONS}
-                form={form}
-                formKey="turnDuration"
-              />
-            </Stack>
-
+        <RoomForm
+          form={form}
+          capacityComponent={
             <Stack gap={0} w="100%">
               <Label text={t("numberPlayers")} size="sm" />
               <FormSegmentedControl
-                data={PLAYERS_OPTIONS}
+                data={ROOM_CAPACITY_OPTIONS}
                 form={form}
                 formKey="capacity"
               />
             </Stack>
-          </Flex>
-
-          <FormRuleSelector form={form} />
-        </Stack>
+          }
+        />
 
         <AppButton
           type="submit"

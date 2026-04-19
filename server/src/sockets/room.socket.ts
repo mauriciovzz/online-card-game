@@ -1,5 +1,5 @@
 import { Server, Socket } from "socket.io";
-import { CreateRoomProps } from "@/types";
+import { CreateRoomProps, UpdateRoomProps } from "@/types";
 import { users, rooms } from "@/stores";
 import { roomService } from "@/services";
 import gameLoop from "@/loop/gameLoop";
@@ -54,6 +54,67 @@ export const roomSocket = (io: Server, socket: Socket) => {
     emitRoomInfo(io, room);
 
     logger.roomLog(roomId, `${users.get(socket.id)} [${socket.id}] joined the room.`);
+  });
+
+  socket.on("room:update", (newData: UpdateRoomProps) => {
+    const roomId = socket.data.roomId;
+    const room = rooms.get(roomId);
+
+    if (!room) {
+      emitError(socket, "room:joined", "ROOM_NOT_FOUND");
+      return;
+    };
+
+    room.name = newData.name;
+    room.turnDuration = newData.turnDuration;
+    room.rules = newData.rules;
+
+    broadcastRoomList(io, roomService.getAvailable());
+    emitRoomInfo(io, room);
+  });
+
+  socket.on("room:kickPlayer", ({ playerId }: { playerId: string }) => {
+    const kickedSocket = io.sockets.sockets.get(playerId);
+    if (!kickedSocket) return;
+
+    const roomId = kickedSocket.data.roomId;
+    const room = rooms.get(roomId);
+
+    if (!room) {
+      emitError(kickedSocket, "room:joined", "ROOM_NOT_FOUND");
+      return;
+    };
+
+    const isInRoom = room.players.some((p) => p.id === kickedSocket.id);
+
+    if (!isInRoom) {
+      emitError(kickedSocket, "room:left", "NOT_IN_ROOM");
+      return; 
+    };
+
+    gameLoop.handlePlayerExit(
+      io,
+      kickedSocket,
+      roomId,
+      "KICKED_ROOM",
+    );
+
+    kickedSocket.emit("room:kicked");
+  });
+
+  socket.on("room:updateCapacity", ({ capacity }) => {
+    const roomId = socket.data.roomId;
+    const room = rooms.get(roomId);
+
+    if (!room) {
+      emitError(socket, "room:joined", "ROOM_NOT_FOUND");
+      return;
+    };
+
+    room.capacity = capacity;
+
+    broadcastRoomList(io, roomService.getAvailable());
+    emitRoomInfo(io, room);
   });
 
   socket.on("room:leave", ({ roomId }) => {

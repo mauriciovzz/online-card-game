@@ -2,7 +2,11 @@ import { useEffect } from "react";
 
 import { useSocket } from "@/contexts/SocketContext";
 
-import type { RoomId, SocketRes } from "@/types";
+import type {
+  CreateRoom,
+  RoomId,
+  SocketRes,
+} from "@/types";
 
 export const useCreateRoom = (
   onFormSuccess: (roomId: string) => void,
@@ -27,4 +31,12 @@ export const useCreateRoom = (
       socket.off("room:created", handleCreated);
     };
   }, [onFormError, onFormSuccess, socket]);
+
+  const handleSubmit = (newRoom: CreateRoom) => {
+    socket?.emit("room:create", newRoom);
+  };
+
+  return {
+    handleSubmit,
+  };
 };

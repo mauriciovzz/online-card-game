@@ -9,11 +9,11 @@ import { AppActionIcon } from "./AppActionIcon";
 
 interface Props {
   expand: boolean;
+  onClick: () => void;
 }
 
-export const ChatButton = ({ expand }: Props) => {
-  const { chatOpened, unread, openChat, closeChat } =
-    useChat();
+export const ChatButton = ({ expand, onClick }: Props) => {
+  const { chatOpened, unread, closeChat } = useChat();
 
   return (
     <Indicator
@@ -27,7 +27,7 @@ export const ChatButton = ({ expand }: Props) => {
       <AppActionIcon
         expand={expand}
         icon={chatOpened ? IconX : IconMessageCircle}
-        onClick={chatOpened ? closeChat : openChat}
+        onClick={chatOpened ? closeChat : onClick}
       />
     </Indicator>
   );

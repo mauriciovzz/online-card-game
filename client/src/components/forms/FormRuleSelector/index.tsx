@@ -10,8 +10,8 @@ import { useTranslation } from "react-i18next";
 import type { IconProps } from "@tabler/icons-react";
 import clsx from "clsx";
 
-import { useIsMobile } from "@/hooks/useIsMobile";
 import { GAME_RULES } from "@/constants";
+import { useIsMobile } from "@/hooks/useIsMobile";
 import { Label } from "@/components";
 import { RulesPopover } from "./RulesPopover";
 import classes from "./FormRuleSelector.module.css";
@@ -79,7 +79,7 @@ export const FormRuleSelector = <T extends WithRules>({
   return (
     <Stack gap={0} flex={1}>
       <Group gap={3}>
-        <Label text={t("rules")} />
+        <Label text={t("rules")} size="sm" />
         <RulesPopover />
       </Group>
 

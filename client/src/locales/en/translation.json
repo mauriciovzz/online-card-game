@@ -28,6 +28,12 @@
   "ROOM_MAX_LENGTH": "max length is 15",
 
   "startGame": "Start Game",
+  "updateRoom": "Update room",
+  "members": "Members",
+  "saveChanges": "Save Changes",
+
+  "CAPACITY_CONFLICT": "Too many players for this limit",
+
   "chatStart": "chat start",
   "newMessages": "New Messages"
 }

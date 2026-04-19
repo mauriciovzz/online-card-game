@@ -3,7 +3,6 @@ import {
   type Dispatch,
   type SetStateAction,
 } from "react";
-import { useNavigate } from "react-router";
 import { useTranslation } from "react-i18next";
 import { Group } from "@mantine/core";
 import {
@@ -12,7 +11,7 @@ import {
   IconSettings,
 } from "@tabler/icons-react";
 
-import { useSocket } from "@/contexts/SocketContext";
+import { useChat } from "@/contexts/ChatContext";
 import {
   AppActionIcon,
   AppButton,
@@ -20,6 +19,7 @@ import {
 } from "@/components";
 
 import type { Room, View } from "@/types";
+import { useRoom } from "@/contexts/RoomContext";
 
 interface Props {
   room: Room;
@@ -32,21 +32,10 @@ export const ButtonsBar = ({
   view,
   setView,
 }: Props) => {
-  const navigate = useNavigate();
   const { t } = useTranslation();
-  const { socket } = useSocket();
-  const isAdmin = socket?.id === room.adminId;
 
-  const leaveLobby = useCallback(() => {
-    if (!socket) return;
-
-    socket.emit("room:leave", { roomId: room.id });
-    void navigate("/");
-  }, [socket, room.id, navigate]);
-
-  const startGame = useCallback(() => {
-    socket?.emit("room:startGame", { roomId: room.id });
-  }, [socket, room.id]);
+  const { leaveRoom, startGame, isAdmin } = useRoom();
+  const { openChat } = useChat();
 
   const toggleEdit = useCallback(() => {
     setView((prevView) =>
@@ -54,12 +43,19 @@ export const ButtonsBar = ({
     );
   }, [setView]);
 
+  const toggleChat = useCallback(() => {
+    setView((prevView) =>
+      prevView === "edit" ? "lobby" : prevView
+    );
+    openChat();
+  }, [openChat, setView]);
+
   return (
     <Group gap="sm">
       <AppActionIcon
         icon={IconChevronLeft}
         expand={!isAdmin}
-        onClick={leaveLobby}
+        onClick={leaveRoom}
       />
 
       {isAdmin && (
@@ -78,7 +74,7 @@ export const ButtonsBar = ({
         </>
       )}
 
-      <ChatButton expand={!isAdmin} />
+      <ChatButton expand={!isAdmin} onClick={toggleChat} />
     </Group>
   );
 };

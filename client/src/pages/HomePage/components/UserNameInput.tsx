@@ -19,7 +19,7 @@ import { useUpdateUserName } from "@/hooks/useUpdateUserName";
 import {
   AppActionIcon,
   FormInput,
-  LabelWithError,
+  Label,
 } from "@/components";
 
 import type { UserName } from "@/types";
@@ -91,7 +91,7 @@ export const UserNameInput = ({
     <form onSubmit={form.onSubmit(handleSubmit)}>
       <Group gap="sm" w="100%">
         <Stack gap={0} flex={1}>
-          <LabelWithError
+          <Label
             text={t("playerName")}
             error={form.errors.name}
           />

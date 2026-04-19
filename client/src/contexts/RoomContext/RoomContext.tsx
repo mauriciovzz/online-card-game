@@ -4,6 +4,9 @@ import type { Room } from "@/types";
 
 interface RoomContextTypes {
   room: Room;
+  isAdmin: boolean;
+  leaveRoom: () => void;
+  startGame: () => void;
   getPlayerColor: (
     playerId: string
   ) => { string: string; css: string } | undefined;

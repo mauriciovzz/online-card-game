@@ -41,26 +41,32 @@ export interface RoomRules {
   stack: boolean;
 }
 
-export interface Room {
-  id: string;
+export type RoomCapacity = "2" | "3" | "4";
+
+export interface RoomInfo {
   name: string;
   turnDuration: "30" | "60" | "90";
-  capacity: "2" | "3" | "4";
-  state: "WAITING" | "FULL" | "PLAYING";
-
-  adminId: string;
-
-  players: PlayerSlot[];
-
   rules: RoomRules;
 }
 
-export type CreateRoom = Omit<
+export interface Room extends RoomInfo {
+  id: string;
+  state: "WAITING" | "FULL" | "PLAYING";
+
+  adminId: string;
+  capacity: RoomCapacity;
+  players: PlayerSlot[];
+}
+
+export type CreateRoomProps = Omit<
   Room,
   "id" | "adminId" | "players" | "state"
 >;
 
-export type UpdateRoom = Omit<CreateRoom, "capacity">;
+export type UpdateRoomProps = Omit<
+  CreateRoomProps,
+  "capacity"
+>;
 
 /* SOCKET RESPONSE */
 

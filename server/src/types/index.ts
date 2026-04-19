@@ -43,11 +43,13 @@ export interface RoomRules {
   stack: boolean;
 }
 
+export type roomCapacity = "2" | "3" | "4";
+
 export interface Room { 
   id: string, 
   name: string, 
   turnDuration: "30" | "60" | "90"; 
-  capacity: "2" | "3" | "4"; 
+  capacity: roomCapacity; 
   state: "WAITING" | "FULL" | "PLAYING"; 
 
   adminId: string; 
@@ -58,6 +60,8 @@ export interface Room {
 }; 
 
 export type CreateRoomProps = Omit<Room, "id" | "adminId" | "players" | "state" > 
+
+export type UpdateRoomProps = Omit<CreateRoomProps, "capacity">;
 
 export type LeaveRoomRes = { type: "ROOM_DELETED"; roomId: string } | { type: "ROOM_LEFT"; room: Room };
 

@@ -1,40 +1,69 @@
-import { Stack } from "@mantine/core";
+import { useState } from "react";
+import {
+  SegmentedControl,
+  Stack,
+  Title,
+} from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { useTranslation } from "react-i18next";
-import { useNavigate } from "react-router";
 
-import { useSocket } from "@/contexts/SocketContext";
-import { useCreateRoom } from "@/hooks/useCreateRoom";
-import { TURN_DURATIONS } from "@/constants";
+import { useUpdateRoom } from "@/hooks/useUpdateRoom";
+import { useThemeColor } from "@/hooks/useThemeColor";
+import { useIsMobile } from "@/hooks/useIsMobile";
+import { ROOM_CAPACITY_OPTIONS } from "@/constants";
 import {
-  FormRuleSelector,
   AppButton,
   Label,
-  FormSegmentedControl,
-  AppBox,
+  RoomPlayers,
+  RoomForm,
 } from "@/components";
 
-import type { CreateRoom } from "@/types";
-import { useThemeColor } from "@/hooks/useThemeColor";
+import type {
+  UpdateRoomProps,
+  Room,
+  RoomCapacity,
+} from "@/types";
 
-export const EditRoom = () => {
-  const navigate = useNavigate();
+interface Props {
+  room: Room;
+  onSuccess: () => void;
+}
+
+export const EditRoom = ({ room, onSuccess }: Props) => {
   const { t } = useTranslation();
+
   const themeColor = useThemeColor();
+  const isMobile = useIsMobile();
 
-  const { socket } = useSocket();
+  const {
+    handleSubmit,
+    handleUpdateCapacity,
+    handlePlayerKick,
+  } = useUpdateRoom();
 
-  const form = useForm<CreateRoom>({
+  const [capacity, setCapacity] = useState<RoomCapacity>(
+    room.capacity
+  );
+  const [capacityError, setCapacityError] = useState("");
+
+  const onCapacityChange = (value: string) => {
+    setCapacityError("");
+
+    if (Number(value) < room.players.length) {
+      setCapacityError(t("CAPACITY_CONFLICT"));
+      return;
+    }
+
+    setCapacity(value as RoomCapacity);
+    handleUpdateCapacity(value as RoomCapacity);
+  };
+
+  const form = useForm<UpdateRoomProps>({
     mode: "uncontrolled",
     initialValues: {
-      name: "",
-      turnDuration: "30",
-      capacity: "2",
-      rules: {
-        mirror: false,
-        stair: false,
-        stack: false,
-      },
+      name: room.name,
+      turnDuration: room.turnDuration,
+      rules: room.rules,
     },
 
     validate: {
@@ -46,47 +75,63 @@ export const EditRoom = () => {
     },
   });
 
-  const onFormSuccess = (roomId: string) => {
-    void navigate(`/room/${roomId}/lobby`);
-  };
-
-  const onFormError = (errorName: string) => {
-    form.setFieldError("name", t(errorName));
-  };
-
-  useCreateRoom(onFormSuccess, onFormError);
-
-  const handleSubmit = (newRoom: CreateRoom) => {
-    socket?.emit("room:create", newRoom);
+  const onSubmit = (values: UpdateRoomProps) => {
+    handleSubmit(values);
+    setTimeout(() => {
+      onSuccess();
+    }, 50);
   };
 
   return (
-    <AppBox borderColor={themeColor}>
-      <form
-        onSubmit={form.onSubmit(handleSubmit)}
-        style={{
-          height: "100%",
-          width: "100%",
-          padding: "12px",
-          display: "flex",
-          flexDirection: "column",
-        }}
-      >
-        <Stack flex={1} gap="sm">
-          <Stack gap={0} w="100%">
-            <Label text={t("turnDuration")} size="sm" />
-            <FormSegmentedControl
-              data={TURN_DURATIONS}
-              form={form}
-              formKey="turnDuration"
-            />
-          </Stack>
+    <form
+      onSubmit={form.onSubmit(onSubmit)}
+      style={{
+        height: "100%",
+        padding: "12px",
+        display: "flex",
+        flexDirection: "column",
+        border: `1px solid ${themeColor}`,
+        borderRadius: "8px",
+      }}
+    >
+      <Stack flex={1} gap="sm">
+        <Title>{t("updateRoom")}</Title>
 
-          <FormRuleSelector form={form} />
-        </Stack>
+        <RoomForm
+          form={form}
+          capacityComponent={
+            <Stack gap={0} w="100%">
+              <Label
+                text={t("numberPlayers")}
+                size="sm"
+                error={capacityError}
+              />
+              <SegmentedControl
+                size={isMobile ? "md" : "sm"}
+                value={capacity}
+                onChange={onCapacityChange}
+                data={ROOM_CAPACITY_OPTIONS}
+              />
+            </Stack>
+          }
+          playersComponent={
+            <Stack gap={0} w="100%">
+              <Label text={t("members")} size="sm" />
+              <RoomPlayers
+                room={room}
+                isEditable
+                onKick={handlePlayerKick}
+              />
+            </Stack>
+          }
+        />
+      </Stack>
 
-        <AppButton type="submit" text="Save changes" />
-      </form>
-    </AppBox>
+      <AppButton
+        type="submit"
+        text={t("saveChanges")}
+        disabled={!form.values.name}
+      />
+    </form>
   );
 };
