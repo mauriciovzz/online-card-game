@@ -82,6 +82,10 @@ export const emitRoomLeft = (
   };
 };
 
+export const syncRoom = (io: Server, room: Room, rooms: AvailableRooms) => {
+  broadcastRoomList(io, rooms);
+  emitRoomInfo(io, room);
+}
 // game ---
 
 export const emitGameError = (

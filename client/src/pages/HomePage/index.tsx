@@ -22,6 +22,7 @@ export const HomePage = () => {
 
   const [isNameEditable, setIsNameEditable] =
     useState(false);
+
   const [value, toggle] = useToggle(["list", "create"]);
   const isListView = value === "list";
 

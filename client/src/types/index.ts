@@ -82,12 +82,12 @@ export interface AvailableRooms {
   availableRooms: Room[];
 }
 
-interface SuccessResponse<T> {
+export interface SuccessResponse<T> {
   success: true;
   data: T;
 }
 
-interface ErrorResponse {
+export interface ErrorResponse {
   success: false;
   error: string;
 }

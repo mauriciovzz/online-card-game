@@ -40,6 +40,10 @@ export const useRooms = () => {
     [navigate]
   );
 
+  const handleFull = useCallback(() => {
+    socket?.emit("room:getAvailable");
+  }, [socket]);
+
   useEffect(() => {
     if (!socket) return;
 
@@ -47,12 +51,20 @@ export const useRooms = () => {
 
     socket.on("room:newList", handleNewList);
     socket.on("room:joined", handleJoined);
+    socket.on("room:full", handleFull);
 
     return () => {
       socket.off("room:newList", handleNewList);
       socket.off("room:joined", handleJoined);
+      socket.off("room:full", handleFull);
     };
-  }, [socket, navigate, handleNewList, handleJoined]);
+  }, [
+    socket,
+    navigate,
+    handleNewList,
+    handleJoined,
+    handleFull,
+  ]);
 
   const joinRoom = (roomId: RoomId) =>
     socket?.emit("room:join", roomId);

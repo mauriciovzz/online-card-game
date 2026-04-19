@@ -12,7 +12,12 @@ import { SpinnerLayout } from "@/layouts";
 import { useSocket } from "@/contexts/SocketContext";
 import { RoomContext } from "./RoomContext";
 
-import type { Room, SocketRes, RoomId } from "@/types";
+import type {
+  Room,
+  SocketRes,
+  RoomId,
+  ErrorResponse,
+} from "@/types";
 
 export const RoomProvider = ({
   children,
@@ -38,7 +43,7 @@ export const RoomProvider = ({
     []
   );
 
-  const handleKicked = useCallback(() => {
+  const handleLeave = useCallback(() => {
     void navigate("/");
   }, [navigate]);
 
@@ -51,23 +56,37 @@ export const RoomProvider = ({
     [navigate]
   );
 
+  const handleError = useCallback(
+    (res: ErrorResponse) => {
+      switch (res.error) {
+        case "ROOM_NOT_FOUND":
+          handleLeave();
+          return;
+      }
+    },
+    [handleLeave]
+  );
+
   useEffect(() => {
     if (!socket) return;
 
     socket.emit("room:getInfo");
 
     socket.on("room:newInfo", handleNewInfo);
-    socket.on("room:kicked", handleKicked);
+    socket.on("room:leave", handleLeave);
     socket.on("room:gameStarted", handleGameStarted);
+    socket.on("room:error", handleError);
 
     return () => {
       socket.off("room:newInfo", handleNewInfo);
-      socket.off("room:kicked", handleKicked);
+      socket.off("room:leave", handleLeave);
       socket.off("room:gameStarted", handleGameStarted);
+      socket.off("room:error", handleError);
     };
   }, [
+    handleError,
     handleGameStarted,
-    handleKicked,
+    handleLeave,
     handleNewInfo,
     roomId,
     socket,

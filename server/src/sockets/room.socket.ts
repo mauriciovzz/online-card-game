@@ -1,18 +1,21 @@
 import { Server, Socket } from "socket.io";
-import { CreateRoomProps, UpdateRoomProps } from "@/types";
+
 import { users, rooms } from "@/stores";
 import { roomService } from "@/services";
 import gameLoop from "@/loop/gameLoop";
 import logger from "@/utils/logger";
-import { emitRoomInfo, emitError, broadcastRoomList, emit } from "@/utils/emiterHelper";
+import { checkRoom } from "@/utils/guards"
+import { emitError, broadcastRoomList, emit, syncRoom } from "@/utils/emiterHelper";
+
+import { CreateRoomProps, UpdateRoomProps } from "@/types";
 
 export const roomSocket = (io: Server, socket: Socket) => {
 
   socket.on("room:create", (payload: CreateRoomProps) => {
     const roomId = roomService.create(socket, payload);
   
-    broadcastRoomList(io, roomService.getAvailable()); 
     emit(socket, "room:created", { roomId });
+    broadcastRoomList(io, roomService.getAvailable()); 
 
     logger.roomLog(roomId, 'room created.');
     logger.roomLog(roomId, `${users.get(socket.id)} [${socket.id}] joined the room.`);
@@ -23,54 +26,35 @@ export const roomSocket = (io: Server, socket: Socket) => {
   });
 
   socket.on("room:getInfo", () => {
-    const roomId = socket.data.roomId;
-    const room = rooms.get(roomId)
-
-    if (!room) {
-      emitError(socket, "room:newInfo", "ROOM_NOT_FOUND");
-      return;
-    };
-
-    emit(socket, "room:newInfo", room);
+    checkRoom(socket, (room) => {
+      emit(socket, "room:newInfo", room);
+    });
   });
 
   socket.on("room:join", ({ roomId }) => {
-    const room = rooms.get(roomId);
-    
-    if (!room) {
-      emitError(socket, "room:joined", "ROOM_NOT_FOUND");
-      return;
-    };
+    checkRoom(socket, (room) => {
+      if (room.state === "FULL") {
+        emitError(socket, "room:joined", "ROOM_IS_FULL");
+        return;
+      };  
 
-    if (room.state === "FULL") {
-      emitError(socket, "room:joined", "ROOM_IS_FULL");
-      return;
-    };  
+      roomService.join(socket, room);
+      emit(socket, "room:joined", { roomId});
 
-    roomService.join(socket, room);
-    emit(socket, "room:joined", { roomId});
+      syncRoom(io, room, roomService.getAvailable());
 
-    broadcastRoomList(io, roomService.getAvailable());
-    emitRoomInfo(io, room);
-
-    logger.roomLog(roomId, `${users.get(socket.id)} [${socket.id}] joined the room.`);
+      logger.roomLog(roomId, `${users.get(socket.id)} [${socket.id}] joined the room.`);      
+    });
   });
 
   socket.on("room:update", (newData: UpdateRoomProps) => {
-    const roomId = socket.data.roomId;
-    const room = rooms.get(roomId);
+    checkRoom(socket, (room) => {
+      room.name = newData.name;
+      room.turnDuration = newData.turnDuration;
+      room.rules = newData.rules;
 
-    if (!room) {
-      emitError(socket, "room:joined", "ROOM_NOT_FOUND");
-      return;
-    };
-
-    room.name = newData.name;
-    room.turnDuration = newData.turnDuration;
-    room.rules = newData.rules;
-
-    broadcastRoomList(io, roomService.getAvailable());
-    emitRoomInfo(io, room);
+      syncRoom(io, room, roomService.getAvailable());
+    });
   });
 
   socket.on("room:kickPlayer", ({ playerId }: { playerId: string }) => {
@@ -99,45 +83,32 @@ export const roomSocket = (io: Server, socket: Socket) => {
       "KICKED_ROOM",
     );
 
-    kickedSocket.emit("room:kicked");
+    kickedSocket.emit("room:leave");
   });
 
   socket.on("room:updateCapacity", ({ capacity }) => {
-    const roomId = socket.data.roomId;
-    const room = rooms.get(roomId);
-
-    if (!room) {
-      emitError(socket, "room:joined", "ROOM_NOT_FOUND");
-      return;
-    };
-
-    room.capacity = capacity;
-
-    broadcastRoomList(io, roomService.getAvailable());
-    emitRoomInfo(io, room);
+    checkRoom(socket, (room) => {
+      room.capacity = capacity;
+      syncRoom(io, room, roomService.getAvailable());    
+    });
   });
 
   socket.on("room:leave", ({ roomId }) => {
-    const room = rooms.get(roomId);
+    checkRoom(socket, (room) => {
+      const isInRoom = room.players.some((p) => p.id === socket.id);
 
-    if (!room) {
-      emitError(socket, "room:left", "ROOM_NOT_FOUND");
-      return; 
-    };
+      if (!isInRoom) {
+        emitError(socket, "room:left", "NOT_IN_ROOM");
+        return; 
+      };
 
-    const isInRoom = room.players.some((p) => p.id === socket.id);
-
-    if (!isInRoom) {
-      emitError(socket, "room:left", "NOT_IN_ROOM");
-      return; 
-    };
-
-    gameLoop.handlePlayerExit(
-      io,
-      socket,
-      roomId,
-      "LEAVE_ROOM",
-    );
+      gameLoop.handlePlayerExit(
+        io,
+        socket,
+        roomId,
+        "LEAVE_ROOM",
+      );
+    });
   });
 
 };
