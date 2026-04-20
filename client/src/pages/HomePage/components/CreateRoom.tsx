@@ -1,7 +1,6 @@
 import { Stack } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { useTranslation } from "react-i18next";
-import { useNavigate } from "react-router";
 
 import { useCreateRoom } from "@/hooks/useCreateRoom";
 import { ROOM_CAPACITY_OPTIONS } from "@/constants";
@@ -20,8 +19,9 @@ interface Props {
 }
 
 export const CreateRoom = ({ disabled }: Props) => {
-  const navigate = useNavigate();
   const { t } = useTranslation();
+
+  const { handleSubmit } = useCreateRoom();
 
   const form = useForm<CreateRoomProps>({
     mode: "uncontrolled",
@@ -38,31 +38,17 @@ export const CreateRoom = ({ disabled }: Props) => {
 
     validate: {
       name: (value) => {
-        if (value.length < 1) return t("EMPTY");
-        if (value.length > 15) return t("ROOM_MAX_LENGTH");
+        if (value.length < 1)
+          return t("errors.common.empty");
+        if (value.length > 15)
+          return t("erros.room.maxLength");
         return null;
       },
     },
   });
 
-  const onFormSuccess = (roomId: string) => {
-    void navigate(`/room/${roomId}/lobby`);
-  };
-
-  const onFormError = (errorName: string) => {
-    form.setFieldError("name", t(errorName));
-  };
-
-  const { handleSubmit } = useCreateRoom(
-    onFormSuccess,
-    onFormError
-  );
-
   return (
-    <DeactivatableBox
-      disabledText={t("finishUpdatingName")}
-      disabled={disabled}
-    >
+    <DeactivatableBox disabled={disabled}>
       <form
         onSubmit={form.onSubmit(handleSubmit)}
         style={{
@@ -76,7 +62,10 @@ export const CreateRoom = ({ disabled }: Props) => {
           form={form}
           capacityComponent={
             <Stack gap={0} w="100%">
-              <Label text={t("numberPlayers")} size="sm" />
+              <Label
+                text={t("room.numPlayers")}
+                size="sm"
+              />
               <FormSegmentedControl
                 data={ROOM_CAPACITY_OPTIONS}
                 form={form}
@@ -88,7 +77,7 @@ export const CreateRoom = ({ disabled }: Props) => {
 
         <AppButton
           type="submit"
-          text={t("createRoom")}
+          text={t("room.create")}
           disabled={!form.values.name}
         />
       </form>

@@ -10,7 +10,10 @@ export function useSvgCards() {
       .then((res) => res.text())
       .then((text) => {
         const parser = new DOMParser();
-        const doc = parser.parseFromString(text, "image/svg+xml");
+        const doc = parser.parseFromString(
+          text,
+          "image/svg+xml"
+        );
         const groupEls = doc.querySelectorAll("g[id]");
         const map: SvgCardsMap = {};
 

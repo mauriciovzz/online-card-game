@@ -24,10 +24,11 @@ import { TypingIndicator } from "./components/TypingIndicator";
 type MsgsRef = Map<string, HTMLDivElement>;
 
 export const Chat = () => {
+  const { t } = useTranslation();
+
   const isMobile = useIsMobile();
   const themeColor = useThemeColor();
   const isDark = useIsDark();
-  const { t } = useTranslation();
 
   const { top, outerHeight, innerHeight } = useScrollHeight(
     { isMobile }
@@ -137,7 +138,7 @@ export const Chat = () => {
               bd={`1px solid ${themeColor}`}
               bdrs="md"
             >
-              {t("chatStart")}
+              {t("chat.start")}
             </Text>
           </Flex>
 
@@ -149,7 +150,7 @@ export const Chat = () => {
                 {isFirstUnread && (
                   <Divider
                     size="xs"
-                    label={t("newMessages")}
+                    label={t("chat.newMessages")}
                     labelPosition="center"
                   />
                 )}

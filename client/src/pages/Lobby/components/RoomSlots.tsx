@@ -26,12 +26,12 @@ export const RoomSlots = ({ room }: Props) => {
 
       <Group gap="sm">
         <InfoBox
-          text={t("turnDuration")}
+          text={t("room.turnDuration")}
           info={`${room.turnDuration}s`}
         />
 
         <InfoBox
-          text={t("rules")}
+          text={t("rules.title")}
           info={<SelectedRules rules={room.rules} />}
         />
       </Group>

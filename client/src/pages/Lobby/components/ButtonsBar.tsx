@@ -61,7 +61,7 @@ export const ButtonsBar = ({
       {isAdmin && (
         <>
           <AppButton
-            text={t("startGame")}
+            text={t("room.startGame")}
             expand
             disabled={room.players.length === 1}
             onClick={startGame}

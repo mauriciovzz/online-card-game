@@ -38,7 +38,7 @@ export const FormInput = <T,>({
   return (
     <TextInput
       ref={ref}
-      placeholder={t("namePlaceholder")}
+      placeholder={t("user.name.placeholder")}
       size={isMobile ? "md" : "sm"}
       radius="md"
       key={form.key(formKey)}

@@ -10,6 +10,7 @@ import { useNavigate, useParams } from "react-router";
 import { PLAYER_SLOTS } from "@/constants";
 import { SpinnerLayout } from "@/layouts";
 import { useSocket } from "@/contexts/SocketContext";
+import { useNotification } from "@/hooks/useNotfication";
 import { RoomContext } from "./RoomContext";
 
 import type {
@@ -31,13 +32,15 @@ export const RoomProvider = ({
   const [room, setRoom] = useState<Room | null>(null);
   const [isReady, setIsReady] = useState(false);
 
+  const { onError } = useNotification();
+
   const handleNewInfo = useCallback(
     (res: SocketRes<Room>) => {
       if (res.success) {
         setRoom(res.data);
         setTimeout(() => {
           setIsReady(true);
-        }, 500);
+        }, 100);
       }
     },
     []
@@ -60,11 +63,12 @@ export const RoomProvider = ({
     (res: ErrorResponse) => {
       switch (res.error) {
         case "ROOM_NOT_FOUND":
+          onError(res.error);
           handleLeave();
           return;
       }
     },
-    [handleLeave]
+    [handleLeave, onError]
   );
 
   useEffect(() => {

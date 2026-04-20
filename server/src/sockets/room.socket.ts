@@ -15,10 +15,7 @@ export const roomSocket = (io: Server, socket: Socket) => {
     const roomId = roomService.create(socket, payload);
   
     emit(socket, "room:created", { roomId });
-    broadcastRoomList(io, roomService.getAvailable()); 
-
-    logger.roomLog(roomId, 'room created.');
-    logger.roomLog(roomId, `${users.get(socket.id)} [${socket.id}] joined the room.`);
+    broadcastRoomList(io, roomService.getAvailable());
   });
 
   socket.on("room:getAvailable", () => {

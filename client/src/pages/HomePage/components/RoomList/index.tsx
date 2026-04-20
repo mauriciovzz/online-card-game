@@ -16,10 +16,7 @@ export const RoomList = ({ disabled }: RoomListProps) => {
   const noRooms = rooms.length === 0;
 
   return (
-    <DeactivatableBox
-      disabledText={t("finishUpdatingName")}
-      disabled={disabled}
-    >
+    <DeactivatableBox disabled={disabled}>
       {isLoading ? (
         <Spinner />
       ) : noRooms ? (
@@ -30,7 +27,7 @@ export const RoomList = ({ disabled }: RoomListProps) => {
           justify="center"
           fw={700}
         >
-          {t("noMatches")}
+          {t("room.empty")}
         </Flex>
       ) : (
         rooms.map((room) => (

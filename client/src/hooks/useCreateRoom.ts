@@ -1,38 +1,39 @@
-import { useEffect } from "react";
+import { useCallback, useEffect } from "react";
+import { useNavigate } from "react-router";
 
 import { useSocket } from "@/contexts/SocketContext";
 
 import type {
-  CreateRoom,
+  CreateRoomProps,
   RoomId,
   SocketRes,
 } from "@/types";
 
-export const useCreateRoom = (
-  onFormSuccess: (roomId: string) => void,
-  onFormError: (errorName: string) => void
-) => {
+export const useCreateRoom = () => {
+  const navigate = useNavigate();
+
   const { socket } = useSocket();
+
+  const handleCreated = useCallback(
+    (res: SocketRes<RoomId>) => {
+      if (res.success) {
+        void navigate(`/room/${res.data.roomId}/lobby`);
+      }
+    },
+    [navigate]
+  );
 
   useEffect(() => {
     if (!socket) return;
-
-    const handleCreated = (res: SocketRes<RoomId>) => {
-      if (res.success) {
-        onFormSuccess(res.data.roomId);
-      } else {
-        onFormError(res.error);
-      }
-    };
 
     socket.on("room:created", handleCreated);
 
     return () => {
       socket.off("room:created", handleCreated);
     };
-  }, [onFormError, onFormSuccess, socket]);
+  }, [handleCreated, socket]);
 
-  const handleSubmit = (newRoom: CreateRoom) => {
+  const handleSubmit = (newRoom: CreateRoomProps) => {
     socket?.emit("room:create", newRoom);
   };
 

@@ -35,7 +35,7 @@ export const RoomForm = <T extends UpdatableInfo>({
     <Stack flex={1} gap="sm">
       <Stack gap={0}>
         <Label
-          text={t("roomName")}
+          text={t("room.name")}
           size="sm"
           error={form.errors.name}
         />
@@ -47,7 +47,7 @@ export const RoomForm = <T extends UpdatableInfo>({
         gap="sm"
       >
         <Stack gap={0} w="100%">
-          <Label text={t("turnDuration")} size="sm" />
+          <Label text={t("room.turnDuration")} size="sm" />
           <FormSegmentedControl
             data={TURN_DURATIONS}
             form={form}

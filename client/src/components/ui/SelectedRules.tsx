@@ -38,9 +38,9 @@ export const SelectedRules = ({
       align={isSmall ? "start" : "center"}
       justify={isSmall ? "start" : "space-evenly"}
     >
-      {GAME_RULES.map(({ name, icon: Icon }, i) => (
-        <React.Fragment key={name}>
-          {renderIcon(name, Icon)}
+      {GAME_RULES.map(({ key, icon: Icon }, i) => (
+        <React.Fragment key={key}>
+          {renderIcon(key, Icon)}
           {!isSmall && i < 2 && (
             <Divider orientation="vertical" />
           )}

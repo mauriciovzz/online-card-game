@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useCallback, useEffect } from "react";
 
 import { useSocket } from "@/contexts/SocketContext";
 
@@ -10,24 +10,37 @@ export const useUpdateUserName = (
 ) => {
   const { socket, setUserName } = useSocket();
 
-  useEffect(() => {
-    if (!socket) return;
-
-    const handleNameUpdated = (
-      res: SocketRes<UserName>
-    ) => {
+  const handleNameUpdated = useCallback(
+    (res: SocketRes<UserName>) => {
       if (res.success) {
         setUserName(res.data.name);
         onFormSuccess();
       } else {
         onFormError(res.error);
       }
-    };
+    },
+    [onFormError, onFormSuccess, setUserName]
+  );
+
+  useEffect(() => {
+    if (!socket) return;
 
     socket.on("user:nameUpdated", handleNameUpdated);
 
     return () => {
       socket.off("user:nameUpdated", handleNameUpdated);
     };
-  }, [socket, setUserName, onFormSuccess, onFormError]);
+  }, [
+    socket,
+    setUserName,
+    onFormSuccess,
+    onFormError,
+    handleNameUpdated,
+  ]);
+
+  const updateUserName = (name: string) => {
+    socket?.emit("user:updateName", { newName: name });
+  };
+
+  return { updateUserName };
 };

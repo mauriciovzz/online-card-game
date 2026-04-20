@@ -20,8 +20,7 @@ import { IconQuestionMark } from "@tabler/icons-react";
 export const HomePage = () => {
   const { t } = useTranslation();
 
-  const [isNameEditable, setIsNameEditable] =
-    useState(false);
+  const [isEditable, setIsEditable] = useState(false);
 
   const [value, toggle] = useToggle(["list", "create"]);
   const isListView = value === "list";
@@ -31,21 +30,25 @@ export const HomePage = () => {
       <Title>Uno Online</Title>
 
       <UserNameInput
-        isEditable={isNameEditable}
-        setIsEditable={setIsNameEditable}
+        isEditable={isEditable}
+        setIsEditable={setIsEditable}
       />
 
       {isListView ? (
-        <RoomList disabled={isNameEditable} />
+        <RoomList disabled={isEditable} />
       ) : (
-        <CreateRoom disabled={isNameEditable} />
+        <CreateRoom disabled={isEditable} />
       )}
 
       <Group gap="sm" w="100%">
         <AppButton
-          text={isListView ? t("createMatch") : t("return")}
+          text={
+            isListView
+              ? t("room.create")
+              : t("common.return")
+          }
           expand
-          disabled={isNameEditable}
+          disabled={isEditable}
           onClick={toggle}
         />
 

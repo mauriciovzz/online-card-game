@@ -50,7 +50,7 @@ export const EditRoom = ({ room, onSuccess }: Props) => {
     setCapacityError("");
 
     if (Number(value) < room.players.length) {
-      setCapacityError(t("CAPACITY_CONFLICT"));
+      setCapacityError(t("errors.room.capacityConflict"));
       return;
     }
 
@@ -68,8 +68,10 @@ export const EditRoom = ({ room, onSuccess }: Props) => {
 
     validate: {
       name: (value) => {
-        if (value.length < 1) return t("EMPTY");
-        if (value.length > 15) return t("ROOM_MAX_LENGTH");
+        if (value.length < 1)
+          return t("errors.common.empty");
+        if (value.length > 15)
+          return t("errors.room.maxLength");
         return null;
       },
     },
@@ -95,14 +97,14 @@ export const EditRoom = ({ room, onSuccess }: Props) => {
       }}
     >
       <Stack flex={1} gap="sm">
-        <Title>{t("updateRoom")}</Title>
+        <Title>{t("room.update")}</Title>
 
         <RoomForm
           form={form}
           capacityComponent={
             <Stack gap={0} w="100%">
               <Label
-                text={t("numberPlayers")}
+                text={t("room.numPlayers")}
                 size="sm"
                 error={capacityError}
               />
@@ -116,7 +118,7 @@ export const EditRoom = ({ room, onSuccess }: Props) => {
           }
           playersComponent={
             <Stack gap={0} w="100%">
-              <Label text={t("members")} size="sm" />
+              <Label text={t("room.members")} size="sm" />
               <RoomPlayers
                 room={room}
                 isEditable
@@ -129,7 +131,7 @@ export const EditRoom = ({ room, onSuccess }: Props) => {
 
       <AppButton
         type="submit"
-        text={t("saveChanges")}
+        text={t("common.save")}
         disabled={!form.values.name}
       />
     </form>

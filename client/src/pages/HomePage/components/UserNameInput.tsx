@@ -5,9 +5,9 @@ import {
   type SetStateAction,
 } from "react";
 import { flushSync } from "react-dom";
+import { useTranslation } from "react-i18next";
 import { Group, Stack } from "@mantine/core";
 import { useForm } from "@mantine/form";
-import { useTranslation } from "react-i18next";
 import {
   IconEdit,
   IconX,
@@ -34,9 +34,56 @@ export const UserNameInput = ({
   setIsEditable,
 }: Props) => {
   const { t } = useTranslation();
-  const inputRef = useRef<HTMLInputElement | null>(null);
 
-  const { socket, userName } = useSocket();
+  const { userName } = useSocket();
+
+  const form = useForm<UserName>({
+    initialValues: {
+      name: userName,
+    },
+
+    validate: {
+      name: (value) => {
+        if (value.length < 1)
+          return t("errors.common.empty");
+        if (value.length > 10)
+          return t("errors.name.maxLength");
+        return null;
+      },
+    },
+  });
+
+  const onFormSuccess = useCallback(() => {
+    setIsEditable(false);
+    inputRef.current?.blur();
+  }, [setIsEditable]);
+
+  const onFormError = useCallback(
+    (errorName: string) => {
+      switch (errorName) {
+        case "NAME_TAKEN":
+          form.setFieldError(
+            "name",
+            t("errors.name.taken")
+          );
+          break;
+      }
+    },
+    [form, t]
+  );
+
+  const { updateUserName } = useUpdateUserName(
+    onFormSuccess,
+    onFormError
+  );
+
+  const handleSubmit = ({ name }: UserName) => {
+    if (userName.trim() === name.trim()) return;
+
+    updateUserName(name);
+  };
+
+  const inputRef = useRef<HTMLInputElement | null>(null);
 
   const startEditing = () => {
     flushSync(() => {
@@ -51,48 +98,14 @@ export const UserNameInput = ({
     inputRef.current?.blur();
   };
 
-  const form = useForm<UserName>({
-    initialValues: {
-      name: userName,
-    },
-
-    validate: {
-      name: (value) => {
-        if (value.length < 1) return t("EMPTY");
-        if (value.length > 10) return t("NAME_MAX_LENGTH");
-        return null;
-      },
-    },
-  });
-
   const isUnchanged = form.values.name === userName;
-
-  const handleSubmit = ({ name }: typeof form.values) => {
-    if (!socket || userName.trim() === name.trim()) return;
-
-    socket.emit("user:updateName", { newName: name });
-  };
-
-  const onFormSuccess = useCallback(() => {
-    setIsEditable(false);
-    inputRef.current?.blur();
-  }, [setIsEditable]);
-
-  const onFormError = useCallback(
-    (errorName: string) => {
-      form.setFieldError("name", t(errorName));
-    },
-    [form, t]
-  );
-
-  useUpdateUserName(onFormSuccess, onFormError);
 
   return (
     <form onSubmit={form.onSubmit(handleSubmit)}>
       <Group gap="sm" w="100%">
         <Stack gap={0} flex={1}>
           <Label
-            text={t("playerName")}
+            text={t("user.name.label")}
             error={form.errors.name}
           />
           <FormInput

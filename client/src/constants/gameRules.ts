@@ -8,27 +8,31 @@ import {
 import type { RoomRules } from "@/types";
 
 export const GAME_RULES: {
-  name: keyof RoomRules;
-  borderRadius: string;
+  key: keyof RoomRules;
+  name: string;
+  description: string;
   icon: React.ComponentType<IconProps>;
-  info: string;
+  borderRadius: string;
 }[] = [
   {
-    name: "mirror",
-    borderRadius: "4px 0 0 4px",
+    key: "mirror",
+    name: "rules.mirror.title",
+    description: "rules.mirror.description",
     icon: IconFlipVertical,
-    info: "mirrorInfo",
+    borderRadius: "4px 0 0 4px",
   },
   {
-    name: "stair",
-    borderRadius: "0 0 0 0",
+    key: "stair",
+    name: "rules.stair.title",
+    description: "rules.stair.description",
     icon: IconStairs,
-    info: "stairInfo",
+    borderRadius: "0 0 0 0",
   },
   {
-    name: "stack",
-    borderRadius: "0 4px 4px 0",
+    key: "stack",
+    name: "rules.stack.title",
+    description: "rules.stack.description",
     icon: IconStack2,
-    info: "stackInfo",
+    borderRadius: "0 4px 4px 0",
   },
 ];

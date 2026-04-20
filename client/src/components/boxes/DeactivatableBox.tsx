@@ -2,9 +2,14 @@ import { Flex, Stack, Text } from "@mantine/core";
 
 import { useIsDark } from "@/hooks/useIsDark";
 import { useThemeColor } from "@/hooks/useThemeColor";
+import { useTranslation } from "react-i18next";
 
-const DisabledOverlay = ({ text }: { text: string }) => {
-  const isDark = useIsDark();
+const DisabledOverlay = ({
+  isDark,
+}: {
+  isDark: boolean;
+}) => {
+  const { t } = useTranslation();
 
   return (
     <Flex
@@ -30,20 +35,18 @@ const DisabledOverlay = ({ text }: { text: string }) => {
             : theme.colors.gray[5],
         })}
       >
-        {text}
+        {t("user.name.finishUpdate")}
       </Text>
     </Flex>
   );
 };
 
 interface Props {
-  disabledText: string;
   disabled: boolean;
   children: React.ReactNode;
 }
 
 export const DeactivatableBox = ({
-  disabledText,
   disabled,
   children,
 }: Props) => {
@@ -72,7 +75,7 @@ export const DeactivatableBox = ({
     >
       {children}
 
-      {disabled && <DisabledOverlay text={disabledText} />}
+      {disabled && <DisabledOverlay isDark={isDark} />}
     </Stack>
   );
 };

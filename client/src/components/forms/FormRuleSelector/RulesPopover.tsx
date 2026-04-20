@@ -8,41 +8,16 @@ import {
   useMantineTheme,
 } from "@mantine/core";
 import { useTranslation } from "react-i18next";
-import {
-  IconInfoCircle,
-  type IconProps,
-} from "@tabler/icons-react";
+import { IconInfoCircle } from "@tabler/icons-react";
 
 import { useIsMobile } from "@/hooks/useIsMobile";
 import { GAME_RULES } from "@/constants";
-
-interface Props {
-  name: string;
-  icon: React.ComponentType<IconProps>;
-  info: string;
-}
-
-const RuleLabel = ({ name, icon: Icon, info }: Props) => {
-  const isMobile = useIsMobile();
-
-  return (
-    <Group gap={10}>
-      <Icon size={30} stroke={1} />
-      <Stack gap={0}>
-        <Text size="sm">{name}</Text>
-
-        <Text size="xs" maw={isMobile ? 215 : ""}>
-          {info}
-        </Text>
-      </Stack>
-    </Group>
-  );
-};
 
 export const RulesPopover = () => {
   const theme = useMantineTheme();
   const { t } = useTranslation();
 
+  const isMobile = useIsMobile();
   const isDark = useIsDark();
 
   return (
@@ -61,14 +36,20 @@ export const RulesPopover = () => {
 
       <Popover.Dropdown>
         <Stack gap="sm">
-          {GAME_RULES.map(({ name, icon, info }) => (
-            <RuleLabel
-              key={name}
-              name={t(name)}
-              icon={icon}
-              info={t(info)}
-            />
-          ))}
+          {GAME_RULES.map(
+            ({ key, name, description, icon: Icon }) => (
+              <Group key={key} gap={10}>
+                <Icon size={30} stroke={1} />
+                <Stack gap={0}>
+                  <Text size="sm">{t(name)}</Text>
+
+                  <Text size="xs" maw={isMobile ? 215 : ""}>
+                    {t(description)}
+                  </Text>
+                </Stack>
+              </Group>
+            )
+          )}
         </Stack>
       </Popover.Dropdown>
     </Popover>

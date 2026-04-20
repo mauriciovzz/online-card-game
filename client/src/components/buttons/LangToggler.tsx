@@ -16,7 +16,7 @@ export const LangToggler = () => {
 
   return (
     <AppActionIcon
-      icon={t("lenguage")}
+      icon={t("common.lang")}
       onClick={toggleLenguage}
     />
   );

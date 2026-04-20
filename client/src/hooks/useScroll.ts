@@ -29,7 +29,13 @@ export const useScroll = ({
   myId,
   threshold = 150,
 }: Params) => {
-  const [atBottom, isAtBottom] = useState(true);
+  const [atBottom, setAtBottom] = useState(true);
+
+  const atBottomRef = useRef(atBottom);
+
+  useEffect(() => {
+    atBottomRef.current = atBottom;
+  }, [atBottom]);
 
   // track scroll position -----------
   const handleScroll = () => {
@@ -40,7 +46,7 @@ export const useScroll = ({
 
     const { scrollHeight, clientHeight, scrollTop } = el;
 
-    isAtBottom(
+    setAtBottom(
       scrollHeight - clientHeight <= scrollTop + threshold
     );
   };
@@ -152,6 +158,7 @@ export const useScroll = ({
   }, [chatOpened]);
 
   // handle auto scroll to bottom -----------
+
   useEffect(() => {
     if (!chatOpened) return;
     if (messages.length === 0) return;
@@ -160,7 +167,7 @@ export const useScroll = ({
     const lastMsg = messages[messages.length - 1];
     const isMine = lastMsg.senderId === myId;
 
-    if (isMine || atBottom) {
+    if (isMine || atBottomRef.current) {
       requestAnimationFrame(() => {
         scrollToBottom();
       });

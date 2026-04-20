@@ -79,7 +79,7 @@ export const FormRuleSelector = <T extends WithRules>({
   return (
     <Stack gap={0} flex={1}>
       <Group gap={3}>
-        <Label text={t("rules")} size="sm" />
+        <Label text={t("rules.title")} size="sm" />
         <RulesPopover />
       </Group>
 
@@ -91,15 +91,15 @@ export const FormRuleSelector = <T extends WithRules>({
         gap={0}
         className={classes.base}
       >
-        {GAME_RULES.map(({ name, borderRadius, icon }) => (
+        {GAME_RULES.map(({ key, borderRadius, icon }) => (
           <RuleButton
-            key={name}
+            key={key}
             icon={icon}
             borderRadius={borderRadius}
-            selected={form.values.rules[name]}
+            selected={form.values.rules[key]}
             readOnly={readOnly}
             onClick={() => {
-              toggleRule(name);
+              toggleRule(key);
             }}
           />
         ))}
