@@ -1,19 +1,12 @@
 import type { ReactNode } from "react";
-import {
-  notifications,
-  type NotificationData,
-} from "@mantine/notifications";
+import { notifications } from "@mantine/notifications";
 import { useTranslation } from "react-i18next";
 
 const notificationProps: {
   message: ReactNode;
-  position: NotificationData["position"];
-  autoClose: number;
   withBorder: boolean;
 } = {
   message: undefined,
-  position: "bottom-center",
-  autoClose: 4000,
   withBorder: true,
 };
 
@@ -22,7 +15,7 @@ export const useNotification = () => {
 
   const onSuccess = (msg: string) => {
     notifications.show({
-      title: msg,
+      title: t(msg),
       color: "green",
       ...notificationProps,
     });

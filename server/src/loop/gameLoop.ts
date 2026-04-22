@@ -2,7 +2,7 @@ import { Server, Socket } from "socket.io";
 import { Room, ParsedCard, Game, Turn } from "@/types";
 import { users, rooms, games, timers, turns } from "@/stores";
 import { roomService, gameService } from "@/services";
-import { emitGameLeft, emitGameState, emitRoomLeft, emitSocketHand } from "@/utils/emiterHelper";
+import { broadcastRoomList, emitGameLeft, emitGameState, emitRoomInfo, emitSocketHand } from "@/utils/emiterHelper";
 import deckHelper from "@/utils/deckHelper";
 import logger from "@/utils/logger";
 
@@ -60,7 +60,7 @@ const winGame = (io: Server, room: Room, winnerId: string) => {
   io.to(room.id).emit("room:updatedInfo", room);
 
   if (!isRoomFull) {
-    io.emit("room:list", { availableRooms: roomService.getAvailable });
+    broadcastRoomList(io, roomService.getAvailable());
   };
 
   return;
@@ -141,33 +141,22 @@ const playCard = (
 const handlePlayerExit = (
   io: Server,
   socket: Socket,
-  roomId: string,
-  reason: "KICKED_ROOM" | "LEAVE_ROOM" | "LEAVE_GAME" | "DISCONNECT",
 ) => {
-  switch (reason) {
-    case "KICKED_ROOM" :
-      logger.roomLog(roomId, `${users.get(socket.id)} kicked from the room.`);
-      break;      
-    case "LEAVE_ROOM":
-      logger.roomLog(roomId, `${users.get(socket.id)} left the room.`);
-      break;
-    case "LEAVE_GAME":
-      logger.roomLog(roomId, `${users.get(socket.id)} left the game.`);
-      break;
-    case "DISCONNECT":
-      logger.socketLog(socket.id, `${users.get(socket.id)} disconnected.`);
-      break;
-  };
+  const roomId = socket.data.roomId;
 
   const room = rooms.get(roomId);
   if (!room) return;
 
   const game = games.get(roomId);
 
-  const roomRes = roomService.leave(socket, room);
+  const roomDeleted = roomService.leave(socket, room);
 
   if (!game) {
-    emitRoomLeft(io, socket, roomService.getAvailable(), roomRes);
+    broadcastRoomList(io, roomService.getAvailable());
+
+    if (!roomDeleted)
+      emitRoomInfo(io, room);
+    
     return;
   };
 

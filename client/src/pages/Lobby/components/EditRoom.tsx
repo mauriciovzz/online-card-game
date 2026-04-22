@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import {
   SegmentedControl,
   Stack,
@@ -35,29 +35,7 @@ export const EditRoom = ({ room, onSuccess }: Props) => {
   const themeColor = useThemeColor();
   const isMobile = useIsMobile();
 
-  const {
-    handleSubmit,
-    handleUpdateCapacity,
-    handlePlayerKick,
-  } = useUpdateRoom();
-
-  const [capacity, setCapacity] = useState<RoomCapacity>(
-    room.capacity
-  );
-  const [capacityError, setCapacityError] = useState("");
-
-  const onCapacityChange = (value: string) => {
-    setCapacityError("");
-
-    if (Number(value) < room.players.length) {
-      setCapacityError(t("errors.room.capacityConflict"));
-      return;
-    }
-
-    setCapacity(value as RoomCapacity);
-    handleUpdateCapacity(value as RoomCapacity);
-  };
-
+  // update form data ----------
   const form = useForm<UpdateRoomProps>({
     mode: "uncontrolled",
     initialValues: {
@@ -77,16 +55,71 @@ export const EditRoom = ({ room, onSuccess }: Props) => {
     },
   });
 
-  const onSubmit = (values: UpdateRoomProps) => {
-    handleSubmit(values);
-    setTimeout(() => {
-      onSuccess();
-    }, 50);
+  const onFormError = useCallback(
+    (errorName: string) => {
+      const map: Record<string, string> = {
+        NAME_EMPTY: "errors.name.empty",
+        NAME_MAX_LENGTH: "errors.room.maxLength",
+      };
+
+      form.setFieldError("name", t(map[errorName]));
+    },
+    [form, t]
+  );
+
+  // update capacity ----------
+  const [capacity, setCapacity] = useState(room.capacity);
+  const [capacityError, setCapacityError] = useState("");
+
+  const onCapacityChange = (value: RoomCapacity) => {
+    setCapacityError("");
+
+    if (Number(value) < room.players.length) {
+      setCapacityError(t("errors.room.capacityConflict"));
+      return;
+    }
+
+    setCapacity(value);
+    updateCapacity(value);
   };
+
+  const onCapacityError = useCallback(
+    (errorName: string) => {
+      const map: Record<string, string> = {
+        CAPACITY_CONFLICT: "errors.room.capacityConflict",
+      };
+
+      setCapacityError(t(map[errorName]));
+    },
+    [t]
+  );
+
+  // kick players out ----------
+  const [kickError, setKickError] = useState("");
+
+  const onKickError = useCallback(
+    (errorName: string) => {
+      const map: Record<string, string> = {
+        PLAYER_NOT_FOUND: "errors.room.playerNotFound",
+      };
+
+      setKickError(t(map[errorName]));
+    },
+    [t]
+  );
+
+  // hook -----------
+  const { updateRoom, updateCapacity, kickPlayerOut } =
+    useUpdateRoom({
+      onSuccess,
+      onFormError,
+      onCapacityError,
+      onKickError,
+    });
 
   return (
     <form
-      onSubmit={form.onSubmit(onSubmit)}
+      onSubmit={form.onSubmit(updateRoom)}
       style={{
         height: "100%",
         padding: "12px",
@@ -118,11 +151,15 @@ export const EditRoom = ({ room, onSuccess }: Props) => {
           }
           playersComponent={
             <Stack gap={0} w="100%">
-              <Label text={t("room.members")} size="sm" />
+              <Label
+                text={t("room.members")}
+                size="sm"
+                error={kickError}
+              />
               <RoomPlayers
                 room={room}
                 isEditable
-                onKick={handlePlayerKick}
+                onKick={kickPlayerOut}
               />
             </Stack>
           }

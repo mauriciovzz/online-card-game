@@ -1,28 +1,37 @@
 import { Server, Socket } from "socket.io";
+
+import { users } from "@/stores";
 import gameLoop from "@/loop/gameLoop";
 import { userService } from "@/services";
-import { users } from "@/stores";
-import logger from "@/utils/logger";
-import { emit, emitError } from "@/utils/emiterHelper";
+import { emit } from "@/utils/emiterHelper";
+
+import { SocketRes, UserName } from "@/types";
 
 export const userSocket = (io: Server, socket: Socket) => {
 
   let name = userService.generateName(socket.id);
   emit(socket, "user:connected", { name });
-  logger.socketLog(socket.id, `new player ${name}.`);
 
-  socket.on("user:updateName", ({ newName }: { newName: string}) => {
+  socket.on(
+    "user:updateName", 
+    (
+      { newName }: { newName: string}, 
+      callback: (res: SocketRes<UserName>) => void
+    ) => {
     const res = userService.updateName(socket.id, newName);
 
     if (res.success) {
-      logger.socketLog(socket.id, `name changed from '${name}' to '${newName}'.`)
       name = newName;
 
-      emit(socket, "user:nameUpdated", res.data)
+      callback({
+        success: true,
+        data: res.data,
+      });
     } else {
-      logger.socketLog(socket.id, `name change error: "${res.error}".`)
-
-      emitError(socket, "user:nameUpdated", res.error)
+      callback({
+        success: false,
+        error: res.error,
+      });    
     }
   });
 
@@ -30,15 +39,8 @@ export const userSocket = (io: Server, socket: Socket) => {
     const roomId = socket.data.roomId;
     
     if (roomId) {
-      gameLoop.handlePlayerExit(
-        io,
-        socket,
-        roomId,
-        "DISCONNECT",
-      );
-    } else {
-      logger.socketLog(socket.id, `${name} disconnected.`);
-    };
+      gameLoop.handlePlayerExit(io, socket);
+    }
 
     users.delete(socket.id);
   });

@@ -15,7 +15,7 @@ export const MainLayout = ({
       h="100vh"
       justify="center"
       align="center"
-      p="lg"
+      p="md"
     >
       <Stack
         h="100%"

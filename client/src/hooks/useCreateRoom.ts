@@ -1,4 +1,3 @@
-import { useCallback, useEffect } from "react";
 import { useNavigate } from "react-router";
 
 import { useSocket } from "@/contexts/SocketContext";
@@ -9,35 +8,30 @@ import type {
   SocketRes,
 } from "@/types";
 
-export const useCreateRoom = () => {
+interface Props {
+  onFormError: (errorMsg: string) => void;
+}
+
+export const useCreateRoom = ({ onFormError }: Props) => {
   const navigate = useNavigate();
 
   const { socket } = useSocket();
 
-  const handleCreated = useCallback(
-    (res: SocketRes<RoomId>) => {
-      if (res.success) {
-        void navigate(`/room/${res.data.roomId}/lobby`);
+  const createRoom = (newRoom: CreateRoomProps) => {
+    socket?.emit(
+      "room:create",
+      newRoom,
+      (res: SocketRes<RoomId>) => {
+        if (res.success) {
+          void navigate(`/room/${res.data.roomId}/lobby`);
+        } else {
+          onFormError(res.error);
+        }
       }
-    },
-    [navigate]
-  );
-
-  useEffect(() => {
-    if (!socket) return;
-
-    socket.on("room:created", handleCreated);
-
-    return () => {
-      socket.off("room:created", handleCreated);
-    };
-  }, [handleCreated, socket]);
-
-  const handleSubmit = (newRoom: CreateRoomProps) => {
-    socket?.emit("room:create", newRoom);
+    );
   };
 
   return {
-    handleSubmit,
+    createRoom,
   };
 };

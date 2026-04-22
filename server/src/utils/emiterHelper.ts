@@ -1,14 +1,13 @@
 import { Server, Socket } from "socket.io";
-import { Room, Card, GameState, LeaveRoomRes, Message, AvailableRooms } from "@/types";
+import { Room, Card, GameState, Message, AvailableRooms } from "@/types";
 import { users } from "@/stores/users.store";
-import logger from "./logger";
 
 export const emit = <T,>(
   socket: Socket,
-  to: string,
+  event: string,
   data: T, 
 ) => {
-    socket.emit(to, { 
+    socket.emit(event, { 
       success: true,
       error: null,
       data,
@@ -31,7 +30,7 @@ export const emitRoomInfo = (
   io: Server,
   room: Room,
 ) => {
-  io.to(room.id).emit("room:newInfo", {
+  io.to(room.id).emit("room:currentInfo", {
     success: true,
     error: null,
     data: room,
@@ -54,38 +53,18 @@ export const broadcastRoomList = (
   io: Server,
   rooms: AvailableRooms,
 ) => {
-  io.emit("room:newList", { 
+  io.emit("room:availableRooms", { 
     success: true,
     error: null,
     data: rooms,
   });
 };
 
-export const emitRoomLeft = (
-  io: Server,
-  socket: Socket,
-  availableRooms: AvailableRooms,
-  res: LeaveRoomRes,
-) => {
-  broadcastRoomList(io, availableRooms);
-
-  switch(res.type) {
-    case "ROOM_DELETED":
-      logger.roomLog(res.roomId,`${users.get(socket.id)} [${socket.id}] left the room.`);
-      logger.roomLog(res.roomId, `room was deleted.`);
-      break;
-    case "ROOM_LEFT":  
-      emitRoomInfo(io, res.room);
-
-      logger.roomLog(res.room.id, `${users.get(socket.id)} [${socket.id}] left the room.`);
-      break;
-  };
-};
-
 export const syncRoom = (io: Server, room: Room, rooms: AvailableRooms) => {
   broadcastRoomList(io, rooms);
   emitRoomInfo(io, room);
 }
+
 // game ---
 
 export const emitGameError = (

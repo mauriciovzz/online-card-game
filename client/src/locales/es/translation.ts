@@ -24,6 +24,10 @@ export const es = {
     startGame: "Iniciar Partida",
     update: "Actualizar Sala",
     empty: "No hay salas disponibles",
+    notification: {
+      updated: "Sala actualizada",
+      kickedOut: "Removido de la sala",
+    },
   },
 
   rules: {
@@ -61,8 +65,10 @@ export const es = {
     room: {
       maxLength: "Máximo 15 caracteres",
       notFound: "Sala no encontrada",
+      isFull: "La sala esta llena",
       capacityConflict:
         "Demasiados jugadores para este límite",
+      playerNotFOund: "Jugador no encontrado",
     },
   },
 } as const;

@@ -16,9 +16,12 @@ import {
   UserNameInput,
 } from "./components";
 import { IconQuestionMark } from "@tabler/icons-react";
+import { useNotification } from "@/hooks/useNotfication";
 
 export const HomePage = () => {
   const { t } = useTranslation();
+
+  const { onSuccess } = useNotification();
 
   const [isEditable, setIsEditable] = useState(false);
 
@@ -55,7 +58,7 @@ export const HomePage = () => {
         <AppActionIcon
           icon={IconQuestionMark}
           onClick={() => {
-            console.log("hey");
+            onSuccess("hey");
           }}
         />
 

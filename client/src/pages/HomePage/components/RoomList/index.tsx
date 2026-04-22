@@ -1,7 +1,7 @@
 import { Flex } from "@mantine/core";
 import { useTranslation } from "react-i18next";
 
-import { useRooms } from "@/hooks/useRooms";
+import { useJoinRoom } from "@/hooks/useJoinRoom";
 import { DeactivatableBox, Spinner } from "@/components";
 import { RoomsListItem } from "./RoomListItem";
 
@@ -12,7 +12,7 @@ interface RoomListProps {
 export const RoomList = ({ disabled }: RoomListProps) => {
   const { t } = useTranslation();
 
-  const { isLoading, rooms, joinRoom } = useRooms();
+  const { isLoading, rooms, joinRoom } = useJoinRoom();
   const noRooms = rooms.length === 0;
 
   return (

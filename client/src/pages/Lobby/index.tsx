@@ -3,6 +3,7 @@ import { Stack } from "@mantine/core";
 
 import { useSocket } from "@/contexts/SocketContext";
 import { useRoom } from "@/contexts/RoomContext";
+import { useNotification } from "@/hooks/useNotfication";
 import {
   ButtonsBar,
   EditRoom,
@@ -15,6 +16,8 @@ export const Lobby = () => {
   const { socket } = useSocket();
   const { room } = useRoom();
 
+  const { onSuccess } = useNotification();
+
   const [view, setView] = useState<View>("lobby");
 
   const viewComponents: Record<View, ReactNode> = {
@@ -23,6 +26,7 @@ export const Lobby = () => {
       <EditRoom
         room={room}
         onSuccess={() => {
+          onSuccess("room.notification.updated");
           setView("lobby");
         }}
       />

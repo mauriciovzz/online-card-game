@@ -60,14 +60,13 @@ export const UserNameInput = ({
 
   const onFormError = useCallback(
     (errorName: string) => {
-      switch (errorName) {
-        case "NAME_TAKEN":
-          form.setFieldError(
-            "name",
-            t("errors.name.taken")
-          );
-          break;
-      }
+      const map: Record<string, string> = {
+        NAME_EMPTY: "errors.name.empty",
+        NAME_MAX_LENGTH: "errors.name.maxLength",
+        NAME_TAKEN: "errors.name.taken",
+      };
+
+      form.setFieldError("name", t(map[errorName]));
     },
     [form, t]
   );
@@ -132,7 +131,7 @@ export const UserNameInput = ({
               <AppActionIcon
                 icon={IconSend2}
                 type="submit"
-                disabled={!form.isValid() || isUnchanged}
+                disabled={isUnchanged}
               />
             </Group>
           )}

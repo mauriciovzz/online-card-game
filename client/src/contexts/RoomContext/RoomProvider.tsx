@@ -34,6 +34,10 @@ export const RoomProvider = ({
 
   const { onError } = useNotification();
 
+  const handleRoomExit = useCallback(() => {
+    void navigate("/");
+  }, [navigate]);
+
   const handleNewInfo = useCallback(
     (res: SocketRes<Room>) => {
       if (res.success) {
@@ -46,9 +50,10 @@ export const RoomProvider = ({
     []
   );
 
-  const handleLeave = useCallback(() => {
-    void navigate("/");
-  }, [navigate]);
+  const handleKickedOut = useCallback(() => {
+    onError("room.notification.kickedOut");
+    handleRoomExit();
+  }, [handleRoomExit, onError]);
 
   const handleGameStarted = useCallback(
     (res: SocketRes<RoomId>) => {
@@ -64,11 +69,11 @@ export const RoomProvider = ({
       switch (res.error) {
         case "ROOM_NOT_FOUND":
           onError(res.error);
-          handleLeave();
+          handleRoomExit();
           return;
       }
     },
-    [handleLeave, onError]
+    [handleRoomExit, onError]
   );
 
   useEffect(() => {
@@ -76,24 +81,25 @@ export const RoomProvider = ({
 
     socket.emit("room:getInfo");
 
-    socket.on("room:newInfo", handleNewInfo);
-    socket.on("room:leave", handleLeave);
+    socket.on("room:currentInfo", handleNewInfo);
     socket.on("room:gameStarted", handleGameStarted);
+    socket.on("room:kickedOut", handleKickedOut);
     socket.on("room:error", handleError);
 
     return () => {
-      socket.off("room:newInfo", handleNewInfo);
-      socket.off("room:leave", handleLeave);
+      socket.off("room:currentInfo", handleNewInfo);
       socket.off("room:gameStarted", handleGameStarted);
+      socket.off("room:kickedOut", handleKickedOut);
       socket.off("room:error", handleError);
     };
   }, [
     handleError,
     handleGameStarted,
-    handleLeave,
+    handleRoomExit,
     handleNewInfo,
     roomId,
     socket,
+    handleKickedOut,
   ]);
 
   const isAdmin = useMemo(
@@ -105,8 +111,8 @@ export const RoomProvider = ({
     if (!socket || !room) return;
 
     socket.emit("room:leave", { roomId: room.id });
-    void navigate("/");
-  }, [socket, room, navigate]);
+    handleRoomExit();
+  }, [socket, room, handleRoomExit]);
 
   const startGame = useCallback(() => {
     if (!socket || !room) return;

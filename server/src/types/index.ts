@@ -43,13 +43,13 @@ export interface RoomRules {
   stack: boolean;
 }
 
-export type roomCapacity = "2" | "3" | "4";
+export type RoomCapacity = "2" | "3" | "4";
 
 export interface Room { 
   id: string, 
   name: string, 
   turnDuration: "30" | "60" | "90"; 
-  capacity: roomCapacity; 
+  capacity: RoomCapacity; 
   state: "WAITING" | "FULL" | "PLAYING"; 
 
   adminId: string; 
@@ -62,8 +62,6 @@ export interface Room {
 export type CreateRoomProps = Omit<Room, "id" | "adminId" | "players" | "state" > 
 
 export type UpdateRoomProps = Omit<CreateRoomProps, "capacity">;
-
-export type LeaveRoomRes = { type: "ROOM_DELETED"; roomId: string } | { type: "ROOM_LEFT"; room: Room };
 
 /* GAME */
 
@@ -132,7 +130,7 @@ interface SuccessResponse<T> {
   data: T;
 }
 
-interface ErrorResponse {
+export interface ErrorResponse {
   success: false;
   error: string;
 }

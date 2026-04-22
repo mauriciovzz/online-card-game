@@ -3,14 +3,19 @@ import { Socket } from "socket.io";
 import { rooms } from "@/stores";
 import { emitError } from "@/utils/emiterHelper";
 
-import { Room } from "@/types";
+import { ErrorResponse, Room } from "@/types";
 
-export const checkRoom = (
-  socket: Socket, 
-  handler: (roon:Room) => void,
-) => {
-  const roomId = socket.data.roomId;
-  const room = rooms.get(roomId);
+export const checkRoom = ({
+  socket,
+  roomId,
+  handler
+} : {
+  socket: Socket;
+  roomId?: string;
+  handler: (roon:Room) => void;
+}) => {
+  const finalRoomId = roomId ? roomId : socket.data.roomId;
+  const room = rooms.get(finalRoomId);
 
   if (!room) {
     emitError(socket, "room:error", "ROOM_NOT_FOUND");
@@ -20,32 +25,21 @@ export const checkRoom = (
   handler(room);
 }
 
-export function getRoomByIdOrFail(
-  socket: Socket,
-  event: string,
-  roomId: string
-): Room | null {
-  const room = rooms.get(roomId);
-
-  if (!room) {
-    emitError(socket, event, "ROOM_NOT_FOUND");
-    return null;
-  }
-
-  return room;
-}
-
-export function ensurePlayerInRoom(
+export const ensurePlayerInRoom = ({socket, room, callback, handler} : {
   socket: Socket,
   room: Room,
-  event: string
-): boolean {
+  callback: (res: ErrorResponse) => void
+  handler: () => void,
+}) => {
   const isInRoom = room.players.some((p) => p.id === socket.id);
 
   if (!isInRoom) {
-    emitError(socket, event, "NOT_IN_ROOM");
-    return false;
+    callback({
+      success: false,
+      error: "PLAYER_NOT_FOUND"
+    })
+    return;
   }
 
-  return true;
+  handler();
 }

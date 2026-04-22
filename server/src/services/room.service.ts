@@ -3,15 +3,40 @@ import crypto from "crypto";
 
 import { users, rooms } from "@/stores";
 
-import { Room, CreateRoomProps, LeaveRoomRes } from "@/types";
+import { Room, ErrorResponse, CreateRoomProps, RoomId, SocketRes, RoomCapacity } from "@/types";
 
 const generateId = () => {
   return crypto.randomBytes(4).toString("hex").toUpperCase();
 };
 
+const checkName = (name: string): ErrorResponse | undefined => {
+  const trimmedName = name.trim();
+
+  if (trimmedName.length < 1) 
+    return { success: false, error: "NAME_EMPTY" }
+
+  if (trimmedName.length > 15) 
+    return { success: false, error: "NAME_MAX_LENGTH" }
+
+  return;
+};
+
+const checkCapacity = (numPlayers: number, capacity: RoomCapacity): ErrorResponse | undefined => {
+  if (Number(capacity) < numPlayers) {
+    return { success: false, error: "CAPACITY_CONFLICT" }
+  }
+
+  return;
+};
+
 // main functions ---
 
-const create = (socket: Socket, payload: CreateRoomProps) => {
+const create = (socket: Socket, payload: CreateRoomProps): SocketRes<RoomId> => {
+  const nameRes = checkName(payload.name);
+
+  if (nameRes) 
+    return nameRes;
+
   let id = generateId();
 
   while (rooms.has(id)) 
@@ -36,7 +61,7 @@ const create = (socket: Socket, payload: CreateRoomProps) => {
   socket.join(id);
   socket.data.roomId = id;
 
-  return id;
+  return { success: true, data: { roomId: id } }
 };
 
 const getAvailable = () => {
@@ -79,13 +104,13 @@ const join = (socket: Socket, room: Room) => {
   socket.data.roomId = room.id;
 };
 
-const leave = (socket: Socket, room: Room): LeaveRoomRes => {
+const leave = (socket: Socket, room: Room): boolean => {
   socket.leave(room.id);
   socket.data.roomId = null;
 
   if (room.players.length === 1) {
     rooms.delete(room.id); 
-    return { type: "ROOM_DELETED", roomId: room.id };
+    return true;
   };
 
   const remainingPlayers = room.players.filter(p => p.id !== socket.id);
@@ -100,7 +125,7 @@ const leave = (socket: Socket, room: Room): LeaveRoomRes => {
     room.state = "WAITING";
   };
 
-  return { type: "ROOM_LEFT", room };
+  return false;
 };
 
 export default {
@@ -108,4 +133,6 @@ export default {
   getAvailable,
   join,
   leave,
+  checkName,
+  checkCapacity
 };

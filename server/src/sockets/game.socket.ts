@@ -282,12 +282,7 @@ export const gameSocket = (io: Server, socket: Socket) => {
       return; 
     };   
 
-    gameLoop.handlePlayerExit(
-      io,
-      socket,
-      roomId,
-      "LEAVE_GAME",
-    );
+    gameLoop.handlePlayerExit(io, socket);
   });
 
 };

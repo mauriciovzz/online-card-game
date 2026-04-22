@@ -1,46 +1,64 @@
 import { useSocket } from "@/contexts/SocketContext";
 
 import type {
+  ErrorResponse,
   RoomCapacity,
+  SocketRes,
   UpdateRoomProps,
 } from "@/types";
 
-export const useUpdateRoom = () => {
+interface Props {
+  onSuccess: () => void;
+  onFormError: (errorMsg: string) => void;
+  onCapacityError: (errorMsg: string) => void;
+  onKickError: (errorMsg: string) => void;
+}
+
+export const useUpdateRoom = ({
+  onSuccess,
+  onFormError,
+  onCapacityError,
+  onKickError,
+}: Props) => {
   const { socket } = useSocket();
 
-  // useEffect(() => {
-  //   if (!socket) return;
-
-  //   const handleUpdate = (res: SocketRes<RoomId>) => {
-  //     if (res.success) {
-  //       onSuccess();
-  //     } else {
-  //       onFormError(res.error);
-  //     }
-  //   };
-
-  //   socket.on("room:updateRes", handleUpdate);
-
-  //   return () => {
-  //     socket.off("room:updateRes", handleUpdate);
-  //   };
-  // }, [onFormError, onSuccess, socket]);
-
-  const handleSubmit = (newData: UpdateRoomProps) => {
-    socket?.emit("room:update", newData);
+  const updateRoom = (newData: UpdateRoomProps) => {
+    socket?.emit(
+      "room:update",
+      newData,
+      (res: SocketRes<null>) => {
+        if (res.success) {
+          onSuccess();
+        } else {
+          onFormError(res.error);
+        }
+      }
+    );
   };
 
-  const handleUpdateCapacity = (capacity: RoomCapacity) => {
-    socket?.emit("room:updateCapacity", { capacity });
+  const updateCapacity = (capacity: RoomCapacity) => {
+    socket?.emit(
+      "room:updateCapacity",
+      { capacity },
+      (res: ErrorResponse) => {
+        onCapacityError(res.error);
+      }
+    );
   };
 
-  const handlePlayerKick = (playerId: string) => {
-    socket?.emit("room:kickPlayer", { playerId });
+  const kickPlayerOut = (playerId: string) => {
+    socket?.emit(
+      "room:kickPlayer",
+      { playerId },
+      (res: ErrorResponse) => {
+        onKickError(res.error);
+      }
+    );
   };
 
   return {
-    handleSubmit,
-    handleUpdateCapacity,
-    handlePlayerKick,
+    updateRoom,
+    updateCapacity,
+    kickPlayerOut,
   };
 };

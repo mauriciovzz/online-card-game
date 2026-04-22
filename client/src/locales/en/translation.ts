@@ -24,6 +24,10 @@ export const en = {
     startGame: "Start Game",
     update: "Update room",
     empty: "No rooms available",
+    notification: {
+      updated: "Room updated",
+      kickedOut: "Removed from room",
+    },
   },
 
   rules: {
@@ -59,7 +63,9 @@ export const en = {
     room: {
       maxLength: "Max length is 15",
       notFound: "Room not found",
+      isFull: "The room is full",
       capacityConflict: "Too many players for this limit",
+      playerNotFOund: "Player not found",
     },
   },
 } as const;

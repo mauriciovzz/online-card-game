@@ -11,9 +11,12 @@ export const App = () => {
   return (
     <>
       <Notifications
-        containerWidth={isMobile ? undefined : 335}
-        notificationMaxHeight={42}
+        position="bottom-center"
+        containerWidth={isMobile ? "100%" : 335}
+        notificationMaxHeight={isMobile ? 42 : 36}
+        autoClose={4000}
       />
+
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route element={<RoomContextLayout />}>
