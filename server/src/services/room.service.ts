@@ -3,13 +3,20 @@ import crypto from "crypto";
 
 import { users, rooms } from "@/stores";
 
-import { Room, ErrorResponse, CreateRoomProps, RoomId, SocketRes, RoomCapacity } from "@/types";
+import { 
+  Room,
+  CreateRoomProps,
+  RoomId, SocketRes,
+  RoomCapacity,
+  AvailableRooms,
+  UpdateRoomProps,
+} from "@/types";
 
 const generateId = () => {
   return crypto.randomBytes(4).toString("hex").toUpperCase();
 };
 
-const checkName = (name: string): ErrorResponse | undefined => {
+const checkName = (name: string): SocketRes<null> => {
   const trimmedName = name.trim();
 
   if (trimmedName.length < 1) 
@@ -18,24 +25,24 @@ const checkName = (name: string): ErrorResponse | undefined => {
   if (trimmedName.length > 15) 
     return { success: false, error: "NAME_MAX_LENGTH" }
 
-  return;
+  return { success: true, data: null };
 };
 
-const checkCapacity = (numPlayers: number, capacity: RoomCapacity): ErrorResponse | undefined => {
+const checkCapacity = (numPlayers: number, capacity: RoomCapacity): SocketRes<null> => {
   if (Number(capacity) < numPlayers) {
     return { success: false, error: "CAPACITY_CONFLICT" }
   }
 
-  return;
+  return { success: true, data: null };
 };
 
 // main functions ---
 
 const create = (socket: Socket, payload: CreateRoomProps): SocketRes<RoomId> => {
-  const nameRes = checkName(payload.name);
+  const res = checkName(payload.name);
 
-  if (nameRes) 
-    return nameRes;
+  if (!res.success) 
+    return res;
 
   let id = generateId();
 
@@ -64,7 +71,17 @@ const create = (socket: Socket, payload: CreateRoomProps): SocketRes<RoomId> => 
   return { success: true, data: { roomId: id } }
 };
 
-const getAvailable = () => {
+const update = (room: Room, newData: UpdateRoomProps) => {
+  room.name = newData.name;
+  room.turnDuration = newData.turnDuration;
+  room.rules = newData.rules;
+};
+
+const updateCapacity = (room: Room, capacity: RoomCapacity) => {
+  room.capacity = capacity;
+};
+
+const getAvailable = (): AvailableRooms => {
   const availableRooms: Room[] = Array.from(rooms.values())
     .filter((room) => room.state === "WAITING");
 
@@ -130,6 +147,8 @@ const leave = (socket: Socket, room: Room): boolean => {
 
 export default {
   create,
+  update,
+  updateCapacity,
   getAvailable,
   join,
   leave,

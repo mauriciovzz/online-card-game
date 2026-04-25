@@ -1,93 +1,62 @@
 import { Server, Socket } from "socket.io";
 
-import { rooms } from "@/stores";
-import { emitMessage, emitError } from "@/utils/emiterHelper";
+import { emitMessage } from "@/utils/emiterHelper";
 
 import { Message } from "@/types";
+import { getRoom, isPlayerInRoom } from "@/utils/guards";
 
 export const chatSocket = (io: Server, socket: Socket) => {
 
   socket.on("chat:sendMessage", ({ content }: { content: string }) => {
-    const roomId = socket.data.roomId;
-    const room = rooms.get(roomId);
-    
-    if (!room) {
-      emitError(socket, "room:joined", "ROOM_NOT_FOUND");
-      return;
-    };
+    const room = getRoom(socket, undefined, undefined);
+    if (!room) return; 
 
-    const player = room.players.find((p) => p.id === socket.id);
+    const player = isPlayerInRoom(socket, room, undefined);
+    if (!player) return;
 
-    if (player) {
-      const newMessage: Message = {
-        id: crypto.randomUUID(),
-        senderId: socket.id,
-        senderName: player.name,
-        content,
-        createdAt: new Date().getTime(),
-      };
-    
-      emitMessage(io, roomId, newMessage);
+    const newMessage: Message = {
+      id: crypto.randomUUID(),
+      senderId: socket.id,
+      senderName: player.name,
+      content,
+      createdAt: new Date().getTime(),
     };
+  
+    emitMessage(io, room.id, newMessage);
   });
  
   socket.on("chat:typing:start", () => {
-    const roomId = socket.data.roomId;
-    const room = rooms.get(roomId);
-    
-    if (!room) {
-      emitError(socket, "room:joined", "ROOM_NOT_FOUND");
-      return;
-    };
+    const room = getRoom(socket, undefined, undefined);
+    if (!room) return; 
 
-    const player = room.players.find((p) => p.id === socket.id);
+    const player = isPlayerInRoom(socket, room, undefined);
+    if (!player) return;
 
-    if (player) {    
-      socket.to(roomId).emit("chat:typing:start", {
-        success: true,
-        error: null,
-        data: { userId: socket.id} ,
-      });
-    };
+    socket.to(room.id).emit("chat:typing:start", {
+      success: true, data: { userId: socket.id}
+    });
   });
  
   socket.on("chat:typing:stop", () => {
-    const roomId = socket.data.roomId;
-    const room = rooms.get(roomId);
-    
-    if (!room) {
-      emitError(socket, "room:joined", "ROOM_NOT_FOUND");
-      return;
-    };
+    const room = getRoom(socket, undefined, undefined);
+    if (!room) return; 
 
-    const player = room.players.find((p) => p.id === socket.id);
+    const player = isPlayerInRoom(socket, room, undefined);
+    if (!player) return;
 
-    if (player) {    
-      socket.to(roomId).emit("chat:typing:stop", {
-        success: true,
-        error: null,
-        data: { userId: socket.id} ,
-      });
-    };
+    socket.to(room.id).emit("chat:typing:stop", {
+      success: true, data: { userId: socket.id}
+    });
   });
 
   socket.on("chat:read", ({ lastReadCreatedAt }) => {
-    const roomId = socket.data.roomId;
-    const room = rooms.get(roomId);
-    
-    if (!room) {
-      emitError(socket, "room:joined", "ROOM_NOT_FOUND");
-      return;
-    };
+    const room = getRoom(socket, undefined, undefined);
+    if (!room) return; 
 
-    socket.to(roomId).emit("chat:readUpdate", {
-        success: true,
-        error: null,
-        data: {
-          playerId: socket.id,
-          lastReadCreatedAt,
-        } ,
-      });
+    socket.to(room.id).emit("chat:readUpdate", {
+      success: true,
+      data: { playerId: socket.id, lastReadCreatedAt },
+    });
   });
 
 };

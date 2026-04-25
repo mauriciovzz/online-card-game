@@ -1,9 +1,9 @@
 import type { RefObject } from "react";
+import { useTranslation } from "react-i18next";
 import { TextInput } from "@mantine/core";
 import type { UseFormReturnType } from "@mantine/form";
-import { useTranslation } from "react-i18next";
 
-import { useIsMobile } from "@/hooks/useIsMobile";
+import { useIsMobile } from "@/hooks";
 
 interface Props<T> {
   ref?: RefObject<HTMLInputElement | null>;

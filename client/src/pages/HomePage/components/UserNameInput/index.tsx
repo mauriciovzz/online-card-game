@@ -5,24 +5,19 @@ import {
   type SetStateAction,
 } from "react";
 import { flushSync } from "react-dom";
-import { useTranslation } from "react-i18next";
 import { Group, Stack } from "@mantine/core";
-import { useForm } from "@mantine/form";
 import {
   IconEdit,
   IconX,
   IconSend2,
 } from "@tabler/icons-react";
 
-import { useSocket } from "@/contexts/SocketContext";
-import { useUpdateUserName } from "@/hooks/useUpdateUserName";
+import { useUpdateUserName } from "./useUpdateUserName";
 import {
   AppActionIcon,
   FormInput,
   Label,
 } from "@/components";
-
-import type { UserName } from "@/types";
 
 interface Props {
   isEditable: boolean;
@@ -33,56 +28,15 @@ export const UserNameInput = ({
   isEditable,
   setIsEditable,
 }: Props) => {
-  const { t } = useTranslation();
+  const inputRef = useRef<HTMLInputElement | null>(null);
 
-  const { userName } = useSocket();
-
-  const form = useForm<UserName>({
-    initialValues: {
-      name: userName,
-    },
-
-    validate: {
-      name: (value) => {
-        if (value.length < 1)
-          return t("errors.common.empty");
-        if (value.length > 10)
-          return t("errors.name.maxLength");
-        return null;
-      },
-    },
-  });
-
-  const onFormSuccess = useCallback(() => {
+  const onUpdate = useCallback(() => {
     setIsEditable(false);
     inputRef.current?.blur();
   }, [setIsEditable]);
 
-  const onFormError = useCallback(
-    (errorName: string) => {
-      const map: Record<string, string> = {
-        NAME_EMPTY: "errors.name.empty",
-        NAME_MAX_LENGTH: "errors.name.maxLength",
-        NAME_TAKEN: "errors.name.taken",
-      };
-
-      form.setFieldError("name", t(map[errorName]));
-    },
-    [form, t]
-  );
-
-  const { updateUserName } = useUpdateUserName(
-    onFormSuccess,
-    onFormError
-  );
-
-  const handleSubmit = ({ name }: UserName) => {
-    if (userName.trim() === name.trim()) return;
-
-    updateUserName(name);
-  };
-
-  const inputRef = useRef<HTMLInputElement | null>(null);
+  const { userName, form, updateUserName } =
+    useUpdateUserName(onUpdate);
 
   const startEditing = () => {
     flushSync(() => {
@@ -97,14 +51,12 @@ export const UserNameInput = ({
     inputRef.current?.blur();
   };
 
-  const isUnchanged = form.values.name === userName;
-
   return (
-    <form onSubmit={form.onSubmit(handleSubmit)}>
+    <form onSubmit={form.onSubmit(updateUserName)}>
       <Group gap="sm" w="100%">
         <Stack gap={0} flex={1}>
           <Label
-            text={t("user.name.label")}
+            text={"user.name.label"}
             error={form.errors.name}
           />
           <FormInput
@@ -131,7 +83,7 @@ export const UserNameInput = ({
               <AppActionIcon
                 icon={IconSend2}
                 type="submit"
-                disabled={isUnchanged}
+                disabled={form.values.name === userName}
               />
             </Group>
           )}

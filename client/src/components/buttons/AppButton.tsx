@@ -1,5 +1,7 @@
-import { useIsMobile } from "@/hooks/useIsMobile";
+import { useTranslation } from "react-i18next";
 import { Button } from "@mantine/core";
+
+import { useIsMobile } from "@/hooks";
 
 interface Props {
   type?: "button" | "reset" | "submit";
@@ -16,6 +18,7 @@ export const AppButton = ({
   disabled,
   onClick,
 }: Props) => {
+  const { t } = useTranslation();
   const isMobile = useIsMobile();
 
   return (
@@ -28,7 +31,7 @@ export const AppButton = ({
       disabled={disabled}
       onClick={onClick}
     >
-      {text}
+      {t(text)}
     </Button>
   );
 };

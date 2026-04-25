@@ -1,8 +1,8 @@
 import type { ReactNode } from "react";
 import { Flex, Paper, Stack } from "@mantine/core";
 
+import { useIsMobile } from "@/hooks";
 import { Label } from "@/components";
-import { useIsMobile } from "@/hooks/useIsMobile";
 
 interface Props {
   text: string;

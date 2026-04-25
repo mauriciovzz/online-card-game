@@ -1,7 +1,7 @@
 import { Loader } from "@mantine/core";
 import { IconCancel } from "@tabler/icons-react";
 
-import { useIsMobile } from "@/hooks/useIsMobile";
+import { useIsMobile } from "@/hooks";
 import { AppBox } from "@/components";
 
 interface BaseSlotProps {

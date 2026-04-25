@@ -1,4 +1,5 @@
 import { useMemo, useRef } from "react";
+import { useTranslation } from "react-i18next";
 import {
   TextInput,
   Stack,
@@ -7,19 +8,24 @@ import {
   Text,
 } from "@mantine/core";
 import { useForm } from "@mantine/form";
-import { useTranslation } from "react-i18next";
 
 import { useChat } from "@/contexts/ChatContext";
-import { useIsMobile } from "@/hooks/useIsMobile";
-import { useThemeColor } from "@/hooks/useThemeColor";
-import { useReadObserver } from "@/hooks/useReadObserver";
-import { useScroll } from "@/hooks/useScroll";
-import { useIsDark } from "@/hooks/useIsDark";
-import { useScrollHeight } from "@/hooks/useScrollHeight";
+import {
+  useIsDark,
+  useIsMobile,
+  useThemeColor,
+} from "@/hooks";
+import {
+  useReadObserver,
+  useScroll,
+  useScrollHeight,
+} from "./chatHooks";
 import { AppBox } from "@/components";
-import { Scroll } from "./components/Scroll";
-import { MessageBubble } from "./components/MessageBubble";
-import { TypingIndicator } from "./components/TypingIndicator";
+import {
+  MessageBubble,
+  Scroll,
+  TypingIndicator,
+} from "./chatComponents";
 
 type MsgsRef = Map<string, HTMLDivElement>;
 

@@ -98,7 +98,7 @@ export type SocketRes<T> =
 
 /* CHAT */
 
-export type View = "lobby" | "edit";
+export type View = "main" | "edit";
 
 export interface Message {
   id: string;

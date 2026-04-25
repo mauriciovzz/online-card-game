@@ -1,10 +1,9 @@
 import { type ReactNode } from "react";
 
 import { useSocket } from "@/contexts/SocketContext";
-import { ChatContext } from "./ChatContext";
-
-import { useChatState } from "@/hooks/useChatState";
 import { useRoom } from "../RoomContext";
+import { ChatContext } from "./ChatContext";
+import { useChatState } from "./useChatState";
 
 export const ChatProvider = ({
   children,

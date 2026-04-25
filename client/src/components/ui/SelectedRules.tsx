@@ -1,12 +1,12 @@
+import React from "react";
+import type { ComponentType } from "react";
 import { Flex, Divider } from "@mantine/core";
+import type { IconProps } from "@tabler/icons-react";
 
-import { useThemeColor } from "@/hooks/useThemeColor";
+import { useThemeColor } from "@/hooks";
 import { GAME_RULES } from "@/constants";
 
 import type { RoomRules } from "@/types";
-import type { ComponentType } from "react";
-import type { IconProps } from "@tabler/icons-react";
-import React from "react";
 
 interface Props {
   rules: RoomRules;

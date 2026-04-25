@@ -1,43 +1,38 @@
-import { Flex } from "@mantine/core";
+import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
+import { Flex } from "@mantine/core";
 
-import { useJoinRoom } from "@/hooks/useJoinRoom";
-import { DeactivatableBox, Spinner } from "@/components";
-import { RoomsListItem } from "./RoomListItem";
+import { useSocket } from "@/contexts/SocketContext";
+import { useJoinRoom } from "./useJoinRoom";
+import { RoomButton } from "./RoomListItem";
 
-interface RoomListProps {
-  disabled: boolean;
-}
-
-export const RoomList = ({ disabled }: RoomListProps) => {
+export const RoomList = () => {
   const { t } = useTranslation();
 
-  const { isLoading, rooms, joinRoom } = useJoinRoom();
-  const noRooms = rooms.length === 0;
+  const { rooms, fetchRooms } = useSocket();
+  const { joinRoom } = useJoinRoom();
 
-  return (
-    <DeactivatableBox disabled={disabled}>
-      {isLoading ? (
-        <Spinner />
-      ) : noRooms ? (
-        <Flex
-          w="100%"
-          h="100%"
-          align="center"
-          justify="center"
-          fw={700}
-        >
-          {t("room.empty")}
-        </Flex>
-      ) : (
-        rooms.map((room) => (
-          <RoomsListItem
-            key={room.id}
-            room={room}
-            joinRoom={joinRoom}
-          />
-        ))
-      )}
-    </DeactivatableBox>
+  useEffect(() => {
+    fetchRooms();
+  }, [fetchRooms]);
+
+  return rooms.length === 0 ? (
+    <Flex
+      w="100%"
+      h="100%"
+      align="center"
+      justify="center"
+      fw={700}
+    >
+      {t("room.empty")}
+    </Flex>
+  ) : (
+    rooms.map((room) => (
+      <RoomButton
+        key={room.id}
+        room={room}
+        joinRoom={() => joinRoom(room.id)}
+      />
+    ))
   );
 };

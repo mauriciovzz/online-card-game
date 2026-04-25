@@ -6,14 +6,14 @@ import {
   Flex,
 } from "@mantine/core";
 import type { UseFormReturnType } from "@mantine/form";
-import { useTranslation } from "react-i18next";
 import type { IconProps } from "@tabler/icons-react";
 import clsx from "clsx";
 
 import { GAME_RULES } from "@/constants";
-import { useIsMobile } from "@/hooks/useIsMobile";
+import { useIsMobile } from "@/hooks";
 import { Label } from "@/components";
 import { RulesPopover } from "./RulesPopover";
+
 import classes from "./FormRuleSelector.module.css";
 
 import type { RoomRules } from "@/types";
@@ -65,8 +65,6 @@ export const FormRuleSelector = <T extends WithRules>({
   form,
   readOnly,
 }: Props<T>) => {
-  const { t } = useTranslation();
-
   const isMobile = useIsMobile();
 
   const toggleRule = (rule: keyof RoomRules) => {
@@ -79,7 +77,7 @@ export const FormRuleSelector = <T extends WithRules>({
   return (
     <Stack gap={0} flex={1}>
       <Group gap={3}>
-        <Label text={t("rules.title")} size="sm" />
+        <Label size="sm" text={"rules.title"} />
         <RulesPopover />
       </Group>
 
@@ -98,9 +96,7 @@ export const FormRuleSelector = <T extends WithRules>({
             borderRadius={borderRadius}
             selected={form.values.rules[key]}
             readOnly={readOnly}
-            onClick={() => {
-              toggleRule(key);
-            }}
+            onClick={() => toggleRule(key)}
           />
         ))}
       </Group>

@@ -3,9 +3,9 @@ import { Server, Socket } from "socket.io";
 import { users } from "@/stores";
 import gameLoop from "@/loop/gameLoop";
 import { userService } from "@/services";
-import { emit } from "@/utils/emiterHelper";
+import { emit, ok } from "@/utils/emiterHelper";
 
-import { SocketRes, UserName } from "@/types";
+import { SocketCallback, UserName } from "@/types";
 
 export const userSocket = (io: Server, socket: Socket) => {
 
@@ -16,22 +16,15 @@ export const userSocket = (io: Server, socket: Socket) => {
     "user:updateName", 
     (
       { newName }: { newName: string}, 
-      callback: (res: SocketRes<UserName>) => void
+      callback: SocketCallback<UserName>
     ) => {
     const res = userService.updateName(socket.id, newName);
 
     if (res.success) {
       name = newName;
-
-      callback({
-        success: true,
-        data: res.data,
-      });
+      ok(callback, res.data)
     } else {
-      callback({
-        success: false,
-        error: res.error,
-      });    
+      callback(res);    
     }
   });
 

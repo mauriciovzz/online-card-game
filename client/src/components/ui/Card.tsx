@@ -1,4 +1,4 @@
-import { useIsMobile } from "@/hooks/useIsMobile";
+import { useIsMobile } from "@/hooks";
 
 export const Card = ({
   svgGroup,

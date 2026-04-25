@@ -6,7 +6,7 @@ import {
 } from "@mantine/core";
 import { IconX } from "@tabler/icons-react";
 
-import { useThemeColor } from "@/hooks/useThemeColor";
+import { useThemeColor } from "@/hooks";
 import { PLAYER_SLOTS } from "@/constants";
 import { SlotBase } from "./SlotBase";
 
@@ -24,8 +24,10 @@ const SlotText = ({
   text?: string;
 }) => {
   const textSize = 20.3;
-  const top =
-    (size - textSize) / 2 + (isBig ? 0 : textSize);
+
+  const center = (size - textSize) / 2;
+  const extraSpace = isBig ? 0 : textSize;
+  const top = center + extraSpace;
 
   return (
     <Text
@@ -57,9 +59,11 @@ export const RoomPlayers = ({
 
   const playersByPos = useMemo(() => {
     const map: Partial<Record<number, PlayerSlot>> = {};
+
     room.players.forEach((p) => {
       map[p.pos] = p;
     });
+
     return map;
   }, [room.players]);
 
@@ -73,20 +77,16 @@ export const RoomPlayers = ({
     >
       {PLAYER_SLOTS.map((key) => {
         const isAvailable = key.pos <= capacity;
-
         const player = playersByPos[key.pos];
         const isAdmin = player?.id === room.adminId;
 
         let color = themeColor;
         if (isAvailable) color = key.css;
 
-        const handleKick = onKick
-          ? () => {
-              if (player) {
-                onKick(player.id);
-              }
-            }
-          : undefined;
+        const handleKick =
+          onKick && player
+            ? () => onKick(player.id)
+            : undefined;
 
         return (
           <SlotBase
@@ -112,11 +112,12 @@ export const RoomPlayers = ({
                     variant="default"
                     pos="absolute"
                     size="xs"
+                    bdrs="sm"
                     top={-9}
                     right={-9}
                     onClick={handleKick}
                   >
-                    <IconX />
+                    <IconX size={12} />
                   </ActionIcon>
                 )}
               </>

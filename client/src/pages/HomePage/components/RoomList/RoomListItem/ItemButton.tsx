@@ -2,8 +2,7 @@ import type React from "react";
 import { UnstyledButton } from "@mantine/core";
 import { useHover } from "@mantine/hooks";
 
-import { useIsDark } from "@/hooks/useIsDark";
-import { useThemeColor } from "@/hooks/useThemeColor";
+import { useIsDark, useThemeColor } from "@/hooks";
 
 interface Props {
   onClick: () => void;
@@ -21,6 +20,7 @@ export const ItemButton = ({
 
   return (
     <UnstyledButton
+      ref={ref}
       w="100%"
       h={54}
       px={12}
@@ -38,7 +38,6 @@ export const ItemButton = ({
           backgroundColor: hovered ? hoverBg : normalBg,
         };
       }}
-      ref={ref}
       onClick={onClick}
     >
       {children}

@@ -7,16 +7,16 @@ import {
 } from "react";
 import { useNavigate, useParams } from "react-router";
 
-import { PLAYER_SLOTS } from "@/constants";
 import { SpinnerLayout } from "@/layouts";
 import { useSocket } from "@/contexts/SocketContext";
-import { useNotification } from "@/hooks/useNotfication";
+import { useNotification } from "@/hooks";
+import { PLAYER_SLOTS } from "@/constants";
 import { RoomContext } from "./RoomContext";
 
 import type {
   Room,
-  SocketRes,
   RoomId,
+  SocketRes,
   ErrorResponse,
 } from "@/types";
 
@@ -32,7 +32,7 @@ export const RoomProvider = ({
   const [room, setRoom] = useState<Room | null>(null);
   const [isReady, setIsReady] = useState(false);
 
-  const { onError } = useNotification();
+  const { errorNoti } = useNotification();
 
   const handleRoomExit = useCallback(() => {
     void navigate("/");
@@ -42,18 +42,15 @@ export const RoomProvider = ({
     (res: SocketRes<Room>) => {
       if (res.success) {
         setRoom(res.data);
-        setTimeout(() => {
-          setIsReady(true);
-        }, 100);
       }
     },
     []
   );
 
   const handleKickedOut = useCallback(() => {
-    onError("room.notification.kickedOut");
+    errorNoti("room.notification.kickedOut");
     handleRoomExit();
-  }, [handleRoomExit, onError]);
+  }, [handleRoomExit, errorNoti]);
 
   const handleGameStarted = useCallback(
     (res: SocketRes<RoomId>) => {
@@ -68,18 +65,25 @@ export const RoomProvider = ({
     (res: ErrorResponse) => {
       switch (res.error) {
         case "ROOM_NOT_FOUND":
-          onError(res.error);
+          errorNoti(res.error);
           handleRoomExit();
           return;
       }
     },
-    [handleRoomExit, onError]
+    [handleRoomExit, errorNoti]
   );
 
   useEffect(() => {
     if (!socket) return;
 
-    socket.emit("room:getInfo");
+    socket.emit("room:getInfo", (res: SocketRes<Room>) => {
+      if (res.success) {
+        setRoom(res.data);
+        setIsReady(true);
+      } else {
+        handleError(res);
+      }
+    });
 
     socket.on("room:currentInfo", handleNewInfo);
     socket.on("room:gameStarted", handleGameStarted);
@@ -93,13 +97,12 @@ export const RoomProvider = ({
       socket.off("room:error", handleError);
     };
   }, [
-    handleError,
-    handleGameStarted,
-    handleRoomExit,
-    handleNewInfo,
-    roomId,
     socket,
+    roomId,
+    handleNewInfo,
+    handleGameStarted,
     handleKickedOut,
+    handleError,
   ]);
 
   const isAdmin = useMemo(

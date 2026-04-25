@@ -3,13 +3,20 @@ import {
   useState,
   useEffect,
   useRef,
+  useCallback,
 } from "react";
 import { io, Socket } from "socket.io-client";
 
-import { SpinnerLayout } from "@/layouts";
 import { SocketContext } from "./SocketContext";
+import { SpinnerLayout } from "@/layouts";
 
-import type { SocketRes, UserName } from "@/types";
+import type {
+  AvailableRooms,
+  Room,
+  SocketRes,
+  SuccessResponse,
+  UserName,
+} from "@/types";
 
 const SOCKET_URL = import.meta.env.VITE_SOCKET_URL;
 
@@ -21,29 +28,57 @@ export const SocketProvider = ({ children }: Props) => {
   const socketRef = useRef<Socket | null>(null);
 
   const [userName, setUserName] = useState("");
-  const [isReady, setIsReady] = useState(false);
+  const [isNameReady, setIsNameReady] = useState(false);
 
-  useEffect(() => {
-    const newSocket = io(SOCKET_URL);
+  const [rooms, setRooms] = useState<Room[] | null>(null);
+  const [areRoomsReady, setAreRoomsReady] = useState(false);
 
-    socketRef.current = newSocket;
-
-    const handleConnected = (res: SocketRes<UserName>) => {
+  const handleConnected = useCallback(
+    (res: SocketRes<UserName>) => {
       if (res.success) {
         setUserName(res.data.name);
-        setIsReady(true);
+        setIsNameReady(true);
       }
-    };
+    },
+    []
+  );
 
-    newSocket.on("user:connected", handleConnected);
+  const handleAvailable = useCallback(
+    (res: SocketRes<AvailableRooms>) => {
+      if (!res.success) return;
 
-    return () => {
-      newSocket.off("user:connected", handleConnected);
-      newSocket.disconnect();
-    };
+      setRooms(res.data.availableRooms);
+    },
+    []
+  );
+
+  const fetchRooms = useCallback(() => {
+    socketRef.current?.emit(
+      "room:getAvailable",
+      (res: SuccessResponse<AvailableRooms>) => {
+        setRooms(res.data.availableRooms);
+        setAreRoomsReady(true);
+      }
+    );
   }, []);
 
-  if (!isReady) {
+  useEffect(() => {
+    const socket = io(SOCKET_URL);
+    socketRef.current = socket;
+
+    socket.on("user:connected", handleConnected);
+    socket.on("room:availableRooms", handleAvailable);
+
+    fetchRooms();
+
+    return () => {
+      socket.off("user:connected", handleConnected);
+      socket.off("room:availableRooms", handleAvailable);
+      socket.disconnect();
+    };
+  }, [handleAvailable, handleConnected, fetchRooms]);
+
+  if (!isNameReady || !areRoomsReady || rooms === null) {
     return <SpinnerLayout />;
   }
 
@@ -53,6 +88,8 @@ export const SocketProvider = ({ children }: Props) => {
         socket: socketRef.current,
         userName,
         setUserName,
+        rooms,
+        fetchRooms,
       }}
     >
       {children}

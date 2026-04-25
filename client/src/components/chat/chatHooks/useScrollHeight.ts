@@ -5,7 +5,7 @@ const SIZES = {
   gap: 10,
   inputMobile: 42,
   inputDesktop: 36.8,
-  outerPadding: 40,
+  outerPadding: 32,
   innerPadding: 24,
 };
 

@@ -4,7 +4,7 @@ import {
   useMantineTheme,
 } from "@mantine/core";
 
-import { useIsDark } from "@/hooks/useIsDark";
+import { useIsDark } from "@/hooks";
 
 export const Spinner = () => {
   const isDark = useIsDark();

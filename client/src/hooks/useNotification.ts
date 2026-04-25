@@ -13,7 +13,7 @@ const notificationProps: {
 export const useNotification = () => {
   const { t } = useTranslation();
 
-  const onSuccess = (msg: string) => {
+  const successNoti = (msg: string) => {
     notifications.show({
       title: t(msg),
       color: "green",
@@ -21,13 +21,13 @@ export const useNotification = () => {
     });
   };
 
-  const onError = (errorMsg: string) => {
+  const errorNoti = (error: string) => {
     notifications.show({
-      title: t(errorMsg),
+      title: t(error),
       color: "red",
       ...notificationProps,
     });
   };
 
-  return { onSuccess, onError };
+  return { successNoti, errorNoti };
 };

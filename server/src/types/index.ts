@@ -117,6 +117,10 @@ export interface RoomId {
   roomId: string;
 }
 
+export interface PlayerId {
+  playerId: string;
+}
+
 export interface UserName {
   name: string;
 }
@@ -125,7 +129,7 @@ export interface AvailableRooms {
   availableRooms: Room[];
 }
 
-interface SuccessResponse<T> {
+export interface SuccessResponse<T> {
   success: true;
   data: T;
 }
@@ -138,6 +142,8 @@ export interface ErrorResponse {
 export type SocketRes<T> =
   | SuccessResponse<T>
   | ErrorResponse;
+
+export type SocketCallback<T> = (res: SocketRes<T>) => void;
 
 /* CHAT */
 

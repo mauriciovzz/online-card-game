@@ -1,10 +1,9 @@
 import { Flex, Badge } from "@mantine/core";
 
-import { useThemeColor } from "@/hooks/useThemeColor";
+import { useThemeColor } from "@/hooks";
+import { PLAYER_SLOTS } from "@/constants";
 
 import type { PlayerSlot } from "@/types";
-
-const colors = ["blue", "red", "yellow", "green"];
 
 interface SlotBadgeProps {
   i: number;
@@ -21,7 +20,9 @@ export const SlotBadge = ({
 
   const enabled = i <= roomCapacity;
 
-  const color = enabled ? colors[i - 1] : themeColor;
+  const color = enabled
+    ? PLAYER_SLOTS[i - 1].string
+    : themeColor;
 
   const variant = enabled
     ? player

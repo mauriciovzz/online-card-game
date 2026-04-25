@@ -14,8 +14,9 @@ import { ThemeToggler } from "./buttons/ThemeToggler";
 import { Chat } from "./chat";
 
 // forms
+import { CapacityChanger } from "./forms/CapacityChanger";
+import { EditableRoomPlayers } from "./forms/EditableRoomPlayers";
 import { FormInput } from "./forms/FormInput";
-import { FormRuleSelector } from "./forms/FormRuleSelector";
 import { FormSegmentedControl } from "./forms/FormSegmentedControl";
 import { RoomForm } from "./forms/RoomForm";
 
@@ -43,8 +44,9 @@ export {
   Chat,
 
   // forms
+  CapacityChanger,
+  EditableRoomPlayers,
   FormInput,
-  FormRuleSelector,
   FormSegmentedControl,
   RoomForm,
 

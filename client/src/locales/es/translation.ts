@@ -26,7 +26,9 @@ export const es = {
     empty: "No hay salas disponibles",
     notification: {
       updated: "Sala actualizada",
-      kickedOut: "Removido de la sala",
+      capacityUpdated: "Jugadores actualizado",
+      userKickedOut: "Jugador expulsado",
+      kickedOut: "Expulsado de la sala",
     },
   },
 
@@ -69,6 +71,7 @@ export const es = {
       capacityConflict:
         "Demasiados jugadores para este límite",
       playerNotFOund: "Jugador no encontrado",
+      notAdmin: "Solicitud denegada",
     },
   },
 } as const;

@@ -4,39 +4,33 @@ import { SelectedRules } from "@/components";
 import { ItemButton } from "./ItemButton";
 import { PlayersSlots } from "./PlayersSlots";
 
-import type { Room, RoomId } from "@/types";
+import type { Room } from "@/types";
 
 interface RoomListItemProps {
   room: Room;
-  joinRoom: (roomId: RoomId) => void;
+  joinRoom: () => void;
 }
 
-export const RoomsListItem = ({
+export const RoomButton = ({
   room,
   joinRoom,
-}: RoomListItemProps) => {
-  const handleJoinRoom = () => {
-    joinRoom({ roomId: room.id });
-  };
+}: RoomListItemProps) => (
+  <ItemButton onClick={joinRoom}>
+    <Group w="100%" gap={10}>
+      <Text flex={1} size="sm">
+        {room.name}
+      </Text>
 
-  return (
-    <ItemButton onClick={handleJoinRoom}>
-      <Group w="100%" gap={10}>
-        <Text flex={1} size="sm">
-          {room.name}
-        </Text>
+      <Divider orientation="vertical" />
 
-        <Divider orientation="vertical" />
+      <SelectedRules rules={room.rules} isSmall />
 
-        <SelectedRules rules={room.rules} isSmall />
+      <Divider orientation="vertical" />
 
-        <Divider orientation="vertical" />
-
-        <PlayersSlots
-          players={room.players}
-          roomCapacity={Number(room.capacity)}
-        />
-      </Group>
-    </ItemButton>
-  );
-};
+      <PlayersSlots
+        players={room.players}
+        roomCapacity={Number(room.capacity)}
+      />
+    </Group>
+  </ItemButton>
+);

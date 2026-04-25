@@ -1,7 +1,6 @@
 import { Group, Title } from "@mantine/core";
-import { useTranslation } from "react-i18next";
 
-import { useThemeColor } from "@/hooks/useThemeColor";
+import { useThemeColor } from "@/hooks";
 import {
   SelectedRules,
   InfoBox,
@@ -15,9 +14,7 @@ interface Props {
   room: Room;
 }
 
-export const RoomSlots = ({ room }: Props) => {
-  const { t } = useTranslation();
-
+export const MainView = ({ room }: Props) => {
   const themeColor = useThemeColor();
 
   return (
@@ -26,12 +23,12 @@ export const RoomSlots = ({ room }: Props) => {
 
       <Group gap="sm">
         <InfoBox
-          text={t("room.turnDuration")}
-          info={`${room.turnDuration}s`}
+          text="room.turnDuration"
+          info={room.turnDuration + "s"}
         />
 
         <InfoBox
-          text={t("rules.title")}
+          text={"rules.title"}
           info={<SelectedRules rules={room.rules} />}
         />
       </Group>

@@ -2,152 +2,188 @@ import { Server, Socket } from "socket.io";
 
 import { roomService } from "@/services";
 import gameLoop from "@/loop/gameLoop";
-import { checkRoom, ensurePlayerInRoom } from "@/utils/guards"
-import { emitError, broadcastRoomList, emit, syncRoom } from "@/utils/emiterHelper";
+import {
+  getRoom,
+  isPlayerInRoom,
+  isPlayerAdmin,
+} from "@/utils/guards"
+import {
+  ok,
+  broadcastRoomList,
+  syncRoom,
+} from "@/utils/emiterHelper";
 
-import { CreateRoomProps, ErrorResponse, RoomCapacity, RoomId, SocketRes, UpdateRoomProps } from "@/types";
+import { 
+  AvailableRooms,
+  CreateRoomProps,
+  PlayerId,
+  Room,
+  RoomCapacity,
+  RoomId,
+  SocketCallback,
+  UpdateRoomProps,
+} from "@/types";
 
 export const roomSocket = (io: Server, socket: Socket) => {
 
-  // done
   socket.on(
     "room:create", 
     (
       payload: CreateRoomProps,
-      callback: (res: SocketRes<RoomId>) => void
+      callback: SocketCallback<RoomId>
     ) => {
     const res = roomService.create(socket, payload);
   
     if (res.success) {
-      callback({
-        success: true,
-        data: res.data,
-      });
-
+      ok(callback, res.data);
       broadcastRoomList(io, roomService.getAvailable());
     } else {
-      callback({
-        success: false,
-        error: res.error,
-      });    
+      callback({ success: false, error: res.error });    
     }
   });
 
-  // done
-  socket.on("room:getAvailable", () => {
-    emit(socket, "room:availableRooms", roomService.getAvailable());
+  socket.on(
+    "room:getAvailable", 
+    (
+      callback: SocketCallback<AvailableRooms>
+    ) => {
+      ok(callback, roomService.getAvailable());
   });
 
-  // done
-  socket.on("room:getInfo", () => {
-    checkRoom({ socket, handler: (room) => {
-      emit(socket, "room:currentInfo", room);
-    }});
-  });
+  socket.on(
+    "room:join", 
+    (
+      { roomId }: RoomId,
+      callback: SocketCallback<RoomId>
+    ) => {
+      const room = getRoom(socket, roomId, callback);
+      if (!room) return;
 
-  // done
-  socket.on("room:join", ({ roomId }) => {
-    checkRoom({ socket, roomId, handler: (room) => {
       if (room.state === "FULL") {
-        emitError(socket, "room:error", "ROOM_IS_FULL");
+        callback({ success: false, error: "ROOM_IS_FULL" })
         return;
       };
 
       roomService.join(socket, room);
-      emit(socket, "room:joined", { roomId });
 
+      ok(callback, { roomId });
       syncRoom(io, room, roomService.getAvailable());
-    }});
   });
 
-  // done
+  socket.on(
+    "room:getInfo", 
+    (
+      callback: SocketCallback<Room>
+    ) => {
+      const room = getRoom(socket, undefined, callback);
+      if (!room) return;
+
+      const isInRoom = isPlayerInRoom(socket, room, callback);
+      if (!isInRoom) return;
+
+      ok(callback, room);
+  });
+
   socket.on(
     "room:update",
     (
       newData: UpdateRoomProps,
-      callback: (res: SocketRes<null>) => void
+      callback: SocketCallback<null>
     ) => {
-    checkRoom({socket, handler: (room) => {
-      const res = roomService.checkName(room.name);
+      console.log("update")
+      const room = getRoom(socket, undefined, undefined);
+      if (!room) return;
 
-      if (res) {
-        callback(res);
-      } else {
-        room.name = newData.name;
-        room.turnDuration = newData.turnDuration;
-        room.rules = newData.rules;
+      const isAdmin = isPlayerAdmin(socket, room, callback);
+      if (!isAdmin) return;
 
+      const res = roomService.checkName(newData.name);
+
+      if (res.success) {
+        roomService.update(room, newData);
+
+        ok(callback, null)   
         syncRoom(io, room, roomService.getAvailable()); 
-
-        callback({
-          success: true,
-          data: null,
-        })    
-      }
-    }});
+      } else {
+        callback(res);
+      }        
   });
 
-  // done
   socket.on(
     "room:updateCapacity", 
     (
       { capacity }: { capacity: RoomCapacity },
-      callback: (res: ErrorResponse) => void
+      callback: SocketCallback<null>
     ) => {
-    checkRoom({ socket, handler: (room) => {
+      console.log("updateCapacity")
+      const room = getRoom(socket, undefined, undefined);
+      if (!room) return;
+
+      const isAdmin = isPlayerAdmin(socket, room, callback);
+      if (!isAdmin) return;
+
       const res = roomService.checkCapacity(
         room.players.length, 
         capacity,
       );
 
-      if (res) {
-        callback(res);
+      if (res.success) {
+        roomService.updateCapacity(room, capacity);
+
+        ok(callback, null)
+        syncRoom(io, room, roomService.getAvailable());
       } else {
-        room.capacity = capacity;
-        syncRoom(io, room, roomService.getAvailable());          
-      }  
-    }});
+        callback(res);
+      } 
   });
 
-  //
   socket.on(
     "room:kickPlayer", 
     (
-      { playerId }: { playerId: string },
-      callback: (res: ErrorResponse) => void
+      { playerId }: PlayerId,
+      callback: SocketCallback<null>
     ) => {
-    checkRoom({ socket, handler: (room) => {      
+      console.log("kickPlayer")
+      const room = getRoom(socket, undefined, undefined);
+      if (!room) return;
+
+      const isAdmin = isPlayerAdmin(socket, room, callback);
+      if (!isAdmin) return;
+
       const kickedSocket = io.sockets.sockets.get(playerId);
 
       if (!kickedSocket) {
+        callback({ success: false, error: "PLAYER_NOT_FOUND" });  
         syncRoom(io, room, roomService.getAvailable());
-        callback({
-          success: false,
-          error: "PLAYER_NOT_FOUND"
-        });  
         return;
       }
 
-      ensurePlayerInRoom({socket, room, callback, handler: () => {
-        kickedSocket.emit("room:kickedOut");    
-         
-        gameLoop.handlePlayerExit(io, kickedSocket);
-      }}) 
-    }})
-  });
+      const isInRoom = isPlayerInRoom(kickedSocket, room, callback);
+      if (!isInRoom) return;
+ 
+      kickedSocket.emit("room:kickedOut");    
+      gameLoop.handlePlayerExit(io, kickedSocket);
 
-  // 
-  socket.on("room:leave", ({ roomId }) => {
-    checkRoom({ socket, roomId, handler: (room) => {
+      ok(callback, null)   
+    }
+  );
+
+  socket.on(
+    "room:leave", 
+    (
+      { roomId }: RoomId
+    ) => {
+      const room = getRoom(socket, roomId, undefined);
+      if (!room) return;
+
       const isInRoom = room.players.some((p) => p.id === socket.id);
 
-      if (!isInRoom) {
-        emitError(socket, "room:left", "NOT_IN_ROOM");
-        return; 
-      };
-
-      gameLoop.handlePlayerExit(io, socket);
-    }});
-  });
+      if (isInRoom) {
+        gameLoop.handlePlayerExit(io, socket);
+      } else {
+        syncRoom(io, room, roomService.getAvailable());          
+      }
+    }
+  );
 
 };

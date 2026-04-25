@@ -26,7 +26,9 @@ export const en = {
     empty: "No rooms available",
     notification: {
       updated: "Room updated",
-      kickedOut: "Removed from room",
+      capacityUpdated: "Players updated",
+      userKickedOut: "User kicked out",
+      kickedOut: "Kicked out from room",
     },
   },
 
@@ -66,6 +68,7 @@ export const en = {
       isFull: "The room is full",
       capacityConflict: "Too many players for this limit",
       playerNotFOund: "Player not found",
+      notAdmin: "Request denied",
     },
   },
 } as const;

@@ -35,10 +35,7 @@ const updateName = (userId: string, newName: string): SocketRes<UserName> => {
 
   users.set(userId, trimmedName);
 
-  return {
-    success: true,
-    data: { name: trimmedName },
-  };
+  return { success: true, data: { name: trimmedName } };
 };
 
 export default {

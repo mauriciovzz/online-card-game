@@ -1,6 +1,6 @@
 import { Flex, Stack } from "@mantine/core";
 
-import { useIsMobile } from "@/hooks/useIsMobile";
+import { useIsMobile } from "@/hooks";
 
 export const MainLayout = ({
   children,

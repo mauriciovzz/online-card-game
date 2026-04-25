@@ -1,3 +1,4 @@
+import type { Room } from "@/types";
 import {
   createContext,
   useContext,
@@ -10,6 +11,8 @@ interface SocketContextTypes {
   socket: Socket | null;
   userName: string;
   setUserName: Dispatch<SetStateAction<string>>;
+  rooms: Room[];
+  fetchRooms: () => void;
 }
 
 export const SocketContext = createContext<

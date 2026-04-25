@@ -3,11 +3,10 @@ import { Stack } from "@mantine/core";
 
 import { useSocket } from "@/contexts/SocketContext";
 import { useRoom } from "@/contexts/RoomContext";
-import { useNotification } from "@/hooks/useNotfication";
 import {
   ButtonsBar,
-  EditRoom,
-  RoomSlots,
+  MainView,
+  UpdateRoomView,
 } from "./components";
 
 import type { View } from "@/types";
@@ -16,19 +15,14 @@ export const Lobby = () => {
   const { socket } = useSocket();
   const { room } = useRoom();
 
-  const { onSuccess } = useNotification();
-
-  const [view, setView] = useState<View>("lobby");
+  const [view, setView] = useState<View>("main");
 
   const viewComponents: Record<View, ReactNode> = {
-    ["lobby"]: <RoomSlots room={room} />,
+    ["main"]: <MainView room={room} />,
     ["edit"]: (
-      <EditRoom
+      <UpdateRoomView
         room={room}
-        onSuccess={() => {
-          onSuccess("room.notification.updated");
-          setView("lobby");
-        }}
+        close={() => setView("main")}
       />
     ),
   };
@@ -37,12 +31,14 @@ export const Lobby = () => {
 
   return (
     <>
-      <Stack h="100%">{viewComponents[view]}</Stack>
+      <Stack h="100%" gap="sm">
+        {viewComponents[view]}
+      </Stack>
 
       <ButtonsBar
-        room={room}
         view={view}
         setView={setView}
+        canStartGame={room.players.length > 1}
       />
     </>
   );

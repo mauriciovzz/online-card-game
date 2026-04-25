@@ -1,4 +1,3 @@
-import { useIsDark } from "@/hooks/useIsDark";
 import {
   ActionIcon,
   Group,
@@ -10,7 +9,7 @@ import {
 import { useTranslation } from "react-i18next";
 import { IconInfoCircle } from "@tabler/icons-react";
 
-import { useIsMobile } from "@/hooks/useIsMobile";
+import { useIsDark, useIsMobile } from "@/hooks";
 import { GAME_RULES } from "@/constants";
 
 export const RulesPopover = () => {
@@ -20,15 +19,17 @@ export const RulesPopover = () => {
   const isMobile = useIsMobile();
   const isDark = useIsDark();
 
+  const iconColor = isDark
+    ? theme.colors.dark[0]
+    : theme.black;
+
   return (
     <Popover position="bottom" withArrow shadow="xs">
       <Popover.Target>
         <ActionIcon
           variant="transparent"
           size="xs"
-          color={
-            isDark ? theme.colors.dark[0] : theme.black
-          }
+          color={iconColor}
         >
           <IconInfoCircle size={14} />
         </ActionIcon>

@@ -2,7 +2,7 @@ import React from "react";
 import { ActionIcon, Text } from "@mantine/core";
 import type { IconProps } from "@tabler/icons-react";
 
-import { useIsMobile } from "@/hooks/useIsMobile";
+import { useIsMobile } from "@/hooks";
 
 interface Props {
   type?: "button" | "submit" | "reset";

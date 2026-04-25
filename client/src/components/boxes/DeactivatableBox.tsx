@@ -1,8 +1,7 @@
 import { Flex, Stack, Text } from "@mantine/core";
-
-import { useIsDark } from "@/hooks/useIsDark";
-import { useThemeColor } from "@/hooks/useThemeColor";
 import { useTranslation } from "react-i18next";
+
+import { useIsDark, useThemeColor } from "@/hooks";
 
 const DisabledOverlay = ({
   isDark,

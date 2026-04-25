@@ -3,7 +3,6 @@ import {
   type Dispatch,
   type SetStateAction,
 } from "react";
-import { useTranslation } from "react-i18next";
 import { Group } from "@mantine/core";
 import {
   IconChevronLeft,
@@ -11,6 +10,7 @@ import {
   IconSettings,
 } from "@tabler/icons-react";
 
+import { useRoom } from "@/contexts/RoomContext";
 import { useChat } from "@/contexts/ChatContext";
 import {
   AppActionIcon,
@@ -18,34 +18,32 @@ import {
   ChatButton,
 } from "@/components";
 
-import type { Room, View } from "@/types";
-import { useRoom } from "@/contexts/RoomContext";
+import type { View } from "@/types";
 
 interface Props {
-  room: Room;
   view: View;
   setView: Dispatch<SetStateAction<View>>;
+  canStartGame: boolean;
 }
 
 export const ButtonsBar = ({
-  room,
   view,
   setView,
+  canStartGame,
 }: Props) => {
-  const { t } = useTranslation();
-
   const { leaveRoom, startGame, isAdmin } = useRoom();
-  const { openChat } = useChat();
+  const { openChat, closeChat } = useChat();
 
   const toggleEdit = useCallback(() => {
     setView((prevView) =>
-      prevView === "edit" ? "lobby" : "edit"
+      prevView === "edit" ? "main" : "edit"
     );
-  }, [setView]);
+    closeChat();
+  }, [closeChat, setView]);
 
   const toggleChat = useCallback(() => {
     setView((prevView) =>
-      prevView === "edit" ? "lobby" : prevView
+      prevView === "edit" ? "main" : prevView
     );
     openChat();
   }, [openChat, setView]);
@@ -54,27 +52,26 @@ export const ButtonsBar = ({
     <Group gap="sm">
       <AppActionIcon
         icon={IconChevronLeft}
-        expand={!isAdmin}
         onClick={leaveRoom}
       />
 
       {isAdmin && (
-        <>
-          <AppButton
-            text={t("room.startGame")}
-            expand
-            disabled={room.players.length === 1}
-            onClick={startGame}
-          />
-
-          <AppActionIcon
-            icon={view === "edit" ? IconX : IconSettings}
-            onClick={toggleEdit}
-          />
-        </>
+        <AppButton
+          text={"room.startGame"}
+          expand
+          disabled={!canStartGame}
+          onClick={startGame}
+        />
       )}
 
       <ChatButton expand={!isAdmin} onClick={toggleChat} />
+
+      {isAdmin && (
+        <AppActionIcon
+          icon={view === "edit" ? IconX : IconSettings}
+          onClick={toggleEdit}
+        />
+      )}
     </Group>
   );
 };

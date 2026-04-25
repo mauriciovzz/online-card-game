@@ -28,9 +28,7 @@ export const ScrollDownButton = ({
     >
       <AppActionIcon
         icon={IconChevronDown}
-        onClick={() => {
-          onClick();
-        }}
+        onClick={() => onClick()}
       />
     </Indicator>
   );

@@ -1,5 +1,5 @@
 import { ButtonsBar } from "./ButtonsBar";
-import { EditRoom } from "./EditRoom";
-import { RoomSlots } from "./RoomSlots";
+import { MainView } from "./MainView";
+import { UpdateRoomView } from "./UpdateRoomView";
 
-export { ButtonsBar, EditRoom, RoomSlots };
+export { ButtonsBar, MainView, UpdateRoomView };

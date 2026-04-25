@@ -1,5 +1,5 @@
 import { Server, Socket } from "socket.io";
-import { Room, Card, GameState, Message, AvailableRooms } from "@/types";
+import { Room, Card, GameState, Message, AvailableRooms, SocketCallback } from "@/types";
 import { users } from "@/stores/users.store";
 
 export const emit = <T,>(
@@ -13,6 +13,9 @@ export const emit = <T,>(
       data,
     });
 };
+
+export const ok = <T>(callback: SocketCallback<T>, data: T) =>
+  callback({ success: true, data });
 
 export const emitError = (
   socket: Socket, 
