@@ -18,11 +18,13 @@ import type {
   RoomId,
   SocketRes,
   ErrorResponse,
-} from "@/types";
+} from "@shared/types";
 
 const ERROR_MAP: Record<string, string> = {
   ROOM_NOT_FOUND: "errors.room.notFound",
   NOT_ENOUGHT_PLAYERS: "errors.room.notEnoughtPlayers",
+  NOT_IN_ROOM: "errors.roon.notInRoom",
+  SERVER_ERROR: "errors.roon.serverError",
 };
 
 export const RoomProvider = ({
@@ -64,6 +66,8 @@ export const RoomProvider = ({
     (res: ErrorResponse) => {
       switch (res.error) {
         case "ROOM_NOT_FOUND":
+        case "NOT_IN_ROOM":
+        case "SERVER_ERROR":
           errorNoti(ERROR_MAP[res.error]);
           handleRoomExit();
           return;
@@ -158,6 +162,7 @@ export const RoomProvider = ({
         isAdmin,
         leaveRoom,
         startGame,
+        handleError,
         getPlayerColor,
       }}
     >

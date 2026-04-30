@@ -5,7 +5,7 @@ import {
   type IconProps,
 } from "@tabler/icons-react";
 
-import type { RoomRules } from "@/types";
+import type { RoomRules } from "@shared/types";
 
 export const GAME_RULES: {
   key: keyof RoomRules;

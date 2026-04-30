@@ -73,6 +73,8 @@ export const es = {
       playerNotFound: "Jugador no encontrado",
       notAdmin: "Solicitud denegada",
       notEnoughtPlayers: "No hay jugadores suficientes",
+      notInRoom: "No forma parte de la sala",
+      serverError: "Error del servidor",
     },
   },
 } as const;

@@ -10,7 +10,7 @@ import type {
   Room,
   RoomCapacity,
   SocketRes,
-} from "@/types";
+} from "@shared/types";
 
 const ERROR_MAP: Record<string, string> = {
   CAPACITY_CONFLICT: "errors.room.capacityConflict",

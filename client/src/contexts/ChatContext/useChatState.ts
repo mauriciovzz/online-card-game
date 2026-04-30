@@ -10,9 +10,9 @@ import { Socket } from "socket.io-client";
 import type {
   Message,
   ReadUpdate,
-  PlayerSlot,
+  Player,
   PlayerId,
-} from "@/types";
+} from "@shared/types";
 
 type RStype = Record<string, number>;
 type TStype = Set<string>;
@@ -20,7 +20,7 @@ type TTOtype = ReturnType<typeof setTimeout> | null;
 
 export const useChatState = (
   socket: Socket | null,
-  roomPlayers: PlayerSlot[]
+  roomPlayers: Player[]
 ) => {
   const [chatOpened, setChatOpened] = useState(false);
 

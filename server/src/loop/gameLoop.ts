@@ -22,10 +22,12 @@ import {
   ParsedCard,
   Game,
   Turn,
-  AppServer,
-  AppSocket,
   Card,
   PlayerHand,
+} from "@shared/types";
+import {
+  AppServer,
+  AppSocket,
   SocketCallback,
 } from "@/types";
 

@@ -1,15 +1,12 @@
-import { Message, PlayerId } from ".";
+import {
+  PlayerId,
+  Message,
+  LastRead,
+  ReadUpdate,
+} from "@shared/types";
 
 interface Content {
   content: string;
-}
-
-export interface LastRead {
-  lastReadCreatedAt: number;
-}
-
-export interface ReadUpdate extends PlayerId {
-  lastReadCreatedAt: number;
 }
 
 export interface ChatEvents {

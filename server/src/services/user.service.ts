@@ -1,5 +1,5 @@
 import { users } from "@/stores";
-import { SocketRes, UserName } from "@/types";
+import { SocketRes, UserName } from "@shared/types";
 
 const isNameTaken = (name: string) => {
   return [...users.values()].includes(name);

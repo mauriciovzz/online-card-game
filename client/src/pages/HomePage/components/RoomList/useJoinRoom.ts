@@ -2,9 +2,9 @@ import { useCallback } from "react";
 import { useNavigate } from "react-router";
 
 import { useSocket } from "@/contexts/SocketContext";
-import { useNotification } from "../../../../hooks/useNotification";
+import { useNotification } from "@/hooks";
 
-import type { RoomId, SocketRes } from "@/types";
+import type { RoomId, SocketRes } from "@shared/types";
 
 const ERROR_MAP: Record<string, string> = {
   ROOM_NOT_FOUND: "room.error.notFound",

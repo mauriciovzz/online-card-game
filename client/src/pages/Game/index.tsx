@@ -1,15 +1,10 @@
 import { useState, useEffect, useRef } from "react";
 import { useParams } from "react-router";
-import { useSocket } from "../contexts/SocketContext";
-import {
-  Button,
-  Box,
-  Flex,
-  Group,
-  Divider,
-} from "@mantine/core";
-import { useRoom } from "../contexts/RoomContext";
-import type { GameState } from "../types";
+import { Box, Flex, Group, Divider } from "@mantine/core";
+import { useSocket } from "@/contexts/SocketContext";
+import { useRoom } from "@/contexts/RoomContext";
+
+import type { GameState } from "@shared/types";
 
 interface Turn {
   currentPlayerId: string;
@@ -18,14 +13,16 @@ interface Turn {
 }
 
 type GSType = GameState | null;
+
 export const Game = () => {
   const { roomId } = useParams();
   const { socket } = useSocket();
+  const { room } = useRoom();
 
   const [countdown, setCountdown] = useState(0);
   const intervalRef = useRef<number | null>(null);
 
-  const [gameState, setGameState] = useState<GSType>(null);
+  const [game, setGame] = useState<GSType>(null);
   const [turn, setTurn] = useState<Turn | null>(null);
   const [isMyTurn, setIsMyTurn] = useState(false);
 
@@ -51,12 +48,10 @@ export const Game = () => {
       }, 200);
     };
 
-    socket.emit("game:getState", { roomId });
-
     const handleUpdatedState = (
       newGameState: GameState
     ) => {
-      setGameState(newGameState);
+      setGame(newGameState);
     };
 
     const handleTurnStart = (newTurnData: Turn) => {
@@ -101,12 +96,6 @@ export const Game = () => {
     };
   }, [roomId, socket]);
 
-  const endTurn = () => {
-    if (!socket) return;
-
-    socket.emit("game:endTurn", { roomId });
-  };
-
   if (!socket) return;
 
   return (
@@ -115,7 +104,7 @@ export const Game = () => {
 
       <Divider />
 
-      <Box flex={1}>
+      {/* <Box flex={1}>
         {countdown}
         {" - "}
         {isMyTurn ? "is your turn!" : "is not your turn!"}
@@ -144,7 +133,7 @@ export const Game = () => {
           sendMessage={sendMessage}
           currentPlayerId={socket.id ?? ""}
         />
-      </Box>
+      </Box> */}
 
       <Divider />
 

@@ -8,7 +8,7 @@ import {
   RoomPlayers,
 } from "@/components";
 
-import type { Room } from "@/types";
+import type { Room } from "@shared/types";
 
 interface Props {
   room: Room;

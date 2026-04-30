@@ -1,12 +1,13 @@
 import { createContext, useContext } from "react";
 
-import type { Room } from "@/types";
+import type { Room, ErrorResponse } from "@shared/types";
 
 interface RoomContextTypes {
   room: Room;
   isAdmin: boolean;
   leaveRoom: () => void;
   startGame: () => void;
+  handleError: (res: ErrorResponse) => void;
   getPlayerColor: (
     playerId: string
   ) => { string: string; css: string } | undefined;

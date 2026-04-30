@@ -1,5 +1,11 @@
-import userService from "./user.service";
-import roomService from "./room.service";
+import chatService from "./chat.service";
 import gameService from "./game.service";
+import roomService from "./room.service";
+import userService from "./user.service";
 
-export { userService, roomService, gameService };
+export {
+  chatService,
+  gameService,
+  roomService,
+  userService,
+};

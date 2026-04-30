@@ -1,11 +1,13 @@
 import {
-  AppServer,
-  AppSocket,
   PlayerHand,
   Turn,
   Room,
   GameState,
   AvailableRooms,
+} from "@shared/types";
+import {
+  AppServer,
+  AppSocket,
   SocketCallback,
 } from "@/types";
 

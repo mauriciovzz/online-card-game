@@ -11,11 +11,11 @@ import { SocketContext } from "./SocketContext";
 import { SpinnerLayout } from "@/layouts";
 
 import type {
-  AvailableRooms,
   Room,
-  SuccessResponse,
+  AvailableRooms,
   UserName,
-} from "@/types";
+  SuccessResponse,
+} from "@shared/types";
 
 const SOCKET_URL = import.meta.env.VITE_SOCKET_URL;
 

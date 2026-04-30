@@ -1,20 +1,13 @@
 import {
+  InitialGameData,
   GameState,
-  PlayerHand,
-  PlayerId,
-  SocketCallback,
   Turn,
+  PlayerHand,
   PlayedCard,
-} from ".";
-
-interface InitialGameData extends PlayerHand {
-  gameState: GameState;
-}
-
-interface PlayerQuitProps {
-  playerName: string;
-  gameState: GameState;
-}
+  PlayerId,
+  PlayerQuitProps,
+} from "@shared/types";
+import { SocketCallback } from "@/types";
 
 export interface GameEvents {
   "game:getData": (

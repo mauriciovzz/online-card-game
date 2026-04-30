@@ -1,4 +1,4 @@
-import { Game, Turn } from "@/types";
+import { Game, Turn } from "@shared/types";
 
 const games = new Map<string, Game>();
 const timers = new Map<string, NodeJS.Timeout>();

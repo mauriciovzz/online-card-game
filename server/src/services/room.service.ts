@@ -9,8 +9,8 @@ import {
   SocketRes,
   RoomCapacity,
   UpdateRoomProps,
-  PlayerSlot,
-} from "@/types";
+  Player,
+} from "@shared/types";
 
 const generateId = () => {
   return crypto
@@ -135,7 +135,7 @@ const leave = (room: Room, playerId: string) => {
     return true;
   }
 
-  const filter = (p: PlayerSlot) => p.id !== playerId;
+  const filter = (p: Player) => p.id !== playerId;
   const remainingPlayers = room.players.filter(filter);
 
   if (room.adminId === playerId) {

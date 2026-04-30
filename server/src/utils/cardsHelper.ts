@@ -7,25 +7,13 @@ import {
   PlayerState,
   PlayedCard,
   SocketRes,
-} from "@/types";
+} from "@shared/types";
 
 const cardColors = ["R", "Y", "G", "B"];
-const cardNumbers = [
-  "0",
-  "1",
-  "2",
-  "3",
-  "4",
-  "5",
-  "6",
-  "7",
-  "8",
-  "9",
-];
+const cardNumbers = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
 const cardTypes = ["S", "R", "T"];
 const cardValues = [...cardNumbers, ...cardTypes];
 
-// ok
 const shuffle = (deck: Card[]) => {
   let currentIndex = deck.length;
   let randomIndex;
@@ -43,7 +31,6 @@ const shuffle = (deck: Card[]) => {
   return deck;
 };
 
-// ok
 const refillDeck = (deck: Card[], pile: Card[]) => {
   const topCard = pile.pop();
   const rest = pile.splice(0);
@@ -52,15 +39,14 @@ const refillDeck = (deck: Card[], pile: Card[]) => {
   if (topCard) pile.push(topCard);
 };
 
-// ----------
+// ------------------------------------------------------------
 
-// ok
 const createDeck = () => {
   const deck: Card[] = [];
 
   for (const color of cardColors) {
     for (const value of cardValues) {
-      const card = `${value}${color}` as Card;
+      const card = `${value.toString()}${color}` as Card;
 
       deck.push(card);
 
@@ -70,9 +56,8 @@ const createDeck = () => {
     }
   }
 
-  for (let i = 0; i < 4; i++) {
-    deck.push("FC", "WC");
-  }
+  deck.push("FC", "FC", "FC", "FC");
+  deck.push("WC", "WC", "WC", "WC");
 
   shuffle(deck);
 
@@ -83,7 +68,6 @@ const createDeck = () => {
   return { deck, pile };
 };
 
-// ok
 const cardRegex = /^(?:([0-9SRT])([RYGB])|(FC|WC))$/;
 
 const parseCard = ({
@@ -170,7 +154,6 @@ const parseCard = ({
   }
 };
 
-// ok
 const draw = (
   player: PlayerState,
   numCards: number,
@@ -187,14 +170,12 @@ const draw = (
   player.calledUno = false;
 };
 
-// ok
 const put = (card: Card, hand: Card[], pile: Card[]) => {
   const playedCardIndex = hand.findIndex((c) => c === card);
   const cardToPut = hand.splice(playedCardIndex, 1);
   pile.push(...cardToPut);
 };
 
-// ok
 const checkMove = (
   topCard: ParsedCard,
   newCard: ParsedCard

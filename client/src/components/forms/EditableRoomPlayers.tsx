@@ -5,7 +5,7 @@ import { useSocket } from "@/contexts/SocketContext";
 import { useNotification } from "@/hooks";
 import { Label, RoomPlayers } from "@/components";
 
-import type { Room, SocketRes } from "@/types";
+import type { Room, SocketRes } from "@shared/types";
 
 const ERROR_MAP: Record<string, string> = {
   PLAYER_NOT_FOUND: "errors.room.playerNotFound",

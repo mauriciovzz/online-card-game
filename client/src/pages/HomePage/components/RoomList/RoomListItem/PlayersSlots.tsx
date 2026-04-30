@@ -3,12 +3,12 @@ import { Flex, Badge } from "@mantine/core";
 import { useThemeColor } from "@/hooks";
 import { PLAYER_SLOTS } from "@/constants";
 
-import type { PlayerSlot } from "@/types";
+import type { Player } from "@shared/types";
 
 interface SlotBadgeProps {
   i: number;
   roomCapacity: number;
-  player?: PlayerSlot;
+  player?: Player;
 }
 
 export const SlotBadge = ({
@@ -41,7 +41,7 @@ export const SlotBadge = ({
 };
 
 interface PlayersSlotsProps {
-  players: PlayerSlot[];
+  players: Player[];
   roomCapacity: number;
 }
 

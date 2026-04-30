@@ -6,7 +6,7 @@ import type { IconProps } from "@tabler/icons-react";
 import { useThemeColor } from "@/hooks";
 import { GAME_RULES } from "@/constants";
 
-import type { RoomRules } from "@/types";
+import type { RoomRules } from "@shared/types";
 
 interface Props {
   rules: RoomRules;

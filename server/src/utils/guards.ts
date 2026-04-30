@@ -1,15 +1,14 @@
 import { games, rooms, turns } from "@/stores";
+import { notOk } from "./emiterHelper";
 
 import {
-  ErrorResponse,
-  PlayerSlot,
   Room,
-  AppSocket,
   Game,
   Turn,
-  SocketCallback,
-} from "@/types";
-import { notOk } from "./emiterHelper";
+  ErrorResponse,
+  Player,
+} from "@shared/types";
+import { AppSocket, SocketCallback } from "@/types";
 
 const ERROR_MAP: Record<number, string> = {
   1: "ROOM_NOT_FOUND",
@@ -52,7 +51,7 @@ export const getRoom = (
 export const isPlayerInRoom = (
   room: Room,
   playerId: string
-): PlayerSlot | null => {
+): Player | null => {
   const player = room.players.find(
     (p) => p.id === playerId
   );

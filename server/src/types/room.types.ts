@@ -1,13 +1,13 @@
 import {
-  CreateRoomProps,
-  SocketCallback,
   RoomId,
-  AvailableRooms,
-  Room,
-  UpdateRoomProps,
   RoomCapacity,
+  Room,
+  AvailableRooms,
+  CreateRoomProps,
+  UpdateRoomProps,
   PlayerId,
-} from ".";
+} from "@shared/types";
+import { SocketCallback } from ".";
 
 interface RoomError {
   error: string;

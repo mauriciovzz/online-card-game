@@ -70,6 +70,8 @@ export const en = {
       playerNotFound: "Player not found",
       notAdmin: "Request denied",
       notEnoughtPlayers: "Not enought players",
+      notInRoom: "You are not in this room",
+      serverError: "Server error",
     },
   },
 } as const;

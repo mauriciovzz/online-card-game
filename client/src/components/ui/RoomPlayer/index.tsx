@@ -10,7 +10,7 @@ import { useThemeColor } from "@/hooks";
 import { PLAYER_SLOTS } from "@/constants";
 import { SlotBase } from "./SlotBase";
 
-import type { PlayerSlot, Room } from "@/types";
+import type { Player, Room } from "@shared/types";
 
 const SlotText = ({
   color,
@@ -58,7 +58,7 @@ export const RoomPlayers = ({
   const themeColor = useThemeColor();
 
   const playersByPos = useMemo(() => {
-    const map: Partial<Record<number, PlayerSlot>> = {};
+    const map: Partial<Record<number, Player>> = {};
 
     room.players.forEach((p) => {
       map[p.pos] = p;

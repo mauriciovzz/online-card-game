@@ -1,4 +1,4 @@
-import type { RoomCapacity } from "@/types";
+import type { RoomCapacity } from "@shared/types";
 
 export const ROOM_CAPACITY_OPTIONS: {
   value: RoomCapacity;

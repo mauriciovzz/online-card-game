@@ -1,4 +1,5 @@
-import { SocketCallback, UserName } from ".";
+import { UserName } from "@shared/types";
+import { SocketCallback } from "@/types";
 
 export interface UserEvents {
   "user:updateName": (
@@ -8,5 +9,5 @@ export interface UserEvents {
 }
 
 export interface UserResponses {
-  "user:connected": ({ name }: { name: string }) => void;
+  "user:connected": ({ name }: UserName) => void;
 }

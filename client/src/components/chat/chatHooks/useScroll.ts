@@ -6,7 +6,7 @@ import {
   type RefObject,
 } from "react";
 
-import type { Message } from "@/types";
+import type { Message } from "@shared/types";
 
 interface Params {
   vpRef: React.RefObject<HTMLDivElement | null>;

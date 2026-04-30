@@ -8,7 +8,7 @@ import { Flex, ScrollArea } from "@mantine/core";
 
 import { ScrollDownButton } from "./ScrollDownButton";
 
-import type { Message } from "@/types";
+import type { Message } from "@shared/types";
 
 interface Props {
   vpRef: RefObject<HTMLDivElement | null>;

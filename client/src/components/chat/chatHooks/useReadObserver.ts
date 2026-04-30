@@ -1,6 +1,6 @@
 import { useEffect, useMemo } from "react";
 
-import type { Message } from "@/types";
+import type { Message } from "@shared/types";
 
 interface Params {
   chatOpened: boolean;

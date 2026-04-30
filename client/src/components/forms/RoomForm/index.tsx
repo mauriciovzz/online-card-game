@@ -9,21 +9,15 @@ import {
 } from "@/components";
 import { FormRuleSelector } from "./FormRuleSelector";
 
-import type { RoomRules } from "@/types";
+import type { RoomInfo } from "@shared/types";
 
-interface UpdatableInfo {
-  name: string;
-  turnDuration: "30" | "60" | "90";
-  rules: RoomRules;
-}
-
-interface Props<T extends UpdatableInfo> {
+interface Props<T extends RoomInfo> {
   form: UseFormReturnType<T>;
   capacityComponent?: React.ReactNode;
   playersComponent?: React.ReactNode;
 }
 
-export const RoomForm = <T extends UpdatableInfo>({
+export const RoomForm = <T extends RoomInfo>({
   form,
   capacityComponent,
   playersComponent,

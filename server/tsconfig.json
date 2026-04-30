@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     // File Layout
-    "rootDir": "./src",
+    "rootDir": "..",
     "outDir": "./build/",
 
     // Environment Settings
@@ -10,9 +10,10 @@
     "types": ["node"],
 
     "ignoreDeprecations": "6.0",
-    "baseUrl": "./src",
+    "baseUrl": ".",
     "paths": {
-      "@/*": ["*"]
+      "@/*": ["src/*"],
+      "@shared/*": ["../shared/*"]
     },
 
     // Other Outputs
@@ -42,5 +43,8 @@
     // "skipLibCheck": true,
     "esModuleInterop": true,
   },
-  "include": ["src/**/*"]
+  "include": [
+    "src/**/*",
+    "../shared/**/*"
+  ]
 }

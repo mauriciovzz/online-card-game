@@ -4,7 +4,7 @@ import { SelectedRules } from "@/components";
 import { ItemButton } from "./ItemButton";
 import { PlayersSlots } from "./PlayersSlots";
 
-import type { Room } from "@/types";
+import type { Room } from "@shared/types";
 
 interface RoomListItemProps {
   room: Room;

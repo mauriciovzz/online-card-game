@@ -16,7 +16,7 @@ import { RulesPopover } from "./RulesPopover";
 
 import classes from "./FormRuleSelector.module.css";
 
-import type { RoomRules } from "@/types";
+import type { RoomRules } from "@shared/types";
 
 interface RulebuttonProps {
   icon: React.ComponentType<IconProps>;

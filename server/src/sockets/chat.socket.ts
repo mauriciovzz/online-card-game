@@ -1,6 +1,7 @@
 import { getRoom, isPlayerInRoom } from "@/utils/guards";
+import { chatService } from "@/services";
 
-import { AppServer, AppSocket, Message } from "@/types";
+import { AppServer, AppSocket } from "@/types";
 
 export const chatSocket = (
   io: AppServer,
@@ -13,13 +14,11 @@ export const chatSocket = (
     const player = isPlayerInRoom(room, socket.id);
     if (!player) return;
 
-    const newMessage: Message = {
-      id: crypto.randomUUID(),
-      senderId: socket.id,
-      senderName: player.name,
-      content,
-      createdAt: new Date().getTime(),
-    };
+    const newMessage = chatService.createMessage(
+      socket,
+      player.name,
+      content
+    );
 
     io.to(room.id).emit("chat:newMessage", newMessage);
   });
@@ -31,9 +30,9 @@ export const chatSocket = (
     const player = isPlayerInRoom(room, socket.id);
     if (!player) return;
 
-    socket
-      .to(room.id)
-      .emit("chat:typing:start", { playerId: socket.id });
+    socket.to(room.id).emit("chat:typing:start", {
+      playerId: socket.id,
+    });
   });
 
   socket.on("chat:typing:stop", () => {

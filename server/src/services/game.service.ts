@@ -7,9 +7,9 @@ import {
   CardEffect,
   CardType,
   GameState,
-  LeaveGameRes,
-  PlayerSlot,
-} from "@/types";
+  Player,
+} from "@shared/types";
+import { LeaveGameRes } from "@/types";
 
 // ok
 const getNextPlayerIndex = (game: Game) => {
@@ -205,8 +205,8 @@ const leave = (
   game: Game,
   playerId: string
 ): LeaveGameRes | null => {
-  const find = (p: PlayerSlot) => p.id === playerId;
-  const filter = (p: PlayerSlot) => p.id !== playerId;
+  const find = (p: Player) => p.id === playerId;
+  const filter = (p: Player) => p.id !== playerId;
 
   const playerIndex = game.players.findIndex(find);
   if (playerIndex === -1) return null;

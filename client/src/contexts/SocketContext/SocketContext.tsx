@@ -1,4 +1,3 @@
-import type { Room } from "@/types";
 import {
   createContext,
   useContext,
@@ -6,6 +5,8 @@ import {
   type SetStateAction,
 } from "react";
 import { Socket } from "socket.io-client";
+
+import type { Room } from "@shared/types";
 
 interface SocketContextTypes {
   socket: Socket | null;

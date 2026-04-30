@@ -9,7 +9,7 @@ import type {
   UpdateRoomProps,
   Room,
   SocketRes,
-} from "@/types";
+} from "@shared/types";
 
 const ERROR_MAP: Record<string, string> = {
   NAME_EMPTY: "errors.name.empty",

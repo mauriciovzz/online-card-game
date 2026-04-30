@@ -11,14 +11,14 @@ import {
   notOk,
   ok,
 } from "@/utils/emiterHelper";
-
-import { AppServer, AppSocket } from "@/types";
-import cardsHelper from "@/utils/cardsHelper";
 import {
   handleExit,
   playCard,
   startTurn,
 } from "@/loop/gameLoop";
+import cardsHelper from "@/utils/cardsHelper";
+
+import { AppServer, AppSocket } from "@/types";
 
 export const gameSocket = (
   io: AppServer,

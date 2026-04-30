@@ -10,7 +10,7 @@ import { IconCheck } from "@tabler/icons-react";
 
 import { useRoom } from "@/contexts/RoomContext";
 
-import type { Message } from "@/types";
+import type { Message } from "@shared/types";
 
 interface Props {
   message: Message;
