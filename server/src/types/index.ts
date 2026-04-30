@@ -1,39 +1,146 @@
+/* SOCKETS */
+import { Server, Socket } from "socket.io";
+
+import { UserEvents, UserResponses } from "./user.types";
+import { RoomEvents, RoomResponses } from "./room.types";
+import { ChatEvents, ChatResponses } from "./chat.types";
+import { GameEvents, GameResponses } from "./game.types";
+
+export type ClientToServerEvents = UserEvents &
+  RoomEvents &
+  ChatEvents &
+  GameEvents;
+
+export type ServerToClientEvents = UserResponses &
+  RoomResponses &
+  ChatResponses &
+  GameResponses;
+
+export type InterServerEvents = object;
+
+export interface SocketData {
+  roomId: string | undefined;
+}
+
+export type AppServer = Server<
+  ClientToServerEvents,
+  ServerToClientEvents,
+  InterServerEvents,
+  SocketData
+>;
+
+export type AppSocket = Socket<
+  ClientToServerEvents,
+  ServerToClientEvents,
+  InterServerEvents,
+  SocketData
+>;
+
 /* CARDS */
 
-export type CardNumber = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9;
+export type CardNumber =
+  | 0
+  | 1
+  | 2
+  | 3
+  | 4
+  | 5
+  | 6
+  | 7
+  | 8
+  | 9;
+
 export type CardColor = "R" | "Y" | "G" | "B";
 
-export type Card = `${CardNumber | "S" | "R" | "T"}${CardColor}` | "FC" | "WC"; 
+export type Card =
+  | `${CardNumber | "S" | "R" | "T"}${CardColor}`
+  | "FC"
+  | "WC";
 
-export type CardType = "NUMBER" | "SKIP" | "REVERSE" | "DRAW_TWO" | "DRAW_FOUR" | "WILD_CARD"; 
-export type CardEffect = "SKIP" | "DRAW_TWO" | "DRAW_FOUR" | null; 
+export type CardType =
+  | "NUMBER"
+  | "SKIP"
+  | "REVERSE"
+  | "DRAW_TWO"
+  | "DRAW_FOUR"
+  | "WILD_CARD";
 
-export type NumberCard    = { raw: Card; type: "NUMBER";    color: CardColor; number: number; }; 
-export type SkipCard      = { raw: Card; type: "SKIP";      color: CardColor; }; 
-export type ReverseCard   = { raw: Card; type: "REVERSE";   color: CardColor; }; 
-export type DrawTwoCard   = { raw: Card; type: "DRAW_TWO";  color: CardColor; }; 
-export type DrawFourCard  = { raw: "FC"; type: "DRAW_FOUR"; color: CardColor; }; 
-export type WildCard      = { raw: "WC"; type: "WILD_CARD"; color: CardColor; }; 
+export type CardEffect =
+  | "SKIP"
+  | "DRAW_TWO"
+  | "DRAW_FOUR"
+  | null;
 
-export type ParsedCard = NumberCard | SkipCard | ReverseCard | DrawTwoCard | WildCard | DrawFourCard;
+export interface NumberCard {
+  raw: Card;
+  type: "NUMBER";
+  color: CardColor;
+  number: number;
+}
+
+export interface SkipCard {
+  raw: Card;
+  type: "SKIP";
+  color: CardColor;
+}
+
+export interface ReverseCard {
+  raw: Card;
+  type: "REVERSE";
+  color: CardColor;
+}
+
+export interface DrawTwoCard {
+  raw: Card;
+  type: "DRAW_TWO";
+  color: CardColor;
+}
+
+export interface DrawFourCard {
+  raw: "FC";
+  type: "DRAW_FOUR";
+  color: CardColor;
+}
+
+export interface WildCard {
+  raw: "WC";
+  type: "WILD_CARD";
+  color: CardColor;
+}
+
+export type ParsedCard =
+  | NumberCard
+  | SkipCard
+  | ReverseCard
+  | DrawTwoCard
+  | WildCard
+  | DrawFourCard;
+
+export interface PlayedCard {
+  playedCard: string;
+  chosenColor?: string;
+}
 
 /* PLAYERS */
 
-export interface PlayerSlot { 
+export interface PlayerSlot {
   id: string;
   name: string;
   pos: number;
   joinedAt: number;
-};
+}
 
-export interface PlayerState extends PlayerSlot { 
-  hand: Card[]; 
+export interface PlayerHand {
+  hand: Card[];
   calledUno: boolean;
-};
+}
 
-export interface PlayerInfo extends PlayerSlot { 
+export type PlayerState = PlayerSlot & PlayerHand;
+
+export interface PlayerInfo extends PlayerSlot {
   numCards: number;
-};
+  calledUno: boolean;
+}
 
 /* ROOMS */
 
@@ -45,70 +152,74 @@ export interface RoomRules {
 
 export type RoomCapacity = "2" | "3" | "4";
 
-export interface Room { 
-  id: string, 
-  name: string, 
-  turnDuration: "30" | "60" | "90"; 
-  capacity: RoomCapacity; 
-  state: "WAITING" | "FULL" | "PLAYING"; 
+export interface Room {
+  id: string;
+  name: string;
+  turnDuration: "30" | "60" | "90";
+  capacity: RoomCapacity;
+  state: "WAITING" | "FULL" | "PLAYING";
 
-  adminId: string; 
+  adminId: string;
 
   players: PlayerSlot[];
 
-  rules: RoomRules; 
-}; 
+  rules: RoomRules;
+}
 
-export type CreateRoomProps = Omit<Room, "id" | "adminId" | "players" | "state" > 
+export type CreateRoomProps = Omit<
+  Room,
+  "id" | "adminId" | "players" | "state"
+>;
 
-export type UpdateRoomProps = Omit<CreateRoomProps, "capacity">;
+export type UpdateRoomProps = Omit<
+  CreateRoomProps,
+  "capacity"
+>;
 
 /* GAME */
 
-type Direction = 1 | -1; 
+type Direction = 1 | -1;
 
-export interface Game { 
-  players: PlayerState[]; 
-  currentPlayerIndex: number; 
-  direction: Direction; 
+export interface Game {
+  players: PlayerState[];
+  currPlayerIndex: number;
+  direction: Direction;
 
-  deck: Card[]; 
-  pile: Card[]; 
-  topCard: ParsedCard; 
+  deck: Card[];
+  pile: Card[];
+  topCard: ParsedCard;
 
-  currentEffect: CardEffect; 
+  currEffect: CardEffect;
+  currDrawStack: number;
   nextEffect: CardEffect;
-
-  currentDrawStack: number; 
-}; 
+}
 
 export interface GameState {
-  players: PlayerInfo[]; 
+  players: PlayerInfo[];
 
-  direction: Direction; 
+  direction: Direction;
   topCard: ParsedCard;
-  currentDrawStack: number; 
-};
+  currDrawStack: number;
+}
 
-export interface Turn { 
-  startTime: Date | null;
+export interface Turn {
+  startTime: number;
+  effect: CardEffect;
 
-  currentPlayerId: string; 
-  effect: CardEffect,
- 
-  cardPut: boolean; 
-  cardDraw: boolean; 
-}; 
+  currentPlayerId: string;
 
-export type LeaveGameRes = 
-  | { type: "GAME_EMPTY" }
+  cardPut: boolean;
+  cardDraw: boolean;
+}
+
+export type LeaveGameRes =
   | {
-      type: "GAME_WON";
-      winnerId: string;
+      type: "WON";
+      id: string;
     }
   | {
-      type: "LEFT_GAME";
-      wasCurrentPlayer: boolean;
+      type: "LEFT";
+      wasPlaying: boolean;
     };
 
 /* SOCKET RESPONSE */
@@ -147,10 +258,10 @@ export type SocketCallback<T> = (res: SocketRes<T>) => void;
 
 /* CHAT */
 
-export interface Message { 
+export interface Message {
   id: string;
   senderId: string;
-  senderName: string; 
+  senderName: string;
   content: string;
-  createdAt: number; 
-};
+  createdAt: number;
+}

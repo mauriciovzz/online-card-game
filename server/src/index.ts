@@ -2,17 +2,23 @@ import { createServer } from "http";
 import { Server } from "socket.io";
 import express from "express";
 import cors from "cors";
+
 import { registerSocketHandlers } from "./sockets";
 
+import { AppServer } from "./types";
+
 const app = express();
-app.use(cors)
+app.use(cors);
 
 const httpServer = createServer(app);
 
-const io = new Server(httpServer, {
+const io: AppServer = new Server(httpServer, {
   cors: {
-    origin: ["http://localhost:5173", "http://192.168.100.178:5173"]
-  }
+    origin: [
+      "http://localhost:5173",
+      "http://192.168.100.182:5173",
+    ],
+  },
 });
 
 io.on("connection", (socket) => {
@@ -22,5 +28,5 @@ io.on("connection", (socket) => {
 const PORT = 3003;
 
 httpServer.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+  console.log("Server running on port" + PORT.toString());
 });

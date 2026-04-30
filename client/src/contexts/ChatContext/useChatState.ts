@@ -9,15 +9,14 @@ import { Socket } from "socket.io-client";
 
 import type {
   Message,
-  SocketRes,
-  Typer,
   ReadUpdate,
   PlayerSlot,
+  PlayerId,
 } from "@/types";
 
 type RStype = Record<string, number>;
 type TStype = Set<string>;
-type TTOtype = NodeJS.Timeout | null;
+type TTOtype = ReturnType<typeof setTimeout> | null;
 
 export const useChatState = (
   socket: Socket | null,
@@ -37,17 +36,14 @@ export const useChatState = (
 
   // new messages ----------
   const handleNewMessage = useCallback(
-    (res: SocketRes<Message>) => {
-      if (!res.success) return;
-
-      const msg = res.data;
-      setMessages((prev) => [...prev, msg]);
+    (newMessage: Message) => {
+      setMessages((prev) => [...prev, newMessage]);
       setUnread((prev) => (chatOpened ? prev : prev + 1));
 
-      if (msg.senderId !== socket?.id) {
+      if (newMessage.senderId !== socket?.id) {
         setTypers((prev) => {
           const next = new Set(prev);
-          next.delete(msg.senderId);
+          next.delete(newMessage.senderId);
           return next;
         });
       }
@@ -88,23 +84,17 @@ export const useChatState = (
   };
 
   const handleTypingStart = useCallback(
-    (res: SocketRes<Typer>) => {
-      if (!res.success) return;
-
-      setTypers((prev) =>
-        new Set(prev).add(res.data.userId)
-      );
+    ({ playerId }: PlayerId) => {
+      setTypers((prev) => new Set(prev).add(playerId));
     },
     []
   );
 
   const handleTypingStop = useCallback(
-    (res: SocketRes<Typer>) => {
-      if (!res.success) return;
-
+    ({ playerId }: PlayerId) => {
       setTypers((prev) => {
         const next = new Set(prev);
-        next.delete(res.data.userId);
+        next.delete(playerId);
         return next;
       });
     },
@@ -113,11 +103,7 @@ export const useChatState = (
 
   // receips handlers ----------
   const handleReadUpdate = useCallback(
-    (res: SocketRes<ReadUpdate>) => {
-      if (!res.success) return;
-
-      const { playerId, lastReadCreatedAt } = res.data;
-
+    ({ playerId, lastReadCreatedAt }: ReadUpdate) => {
       setReadState((prev) => {
         const current = prev[playerId] ?? 0;
         if (lastReadCreatedAt <= current) return prev;

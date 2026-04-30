@@ -20,6 +20,11 @@ import type {
   ErrorResponse,
 } from "@/types";
 
+const ERROR_MAP: Record<string, string> = {
+  ROOM_NOT_FOUND: "errors.room.notFound",
+  NOT_ENOUGHT_PLAYERS: "errors.room.notEnoughtPlayers",
+};
+
 export const RoomProvider = ({
   children,
 }: {
@@ -38,14 +43,10 @@ export const RoomProvider = ({
     void navigate("/");
   }, [navigate]);
 
-  const handleNewInfo = useCallback(
-    (res: SocketRes<Room>) => {
-      if (res.success) {
-        setRoom(res.data);
-      }
-    },
-    []
-  );
+  const handleNewData = useCallback((newData: Room) => {
+    console.log(newData);
+    setRoom(newData);
+  }, []);
 
   const handleKickedOut = useCallback(() => {
     errorNoti("room.notification.kickedOut");
@@ -53,10 +54,8 @@ export const RoomProvider = ({
   }, [handleRoomExit, errorNoti]);
 
   const handleGameStarted = useCallback(
-    (res: SocketRes<RoomId>) => {
-      if (res.success) {
-        void navigate(`/room/${res.data.roomId}/game`);
-      }
+    ({ roomId }: RoomId) => {
+      void navigate(`/room/${roomId}/game`);
     },
     [navigate]
   );
@@ -65,8 +64,11 @@ export const RoomProvider = ({
     (res: ErrorResponse) => {
       switch (res.error) {
         case "ROOM_NOT_FOUND":
-          errorNoti(res.error);
+          errorNoti(ERROR_MAP[res.error]);
           handleRoomExit();
+          return;
+        case "NOT_ENOUGHT_PLAYERS":
+          errorNoti(ERROR_MAP[res.error]);
           return;
       }
     },
@@ -74,9 +76,14 @@ export const RoomProvider = ({
   );
 
   useEffect(() => {
+    console.log("RoomProvider mounted");
+    return () => console.log("RoomProvider unmounted");
+  }, []);
+
+  useEffect(() => {
     if (!socket) return;
 
-    socket.emit("room:getInfo", (res: SocketRes<Room>) => {
+    socket.emit("room:getData", (res: SocketRes<Room>) => {
       if (res.success) {
         setRoom(res.data);
         setIsReady(true);
@@ -85,13 +92,13 @@ export const RoomProvider = ({
       }
     });
 
-    socket.on("room:currentInfo", handleNewInfo);
+    socket.on("room:currentData", handleNewData);
     socket.on("room:gameStarted", handleGameStarted);
     socket.on("room:kickedOut", handleKickedOut);
     socket.on("room:error", handleError);
 
     return () => {
-      socket.off("room:currentInfo", handleNewInfo);
+      socket.off("room:currentData", handleNewData);
       socket.off("room:gameStarted", handleGameStarted);
       socket.off("room:kickedOut", handleKickedOut);
       socket.off("room:error", handleError);
@@ -99,7 +106,7 @@ export const RoomProvider = ({
   }, [
     socket,
     roomId,
-    handleNewInfo,
+    handleNewData,
     handleGameStarted,
     handleKickedOut,
     handleError,
@@ -120,8 +127,15 @@ export const RoomProvider = ({
   const startGame = useCallback(() => {
     if (!socket || !room) return;
 
-    socket.emit("room:startGame", { roomId: room.id });
-  }, [socket, room]);
+    socket.emit(
+      "room:startGame",
+      (res: SocketRes<null>) => {
+        if (!res.success) {
+          handleError(res);
+        }
+      }
+    );
+  }, [socket, room, handleError]);
 
   const getPlayerColor = (playerId: string) => {
     const player = room?.players.find(

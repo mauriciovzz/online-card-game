@@ -1,118 +1,93 @@
-import { Server, Socket } from "socket.io";
-import { Room, Card, GameState, Message, AvailableRooms, SocketCallback } from "@/types";
-import { users } from "@/stores/users.store";
+import {
+  AppServer,
+  AppSocket,
+  PlayerHand,
+  Turn,
+  Room,
+  GameState,
+  AvailableRooms,
+  SocketCallback,
+} from "@/types";
 
-export const emit = <T,>(
-  socket: Socket,
-  event: string,
-  data: T, 
+export const ok = <T>(
+  callback: SocketCallback<T>,
+  data: T
 ) => {
-    socket.emit(event, { 
-      success: true,
-      error: null,
-      data,
-    });
-};
-
-export const ok = <T>(callback: SocketCallback<T>, data: T) =>
   callback({ success: true, data });
-
-export const emitError = (
-  socket: Socket, 
-  emitTo: string, 
-  error: string,
-) => {
-  socket.emit(emitTo, {
-    success: false,
-    error,
-    data: null,
-  })
 };
 
-export const emitRoomInfo = (
-  io: Server,
-  room: Room,
+export const notOk = <T>(
+  callback: SocketCallback<T>,
+  error: string
 ) => {
-  io.to(room.id).emit("room:currentInfo", {
-    success: true,
-    error: null,
-    data: room,
-  });
+  callback({ success: false, error });
 };
 
-export const emitMessage = (
-  io: Server,
-  roomId: string, 
-  message: Message,
+export const emitRoomData = (
+  io: AppServer,
+  newData: Room
 ) => {
-  io.to(roomId).emit("chat:newMessage", {
-    success: true,
-    error: null,
-    data: message ,
-  });
+  io.to(newData.id).emit("room:currentData", newData);
 };
 
 export const broadcastRoomList = (
-  io: Server,
-  rooms: AvailableRooms,
+  io: AppServer,
+  newData: AvailableRooms
 ) => {
-  io.emit("room:availableRooms", { 
-    success: true,
-    error: null,
-    data: rooms,
-  });
+  io.emit("room:availableRooms", newData);
 };
 
-export const syncRoom = (io: Server, room: Room, rooms: AvailableRooms) => {
-  broadcastRoomList(io, rooms);
-  emitRoomInfo(io, room);
-}
-
-// game ---
-
-export const emitGameError = (
-  socket: Socket, 
-  roomId: string, 
-  emitTo: string, 
-  errorName: string,
-) => {
-  socket.to(roomId).emit(emitTo, {
-    success: false,
-    error: errorName,
-    data: null,
-  })
-};
-
-export const emitGameLeft = (
-  io: Server,
-  socket: Socket,
+export const syncRoom = (
+  io: AppServer,
   room: Room,
-  gameState: GameState,
+  rooms: AvailableRooms
 ) => {
-  io.to(room.id).emit("game:playerLeft", {
-    playerWhoLeft: users.get(socket.id),
+  emitRoomData(io, room);
+  broadcastRoomList(io, rooms);
+};
+
+// game ------------------------------------------------------------
+
+export const emitGameData = (
+  io: AppServer,
+  roomId: string,
+  newData: GameState
+) => {
+  io.to(roomId).emit("game:currentData", newData);
+};
+
+export const emitPlayerHand = (
+  io: AppServer,
+  playerId: string,
+  newData: PlayerHand
+) => {
+  io.to(playerId).emit("game:hand", newData);
+};
+
+export const emitTurn = (
+  io: AppServer,
+  roomId: string,
+  turn: Turn
+) => {
+  io.to(roomId).emit("game:turn", turn);
+};
+
+export const emitTimeout = (
+  io: AppServer,
+  roomId: string,
+  playerId: string
+) => {
+  io.to(roomId).emit("game:timeout", { playerId });
+};
+
+export const emitPlayerQuit = (
+  socket: AppSocket,
+  roomId: string,
+  playerName: string,
+  gameState: GameState
+) => {
+  socket.to(roomId).emit("game:playerQuit", {
+    playerName,
     gameState,
   });
 };
-
-export const emitGameState = (
-  io: Server, 
-  roomId: string, 
-  gameState: GameState
-) => {
-  io.to(roomId).emit(
-    "game:state",
-    { gameState },
-  );
-};
-
-export const emitSocketHand = (
-  socket: Socket,
-  hand: Card[],
-) => {
-  socket.emit(
-    "game:hand", 
-    { hand },
-  );
-};
-

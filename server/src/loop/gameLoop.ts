@@ -1,122 +1,150 @@
-import { Server, Socket } from "socket.io";
-import { Room, ParsedCard, Game, Turn } from "@/types";
-import { users, rooms, games, timers, turns } from "@/stores";
+import { rooms, games, timers } from "@/stores";
 import { roomService, gameService } from "@/services";
-import { broadcastRoomList, emitGameLeft, emitGameState, emitRoomInfo, emitSocketHand } from "@/utils/emiterHelper";
-import deckHelper from "@/utils/deckHelper";
-import logger from "@/utils/logger";
+import {
+  broadcastRoomList,
+  emitGameData,
+  emitPlayerHand,
+  emitPlayerQuit,
+  emitRoomData,
+  emitTimeout,
+  emitTurn,
+  ok,
+} from "@/utils/emiterHelper";
+import cardsHelper from "@/utils/cardsHelper";
+import {
+  getTurnData,
+  getGameData,
+  isPlayerInRoom,
+} from "@/utils/guards";
 
-const timeout = (io: Server, roomId: string, playerId: string) => {
-  const room = rooms.get(roomId);
-  if (!room) return;
+import {
+  Room,
+  ParsedCard,
+  Game,
+  Turn,
+  AppServer,
+  AppSocket,
+  Card,
+  PlayerHand,
+  SocketCallback,
+} from "@/types";
 
-  const game = games.get(roomId);
-  if (!game) return;
+const timeout = (
+  io: AppServer,
+  roomId: string,
+  playerId: string
+) => {
+  const data = getGameData(roomId);
+  if (!data) return;
 
-  const turn = turns.get(roomId);
-  if (!turn) return; 
+  const { room, game, turn } = data;
 
-  logger.roomLog(roomId, `${users.get(playerId)}'s time ran out.`);
-  io.to(roomId).emit("game:timeout", { playerId });
+  emitTimeout(io, room.id, playerId);
 
-  if (!turn.cardPut && !turn.cardDraw && game.currentEffect !== "SKIP") {
-    let cardsToDraw = 1;
-  
-    if (game.currentEffect) {
-      cardsToDraw = game.currentDrawStack;
-      game.currentDrawStack = 0;
-    };
+  const usedACard = turn.cardPut || turn.cardDraw;
 
-    const { players, currentPlayerIndex, deck, pile } = game;
+  if (!usedACard && game.currEffect !== "SKIP") {
+    gameService.autoDraw(game);
 
-    deckHelper.draw(
-      players[currentPlayerIndex],
-      deck,
-      pile, 
-      cardsToDraw,
-    );
+    const playerId = game.players[game.currPlayerIndex].id;
 
-    const socketId = game.players[game.currentPlayerIndex].id;
-    io.to(room.id).emit("game:state", gameService.getState(game));
-    io.to(socketId).emit("game:hand", { hand: gameService.getPlayerHand(game, socketId) });    
+    const hand = gameService.getHand(game, playerId);
+    emitPlayerHand(io, playerId, hand);
 
-    logger.roomLog(roomId, `${users.get(socketId)} auto-drew ${cardsToDraw} cards.`);
-  };
+    const gameState = gameService.getState(game);
+    emitGameData(io, room.id, gameState);
+  }
 
   gameService.advanceTurn(game);
+
   startTurn(io, roomId);
 };
 
-const winGame = (io: Server, room: Room, winnerId: string) => {
-  logger.roomLog(room.id ,`game ended / ${users.get(winnerId)} won.`)
-  
-  io.to(room.id).emit("game:won", { playerId: winnerId });
+const startTurn = (io: AppServer, roomId: string) => {
+  const data = getTurnData(roomId);
+  if (!data) return;
 
-  gameService.cleanUp(room.id);
+  const { room, game } = data;
 
-  const isRoomFull = Number(room.capacity) === room.players.length;
-  room.state = isRoomFull ? "FULL" : "WAITING";
-  
-  io.to(room.id).emit("room:updatedInfo", room);
-
-  if (!isRoomFull) {
-    broadcastRoomList(io, roomService.getAvailable());
-  };
-
-  return;
-};
-
-const startTurn = (io: Server, roomId: string) => {
-  const room = rooms.get(roomId);
-  if (!room) return;
-
-  const game = games.get(roomId);
-  if (!game) return;
-
-  const existingTimer = timers.get(roomId);
+  const existingTimer = timers.get(room.id);
   if (existingTimer) clearTimeout(existingTimer);
- 
-  if (game.currentEffect && !room.rules.stack) {
-    const effect = game.currentEffect;
-    const skippedPlayerId = game.players[game.currentPlayerIndex].id;
+
+  if (game.currEffect && !room.rules.stack) {
+    const effect = game.currEffect;
+    const skipped = game.players[game.currPlayerIndex].id;
 
     gameService.skipTurn(game);
 
     if (effect !== "SKIP") {
-      io.to(room.id).emit("game:state", gameService.getState(game));
-    
-      io.to(skippedPlayerId).emit(
-        "game:hand", 
-        { hand: gameService.getPlayerHand(game, skippedPlayerId) },
-      );      
-    };
-  };
+      const hand = gameService.getHand(game, skipped);
+      emitPlayerHand(io, skipped, hand);
 
-  const currentPlayerId = game.players[game.currentPlayerIndex].id;
+      const gameState = gameService.getState(game);
+      emitGameData(io, room.id, gameState);
+    }
+  }
 
-  const turn = gameService.createTurn(roomId, currentPlayerId, game.currentEffect);
-  io.to(roomId).emit("game:turnStart", turn);
+  const currPlayerIndex = game.currPlayerIndex;
+  const currPlayerId = game.players[currPlayerIndex].id;
 
-  logger.roomLog(roomId, `${users.get(currentPlayerId)} started their turn.`);
+  const turn = gameService.createTurn(
+    room.id,
+    currPlayerId,
+    game.currEffect
+  );
+
+  emitTurn(io, room.id, turn);
+
+  const countDown = Number(room.turnDuration) * 1000;
 
   const timer = setTimeout(() => {
-    timeout(io, roomId, currentPlayerId);
-  },  Number(room.turnDuration)* 1000);
+    timeout(io, roomId, currPlayerId);
+  }, countDown);
 
-  timers.set(roomId, timer);
+  timers.set(room.id, timer);
 };
 
-const playCard = (
-  io: Server, 
-  socket: Socket, 
-  roomId: string, 
-  card: ParsedCard, 
-  room: Room, 
-  game: Game, 
-  turn: Turn,
+// ok
+const winGame = (
+  io: AppServer,
+  room: Room,
+  winnerId: string
 ) => {
-  const hand = game.players[game.currentPlayerIndex].hand;
-  deckHelper.put(card.raw, hand, game.pile);  
+  io.to(room.id).emit("game:won", { playerId: winnerId });
+
+  gameService.cleanUp(room.id);
+
+  const roomCap = Number(room.capacity);
+  const members = room.players.length;
+
+  const isRoomFull = roomCap === members;
+  room.state = isRoomFull ? "FULL" : "WAITING";
+
+  emitRoomData(io, room);
+
+  if (!isRoomFull) {
+    broadcastRoomList(io, roomService.getAvailable());
+  }
+
+  return;
+};
+
+interface PlayerData {
+  id: string;
+  hand: Card[];
+  card: ParsedCard;
+}
+
+// ok
+const playCard = (
+  io: AppServer,
+  callback: SocketCallback<PlayerHand>,
+  { id, hand, card }: PlayerData,
+  room: Room,
+  game: Game,
+  turn: Turn
+) => {
+  cardsHelper.put(card.raw, hand, game.pile);
 
   game.topCard = card;
   turn.cardPut = true;
@@ -124,65 +152,63 @@ const playCard = (
   gameService.applyEffect(game, card.type);
 
   if (hand.length === 0) {
-    winGame(io, room, socket.id);
-  };
+    winGame(io, room, id);
+  }
 
-  emitGameState(io, roomId, gameService.getState(game));
-  emitSocketHand(socket, gameService.getPlayerHand(game, socket.id)); 
-  
+  const playerHand = gameService.getHand(game, id);
+  ok(callback, playerHand);
+
+  const gameState = gameService.getState(game);
+  emitGameData(io, room.id, gameState);
+
   const { stair, mirror, stack } = room.rules;
 
-  if (!stair && !mirror && !stack){
+  if (!stair && !mirror && !stack) {
     gameService.advanceTurn(game);
-    startTurn(io, roomId);
-  };
+    startTurn(io, room.id);
+  }
 };
 
-const handlePlayerExit = (
-  io: Server,
-  socket: Socket,
-) => {
+const handleExit = (io: AppServer, socket: AppSocket) => {
   const roomId = socket.data.roomId;
+  if (!roomId) return;
 
   const room = rooms.get(roomId);
   if (!room) return;
 
+  const player = isPlayerInRoom(room, socket.id);
+  if (!player) {
+    console.log("shouldCheck");
+    return;
+  }
+
+  const roomDeleted = roomService.leave(room, socket.id);
+
+  void socket.leave(room.id);
+  socket.data.roomId = undefined;
+
   const game = games.get(roomId);
 
-  const roomDeleted = roomService.leave(socket, room);
-
   if (!game) {
+    if (!roomDeleted) emitRoomData(io, room);
     broadcastRoomList(io, roomService.getAvailable());
-
-    if (!roomDeleted)
-      emitRoomInfo(io, room);
-    
     return;
-  };
+  }
 
-  const gameRes = gameService.leave(socket, game);
+  const gameRes = gameService.leave(game, socket.id);
   if (!gameRes) return;
 
-  if (gameRes.type === "GAME_WON") {
-    emitGameLeft(io, socket, room, gameService.getState(game));
-    winGame(io, room, gameRes.winnerId);
+  const gamestate = gameService.getState(game);
+  emitPlayerQuit(socket, room.id, player.name, gamestate);
+
+  if (gameRes.type === "WON") {
+    winGame(io, room, gameRes.id);
     return;
-  };
+  }
 
-  if (gameRes.type === "GAME_EMPTY") {
-    gameService.cleanUp(roomId);
-    return;
-  };
-
-  emitGameLeft(io, socket, room, gameService.getState(game));
-
-  if (room.state === "PLAYING" && gameRes.wasCurrentPlayer) {
+  if (room.state === "PLAYING" && gameRes.wasPlaying) {
     startTurn(io, roomId);
-  };
+  }
 };
 
-export default {
-  startTurn,
-  playCard,
-  handlePlayerExit,
-};
+export { startTurn, playCard, handleExit };

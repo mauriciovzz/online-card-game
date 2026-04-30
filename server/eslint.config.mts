@@ -7,12 +7,19 @@ import { defineConfig } from "eslint/config";
 
 export default defineConfig([
   { 
-    files: ["**/*.{.ts}"],
+    files: ["**/*.ts"],
     plugins: { js },
     extends: [
       js.configs.recommended,
       tseslint.configs.stylisticTypeChecked,
       tseslint.configs.strictTypeChecked,
+      {
+        languageOptions: {
+          parserOptions: {
+            projectService: true,
+          },
+        },
+      },
       prettier,
       {
         plugins: {
@@ -25,7 +32,7 @@ export default defineConfig([
     ],
     languageOptions: {
       ecmaVersion: 2020,
-      globals: globals.browser,
+      globals: globals.node,
     },
   },
 ]);

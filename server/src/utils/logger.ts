@@ -14,7 +14,7 @@ const roomLog = (id: string, message: string) => {
   console.log(`[r: ${id}]: ${message}`);
 };
 
-export default { 
+export default {
   message,
   socketLog,
   roomLog,

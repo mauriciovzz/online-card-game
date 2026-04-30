@@ -17,24 +17,15 @@ interface Turn {
   hasDrawnCard: boolean;
 }
 
+type GSType = GameState | null;
 export const Game = () => {
   const { roomId } = useParams();
   const { socket } = useSocket();
-  const {
-    room,
-    messages,
-    unreadMessages,
-    chatOpened,
-    openChat,
-    closeChat,
-    sendMessage,
-  } = useRoom();
 
   const [countdown, setCountdown] = useState(0);
   const intervalRef = useRef<number | null>(null);
 
-  const [gameState, setGameState] =
-    useState<GameState | null>(null);
+  const [gameState, setGameState] = useState<GSType>(null);
   const [turn, setTurn] = useState<Turn | null>(null);
   const [isMyTurn, setIsMyTurn] = useState(false);
 

@@ -13,7 +13,6 @@ import { SpinnerLayout } from "@/layouts";
 import type {
   AvailableRooms,
   Room,
-  SocketRes,
   SuccessResponse,
   UserName,
 } from "@/types";
@@ -34,20 +33,16 @@ export const SocketProvider = ({ children }: Props) => {
   const [areRoomsReady, setAreRoomsReady] = useState(false);
 
   const handleConnected = useCallback(
-    (res: SocketRes<UserName>) => {
-      if (res.success) {
-        setUserName(res.data.name);
-        setIsNameReady(true);
-      }
+    ({ name }: UserName) => {
+      setUserName(name);
+      setIsNameReady(true);
     },
     []
   );
 
   const handleAvailable = useCallback(
-    (res: SocketRes<AvailableRooms>) => {
-      if (!res.success) return;
-
-      setRooms(res.data.availableRooms);
+    ({ availableRooms }: AvailableRooms) => {
+      setRooms(availableRooms);
     },
     []
   );

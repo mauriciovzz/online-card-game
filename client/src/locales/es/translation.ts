@@ -70,8 +70,9 @@ export const es = {
       isFull: "La sala esta llena",
       capacityConflict:
         "Demasiados jugadores para este límite",
-      playerNotFOund: "Jugador no encontrado",
+      playerNotFound: "Jugador no encontrado",
       notAdmin: "Solicitud denegada",
+      notEnoughtPlayers: "No hay jugadores suficientes",
     },
   },
 } as const;

@@ -67,8 +67,9 @@ export const en = {
       notFound: "Room not found",
       isFull: "The room is full",
       capacityConflict: "Too many players for this limit",
-      playerNotFOund: "Player not found",
+      playerNotFound: "Player not found",
       notAdmin: "Request denied",
+      notEnoughtPlayers: "Not enought players",
     },
   },
 } as const;

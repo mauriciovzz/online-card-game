@@ -1,189 +1,172 @@
-import { Server, Socket } from "socket.io";
-
-import { roomService } from "@/services";
-import gameLoop from "@/loop/gameLoop";
+import { gameService, roomService } from "@/services";
+import { startTurn, handleExit } from "@/loop/gameLoop";
 import {
   getRoom,
   isPlayerInRoom,
   isPlayerAdmin,
-} from "@/utils/guards"
+} from "@/utils/guards";
 import {
   ok,
+  notOk,
   broadcastRoomList,
   syncRoom,
 } from "@/utils/emiterHelper";
 
-import { 
-  AvailableRooms,
-  CreateRoomProps,
-  PlayerId,
-  Room,
-  RoomCapacity,
-  RoomId,
-  SocketCallback,
-  UpdateRoomProps,
-} from "@/types";
+import { AppServer, AppSocket } from "@/types";
 
-export const roomSocket = (io: Server, socket: Socket) => {
+export const roomSocket = (
+  io: AppServer,
+  socket: AppSocket
+) => {
+  socket.on("room:create", (payload, callback) => {
+    const res = roomService.create(payload, socket.id);
 
-  socket.on(
-    "room:create", 
-    (
-      payload: CreateRoomProps,
-      callback: SocketCallback<RoomId>
-    ) => {
-    const res = roomService.create(socket, payload);
-  
     if (res.success) {
+      const { roomId } = res.data;
+
+      void socket.join(roomId);
+      socket.data.roomId = roomId;
+
       ok(callback, res.data);
       broadcastRoomList(io, roomService.getAvailable());
     } else {
-      callback({ success: false, error: res.error });    
+      notOk(callback, res.error);
     }
   });
 
-  socket.on(
-    "room:getAvailable", 
-    (
-      callback: SocketCallback<AvailableRooms>
-    ) => {
-      ok(callback, roomService.getAvailable());
+  socket.on("room:getAvailable", (callback) => {
+    ok(callback, roomService.getAvailable());
   });
 
-  socket.on(
-    "room:join", 
-    (
-      { roomId }: RoomId,
-      callback: SocketCallback<RoomId>
-    ) => {
-      const room = getRoom(socket, roomId, callback);
-      if (!room) return;
+  socket.on("room:join", ({ roomId }, callback) => {
+    const room = getRoom(socket, roomId, callback);
+    if (!room) return;
 
-      if (room.state === "FULL") {
-        callback({ success: false, error: "ROOM_IS_FULL" })
-        return;
-      };
+    if (room.state === "FULL") {
+      notOk(callback, "ROOM_IS_FULL");
+      return;
+    }
 
-      roomService.join(socket, room);
+    roomService.join(room, socket.id);
 
-      ok(callback, { roomId });
+    void socket.join(room.id);
+    socket.data.roomId = room.id;
+
+    ok(callback, { roomId });
+    syncRoom(io, room, roomService.getAvailable());
+  });
+
+  socket.on("room:getData", (callback) => {
+    const room = getRoom(socket, undefined, callback);
+    if (!room) return;
+
+    const isInRoom = isPlayerInRoom(room, socket.id);
+    if (!isInRoom) {
+      console.log("shouldCheck");
+      return;
+    }
+
+    ok(callback, room);
+  });
+
+  socket.on("room:update", (newData, callback) => {
+    const room = getRoom(socket, undefined, undefined);
+    if (!room) return;
+
+    const isAdmin = isPlayerAdmin(socket, room, callback);
+    if (!isAdmin) return;
+
+    const res = roomService.checkName(newData.name);
+
+    if (res.success) {
+      roomService.update(room, newData);
+
+      ok(callback, null);
       syncRoom(io, room, roomService.getAvailable());
-  });
-
-  socket.on(
-    "room:getInfo", 
-    (
-      callback: SocketCallback<Room>
-    ) => {
-      const room = getRoom(socket, undefined, callback);
-      if (!room) return;
-
-      const isInRoom = isPlayerInRoom(socket, room, callback);
-      if (!isInRoom) return;
-
-      ok(callback, room);
-  });
-
-  socket.on(
-    "room:update",
-    (
-      newData: UpdateRoomProps,
-      callback: SocketCallback<null>
-    ) => {
-      console.log("update")
-      const room = getRoom(socket, undefined, undefined);
-      if (!room) return;
-
-      const isAdmin = isPlayerAdmin(socket, room, callback);
-      if (!isAdmin) return;
-
-      const res = roomService.checkName(newData.name);
-
-      if (res.success) {
-        roomService.update(room, newData);
-
-        ok(callback, null)   
-        syncRoom(io, room, roomService.getAvailable()); 
-      } else {
-        callback(res);
-      }        
-  });
-
-  socket.on(
-    "room:updateCapacity", 
-    (
-      { capacity }: { capacity: RoomCapacity },
-      callback: SocketCallback<null>
-    ) => {
-      console.log("updateCapacity")
-      const room = getRoom(socket, undefined, undefined);
-      if (!room) return;
-
-      const isAdmin = isPlayerAdmin(socket, room, callback);
-      if (!isAdmin) return;
-
-      const res = roomService.checkCapacity(
-        room.players.length, 
-        capacity,
-      );
-
-      if (res.success) {
-        roomService.updateCapacity(room, capacity);
-
-        ok(callback, null)
-        syncRoom(io, room, roomService.getAvailable());
-      } else {
-        callback(res);
-      } 
-  });
-
-  socket.on(
-    "room:kickPlayer", 
-    (
-      { playerId }: PlayerId,
-      callback: SocketCallback<null>
-    ) => {
-      console.log("kickPlayer")
-      const room = getRoom(socket, undefined, undefined);
-      if (!room) return;
-
-      const isAdmin = isPlayerAdmin(socket, room, callback);
-      if (!isAdmin) return;
-
-      const kickedSocket = io.sockets.sockets.get(playerId);
-
-      if (!kickedSocket) {
-        callback({ success: false, error: "PLAYER_NOT_FOUND" });  
-        syncRoom(io, room, roomService.getAvailable());
-        return;
-      }
-
-      const isInRoom = isPlayerInRoom(kickedSocket, room, callback);
-      if (!isInRoom) return;
- 
-      kickedSocket.emit("room:kickedOut");    
-      gameLoop.handlePlayerExit(io, kickedSocket);
-
-      ok(callback, null)   
+    } else {
+      notOk(callback, res.error);
     }
-  );
+  });
 
-  socket.on(
-    "room:leave", 
-    (
-      { roomId }: RoomId
-    ) => {
-      const room = getRoom(socket, roomId, undefined);
-      if (!room) return;
+  socket.on("room:updateCapacity", (capacity, callback) => {
+    const room = getRoom(socket, undefined, undefined);
+    if (!room) return;
 
-      const isInRoom = room.players.some((p) => p.id === socket.id);
+    const isAdmin = isPlayerAdmin(socket, room, callback);
+    if (!isAdmin) return;
 
-      if (isInRoom) {
-        gameLoop.handlePlayerExit(io, socket);
-      } else {
-        syncRoom(io, room, roomService.getAvailable());          
-      }
+    const newCapacity = capacity.capacity;
+
+    const res = roomService.checkCapacity(
+      room.players.length,
+      newCapacity
+    );
+
+    if (res.success) {
+      roomService.updateCapacity(room, newCapacity);
+
+      ok(callback, null);
+      syncRoom(io, room, roomService.getAvailable());
+    } else {
+      notOk(callback, res.error);
     }
-  );
+  });
 
+  socket.on("room:kickPlayer", ({ playerId }, callback) => {
+    const room = getRoom(socket, undefined, undefined);
+    if (!room) return;
+
+    const isAdmin = isPlayerAdmin(socket, room, callback);
+    if (!isAdmin) return;
+
+    const kickedSocket = io.sockets.sockets.get(playerId);
+
+    if (!kickedSocket) {
+      notOk(callback, "PLAYER_NOT_FOUND");
+      syncRoom(io, room, roomService.getAvailable());
+      return;
+    }
+
+    const isInRoom = isPlayerInRoom(room, kickedSocket.id);
+    if (!isInRoom) {
+      console.log("shouldCheck");
+      return;
+    }
+
+    kickedSocket.emit("room:kickedOut");
+    handleExit(io, kickedSocket);
+
+    ok(callback, null);
+  });
+
+  socket.on("room:leave", () => {
+    handleExit(io, socket);
+  });
+
+  socket.on("room:startGame", (callback) => {
+    const room = getRoom(socket, undefined, callback);
+    if (!room) return;
+
+    const isAdmin = isPlayerAdmin(socket, room, callback);
+    if (!isAdmin) return;
+
+    const numPlayers = room.players.length;
+    const roomCapacity = Number(room.capacity);
+
+    const canStart = roomCapacity <= numPlayers;
+    if (!canStart) {
+      notOk(callback, "NOT_ENOUGHT_PLAYERS");
+      return;
+    }
+
+    gameService.createGame(room);
+
+    io.to(room.id).emit("room:gameStarted", {
+      roomId: room.id,
+    });
+
+    setTimeout(() => {
+      startTurn(io, room.id);
+    }, 3000);
+  });
 };

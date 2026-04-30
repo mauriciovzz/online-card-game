@@ -1,288 +1,260 @@
-import { Server, Socket } from "socket.io";
-import { users, rooms, games, turns } from "@/stores";
 import { gameService } from "@/services";
-import deckHelper from "@/utils/deckHelper";
-import { emitGameError, emitGameState, emitSocketHand } from "@/utils/emiterHelper";
-import logger from "@/utils/logger";
-import gameLoop from "@/loop/gameLoop";
-import { Card, CardColor } from "@/types";
+import {
+  turnGuard,
+  gameGuard,
+  getRoom,
+  isPlayerInRoom,
+} from "@/utils/guards";
+import {
+  emitGameData,
+  emitPlayerHand,
+  notOk,
+  ok,
+} from "@/utils/emiterHelper";
 
-export const gameSocket = (io: Server, socket: Socket) => {
+import { AppServer, AppSocket } from "@/types";
+import cardsHelper from "@/utils/cardsHelper";
+import {
+  handleExit,
+  playCard,
+  startTurn,
+} from "@/loop/gameLoop";
 
-  socket.on("game:start", ({ roomId }) => {
-    const room = rooms.get(roomId);
+export const gameSocket = (
+  io: AppServer,
+  socket: AppSocket
+) => {
+  socket.on("game:getData", (callback) => {
+    const data = gameGuard(socket, callback);
+    if (!data) return;
 
-    if (!room) {
-      io.to(roomId).emit("game:started", {
-        success: false,
-        error: "ROOM_NOT_FOUND",
-        data: null,
-      });
-      return; 
-    };
+    const { game } = data;
 
-    if (room.adminId !== socket.id) {
-      emitGameError(socket, roomId, "game:started", "NOT_ADMIN");
-      return; 
-    };
+    const gameState = gameService.getState(game);
+    const hand = gameService.getHand(game, socket.id);
 
-    gameService.createGame(roomId, room);
-
-    io.to(roomId).emit("game:started", {
-      success: true,
-      error: null,
-      data: { roomId },
-    });
-
-    logger.roomLog(roomId, 'Game started.')
-
-    setTimeout(() => {
-      gameLoop.startTurn(io, roomId);
-    }, 1000);
+    ok(callback, { gameState, ...hand });
   });
 
-  socket.on("game:getState", ({ roomId }) => {
-    const game = games.get(roomId);
-    if (!game) return;
+  socket.on("game:playCard", (playedCard, callback) => {
+    const data = turnGuard(socket, callback);
+    if (!data) return;
 
-    socket.emit("game:state", gameService.getState(game));
-    emitSocketHand(socket, gameService.getPlayerHand(game, socket.id));
-  });
+    const { room, game, turn } = data;
 
-  socket.on("game:move", ({ roomId, card, color }) => {
-    const room = rooms.get(roomId);
-    if (!room) return;
+    const res = cardsHelper.parseCard(playedCard);
 
-    const game = games.get(roomId);
-    if (!game) return; 
-
-    const turn = turns.get(roomId);
-    if (!turn) return; 
-
-    if (turn.currentPlayerId !== socket.id) {
-      emitGameError(socket, roomId, "game:moved", "NOT_YOUR_TURN");
+    if (!res.success) {
+      notOk(callback, res.error);
       return;
-    };
+    }
 
-    if (deckHelper.checkCard(card)) {
-      emitGameError(socket, roomId, "game:moved", "INVALID_CARD");
-      return;
-    };
+    const card = res.data;
 
-    if (deckHelper.checkColor(color)) {
-      emitGameError(socket, roomId, "game:moved", "INVALID_COLOR");
-      return;
-    };
+    const playerHand = gameService.getHand(game, socket.id);
+    const { hand } = playerHand;
 
-    const hand = gameService.getPlayerHand(game, socket.id);
-  
-    if (!hand.includes(card)) {
-      emitGameError(socket, roomId, "game:moved", "CARD_NOT_FOUND");
-      emitSocketHand(socket, gameService.getPlayerHand(game, socket.id));
+    if (!hand.includes(card.raw)) {
+      notOk(callback, "CARD_NOT_FOUND");
+      emitPlayerHand(io, socket.id, playerHand);
       return;
-    };
+    }
 
-    let parsedCard = deckHelper.parseCard(card as Card, color as CardColor);
-    
-    if (hand.length === 1 && parsedCard.type !== "NUMBER") {
-      emitGameError(socket, roomId, "game:moved", "INVALID_MOVE");
+    if (hand.length === 1 && card.type !== "NUMBER") {
+      notOk(callback, "INVALID_MOVE");
       return;
-    };
+    }
+
+    const { rules } = room;
+    const canPlayAgain = rules.stair || rules.mirror;
 
     // stack on
-    if (game.currentEffect) {
-      const isValidStack = game.currentEffect === parsedCard.type;
+    if (game.currEffect) {
+      const isValid = game.currEffect === card.type;
 
-      if (!isValidStack) {
-        emitGameError(socket, roomId, "game:moved", "INVALID_MOVE");
+      if (!isValid) {
+        notOk(callback, "INVALID_MOVE");
         return;
-      };
+      }
 
-      gameLoop.playCard(io, socket, roomId, parsedCard, room, game, turn);
+      const playerData = { id: socket.id, hand, card };
+      playCard(io, callback, playerData, room, game, turn);
     }
 
     // stair on / mirror on
-    else if (turn.cardPut && (room.rules.stair || room.rules.mirror)) {
-      if (!deckHelper.isValidChainMove(game.topCard, parsedCard, room.rules)) {
-        emitGameError(socket, roomId, "game:moved", "INVALID_MOVE");
-        return;
-      };
+    else if (turn.cardPut && canPlayAgain) {
+      const isValid = cardsHelper.checkChainMove(
+        game.topCard,
+        card,
+        rules
+      );
 
-      gameLoop.playCard(io, socket, roomId, parsedCard, room, game, turn);
+      if (!isValid) {
+        notOk(callback, "INVALID_MOVE");
+        return;
+      }
+
+      const playerData = { id: socket.id, hand, card };
+      playCard(io, callback, playerData, room, game, turn);
     }
 
-    // first move 
+    // first move
     else {
       if (turn.cardPut) {
-        emitGameError(socket, roomId, "game:moved", "INVALID_MOVE");
+        notOk(callback, "ALREADY_PLAYED");
         return;
-      };
+      }
 
-      if (deckHelper.isValidMove(game.topCard, parsedCard)) {
-        emitGameError(socket, roomId, "game:moved", "INVALID_MOVE");
-        return;
-      };
-        
-      gameLoop.playCard(io, socket, roomId, parsedCard, room, game, turn);          
-    }    
+      const isValid = cardsHelper.checkMove(
+        game.topCard,
+        card
+      );
+
+      if (!isValid) {
+        notOk(callback, "INVALID_MOVE");
+      }
+
+      const playerData = { id: socket.id, hand, card };
+      playCard(io, callback, playerData, room, game, turn);
+    }
   });
 
-  socket.on("game:draw", ({ roomId }) => {
-    const room = rooms.get(roomId);
-    if (!room) return;
+  socket.on("game:drawCard", (callback) => {
+    const data = turnGuard(socket, callback);
+    if (!data) return;
 
-    const game = games.get(roomId);
-    if (!game) return; 
+    const { room, game, turn } = data;
 
-    const turn = turns.get(roomId);
-    if (!turn) return; 
-
-    if (turn.currentPlayerId !== socket.id) {
-      emitGameError(socket, roomId, "game:drawn", "NOT_YOUR_TURN");
+    if (game.currEffect === "SKIP") {
+      notOk(callback, "TURN_SKIPPED");
       return;
-    };
-
-    if (game.currentEffect === "SKIP") {
-      emitGameError(socket, roomId, "game:drawn", "TURN_SKIPPED");
-      return;
-    };
+    }
 
     if (turn.cardPut) {
-      emitGameError(socket, roomId, "game:drawn", "ALREADY_PLAYED");
+      notOk(callback, "ALREADY_PLAYED");
       return;
-    };
+    }
 
     if (turn.cardDraw) {
-      emitGameError(socket, roomId, "game:drawn", "ALREADY_DRAWN");
+      notOk(callback, "ALREADY_DRAWN");
       return;
-    };
-  
-    let cardsToDraw = 1; 
-    
-    if (game.currentEffect) {
-      cardsToDraw = game.currentDrawStack;
-      game.currentDrawStack = 0;
-    };
-    
-    const { players, currentPlayerIndex, deck, pile } = game;
+    }
 
-    deckHelper.draw(
-      players[currentPlayerIndex],
-      deck,
-      pile, 
+    let cardsToDraw = 1;
+
+    if (game.currEffect) {
+      cardsToDraw = game.currDrawStack;
+      game.currDrawStack = 0;
+    }
+
+    cardsHelper.draw(
+      game.players[game.currPlayerIndex],
       cardsToDraw,
+      game.deck,
+      game.pile
     );
 
     turn.cardDraw = true;
-    
-    emitGameState(io, roomId, gameService.getState(game));
-    emitSocketHand(socket, gameService.getPlayerHand(game, socket.id));
+
+    const hand = gameService.getHand(game, socket.id);
+    ok(callback, hand);
+
+    const gameState = gameService.getState(game);
+    emitGameData(io, room.id, gameState);
   });
 
-  socket.on("game:endTurn", ({ roomId }) => {
-    const room = rooms.get(roomId);
-    if (!room) return;
+  socket.on("game:endTurn", (callback) => {
+    const data = turnGuard(socket, callback);
+    if (!data) return;
 
-    const game = games.get(roomId);
-    if (!game) return;
+    const { room, game, turn } = data;
 
-    const turn = turns.get(roomId);
-    if (!turn) return; 
+    const drawEffect = game.currEffect !== "SKIP";
+    const notPlayed = !turn.cardPut && !turn.cardDraw;
 
-    if (turn.currentPlayerId !== socket.id) {
-      emitGameError(socket, roomId, "game:turnEnded", "NOT_YOUR_TURN");
+    if (drawEffect && notPlayed) {
+      notOk(callback, "TURN_INCOMPLETE");
       return;
-    };
-
-    if (game.currentEffect !== "SKIP" && (!turn.cardPut && !turn.cardDraw)) {
-      emitGameError(socket, roomId, "game:turnEnded", "TURN_INCOMPLETE");
-      return;
-    };
-
-    logger.roomLog(roomId, `${users.get(socket.id)} finished their turn.`);
+    }
 
     gameService.advanceTurn(game);
-    gameLoop.startTurn(io, roomId);
+
+    startTurn(io, room.id);
   });
 
-  socket.on("game:unoCall", ({ roomId }) => {
-    const room = rooms.get(roomId);
-    if (!room) return;
+  socket.on("game:unoCall", (callback) => {
+    const data = gameGuard(socket, callback);
+    if (!data) return;
 
-    const game = games.get(roomId);
-    if (!game) return;
+    const { room, game } = data;
 
-    const player = game.players.find((p) => p.id === socket.id);
+    const player = game.players.find(
+      (p) => p.id === socket.id
+    );
+
     if (!player) return;
 
     if (player.hand.length !== 1) {
-      emitGameError(socket, roomId, "game:unoCalled", "INVALID_UNO_CALL");
+      notOk(callback, "INVALID_UNO_CALL");
       return;
-    };
+    }
 
     if (player.calledUno) {
-      emitGameError(socket, roomId, "game:unoCalled", "UNO_ALREADY_CALLED");
+      notOk(callback, "UNO_ALREADY_CALLED");
       return;
-    };
-  
+    }
+
     player.calledUno = true;
-    
-    socket.emit("game:state", gameService.getState(game));
-    io.to(roomId).emit("game:calledUno", { playerId: socket.id });
+    ok(callback, null);
+
+    const gameState = gameService.getState(game);
+    emitGameData(io, room.id, gameState);
   });
 
-  socket.on("game:cutCall", ({ roomId, cutPlayerId }) => {
-    const room = rooms.get(roomId);
+  socket.on("game:cutCall", ({ playerId }, callback) => {
+    const data = gameGuard(socket, callback, playerId);
+    if (!data) return;
+
+    const { room, game } = data;
+
+    const player = game.players.find(
+      (p) => p.id === playerId
+    );
+    if (!player) return;
+
+    const { hand, calledUno } = player;
+
+    if (hand.length !== 1 || calledUno) {
+      notOk(callback, "INVALID_CUT_CALL");
+      return;
+    }
+
+    if (playerId === socket.id) {
+      notOk(callback, "CANNOT_SELF_CUT");
+      return;
+    }
+
+    cardsHelper.draw(player, 2, game.deck, game.pile);
+
+    const playerHand = gameService.getHand(game, playerId);
+    emitPlayerHand(io, playerId, playerHand);
+
+    const gameState = gameService.getState(game);
+    emitGameData(io, room.id, gameState);
+
+    ok(callback, null);
+  });
+
+  socket.on("game:leave", (callback) => {
+    const room = getRoom(socket, undefined, callback);
     if (!room) return;
 
-    const game = games.get(roomId);
-    if (!game) return;
-
-    const cutPlayer = game.players.find((p) => p.id === cutPlayerId);
-    if (!cutPlayer) return;
-
-    if (cutPlayer.hand.length !== 1 || cutPlayer.calledUno) {
-      emitGameError(socket, roomId, "game:cutCalled", "INVALID_CUT_CALL");
-      return;
-    };
-
-    if (cutPlayerId === socket.id) {
-      emitGameError(socket, roomId, "game:cutCalled", "CANNOT_SELF_CUT");
-      return;
-    };
-
-    deckHelper.draw(
-      cutPlayer,
-      game.deck,
-      game.pile, 
-      2,
-    );
-
-    io.to(room.id).emit("game:state", gameService.getState(game));
-    io.to(cutPlayer.id).emit("game:hand", { hand: gameService.getPlayerHand(game, cutPlayer.id) }); 
-
-    socket.emit("game:cutCalled", {
-      success: true,
-      error: null,
-      data: { cutPlayerId }
-    });
-  });
-
-  socket.on("game:leave", ({ roomId }) => { 
-    const room = rooms.get(roomId);
-
-    if (!room) {
-      emitGameError(socket, roomId, "room:left", "ROOM_NOT_FOUND")
-      return; 
-    };
-
-    const isInRoom = room.players.some((p) => p.id === socket.id);
+    const isInRoom = isPlayerInRoom(room, room.id);
     if (!isInRoom) {
-      emitGameError(socket, roomId, "room:left", "NOT_IN_ROOM")
-      return; 
-    };   
+      console.log("check here");
+      return;
+    }
 
-    gameLoop.handlePlayerExit(io, socket);
+    handleExit(io, socket);
   });
-
 };

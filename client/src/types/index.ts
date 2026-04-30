@@ -82,6 +82,18 @@ export interface AvailableRooms {
   availableRooms: Room[];
 }
 
+export interface CurrentRoomData {
+  newData: Room;
+}
+
+export interface PlayerId {
+  playerId: string;
+}
+
+export interface ReadUpdate extends PlayerId {
+  lastReadCreatedAt: number;
+}
+
 export interface SuccessResponse<T> {
   success: true;
   data: T;
