@@ -1,5 +1,5 @@
 import { ButtonsBar } from "./ButtonsBar";
-import { MainView } from "./MainView";
-import { UpdateRoomView } from "./UpdateRoomView";
+import { Overview } from "./Overview";
+import { UpdateRoom } from "./UpdateRoom";
 
-export { ButtonsBar, MainView, UpdateRoomView };
+export { ButtonsBar, Overview, UpdateRoom };

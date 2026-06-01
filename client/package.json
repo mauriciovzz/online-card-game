@@ -10,6 +10,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@dnd-kit/helpers": "^0.4.0",
+    "@dnd-kit/react": "^0.4.0",
     "@mantine/core": "^9.0.2",
     "@mantine/form": "^9.0.2",
     "@mantine/hooks": "^9.0.2",

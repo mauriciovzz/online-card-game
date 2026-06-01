@@ -8,7 +8,7 @@ import { useChat } from "@/contexts/ChatContext";
 import { AppActionIcon } from "./AppActionIcon";
 
 interface Props {
-  expand: boolean;
+  expand?: boolean;
   onClick: () => void;
 }
 
@@ -26,9 +26,14 @@ export const ChatButton = ({ expand, onClick }: Props) => {
     >
       <AppActionIcon
         expand={expand}
-        icon={chatOpened ? IconX : IconMessageCircle}
         onClick={chatOpened ? closeChat : onClick}
-      />
+      >
+        {chatOpened ? (
+          <IconX size={20} stroke={2} />
+        ) : (
+          <IconMessageCircle size={20} stroke={2} />
+        )}
+      </AppActionIcon>
     </Indicator>
   );
 };

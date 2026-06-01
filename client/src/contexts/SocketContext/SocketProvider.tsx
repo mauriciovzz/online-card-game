@@ -16,6 +16,7 @@ import type {
   UserName,
   SuccessResponse,
 } from "@shared/types";
+import { useCardsMap } from "../CardsContext";
 
 const SOCKET_URL = import.meta.env.VITE_SOCKET_URL;
 
@@ -24,6 +25,8 @@ interface Props {
 }
 
 export const SocketProvider = ({ children }: Props) => {
+  const { cardsLoading } = useCardsMap();
+
   const socketRef = useRef<Socket | null>(null);
 
   const [userName, setUserName] = useState("");
@@ -59,6 +62,11 @@ export const SocketProvider = ({ children }: Props) => {
 
   useEffect(() => {
     const socket = io(SOCKET_URL);
+
+    socket.onAny((eventName, ...args) => {
+      console.log(`Received event: ${eventName}`, args);
+    });
+
     socketRef.current = socket;
 
     socket.on("user:connected", handleConnected);
@@ -73,7 +81,12 @@ export const SocketProvider = ({ children }: Props) => {
     };
   }, [handleAvailable, handleConnected, fetchRooms]);
 
-  if (!isNameReady || !areRoomsReady || rooms === null) {
+  if (
+    cardsLoading ||
+    !isNameReady ||
+    !areRoomsReady ||
+    rooms === null
+  ) {
     return <SpinnerLayout />;
   }
 

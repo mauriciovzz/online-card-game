@@ -1,5 +1,5 @@
 import { games, timers, turns } from "@/stores";
-import cardsHelper from "@/utils/cardsHelper";
+import deckHelper from "@/utils/deckHelper";
 
 import {
   Room,
@@ -8,10 +8,9 @@ import {
   CardType,
   GameState,
   Player,
+  HandState,
 } from "@shared/types";
-import { LeaveGameRes } from "@/types";
 
-// ok
 const getNextPlayerIndex = (game: Game) => {
   const { direction, players, currPlayerIndex } = game;
   const members = players.length;
@@ -21,7 +20,7 @@ const getNextPlayerIndex = (game: Game) => {
 const adjustPlayerIndex = (
   currentPlayerIndex: number,
   removedIndex: number,
-  playerCountAfterRemoval: number,
+  playersLeft: number,
   direction: 1 | -1
 ): number => {
   if (removedIndex < currentPlayerIndex) {
@@ -30,12 +29,11 @@ const adjustPlayerIndex = (
 
   if (removedIndex === currentPlayerIndex) {
     if (direction === 1) {
-      return currentPlayerIndex % playerCountAfterRemoval;
+      return currentPlayerIndex % playersLeft;
     }
 
     return (
-      (currentPlayerIndex - 1 + playerCountAfterRemoval) %
-      playerCountAfterRemoval
+      (currentPlayerIndex - 1 + playersLeft) % playersLeft
     );
   }
 
@@ -44,21 +42,14 @@ const adjustPlayerIndex = (
 
 // ------------------------------------------------------------
 
-// ok
 const createGame = (room: Room) => {
-  const { deck, pile } = cardsHelper.createDeck();
+  const { deck, pile } = deckHelper.createDeck();
 
   const players = room.players.map((p) => ({
     ...p,
-    hand: deck.splice(0, 7),
+    cards: deck.splice(0, 7),
     calledUno: false,
   }));
-
-  const res = cardsHelper.parseCard({
-    playedCard: pile[0],
-  });
-
-  if (!res.success) return;
 
   const game: Game = {
     players,
@@ -68,7 +59,7 @@ const createGame = (room: Room) => {
     pile,
     direction: 1,
 
-    topCard: res.data,
+    topCard: pile[0],
 
     currEffect: null,
     nextEffect: null,
@@ -78,7 +69,6 @@ const createGame = (room: Room) => {
   games.set(room.id, game);
 };
 
-// ok
 const createTurn = (
   roomId: string,
   currentPlayerId: string,
@@ -99,14 +89,13 @@ const createTurn = (
   return turn;
 };
 
-// ok
 const getState = (game: Game): GameState => ({
   players: game.players.map((p) => {
-    const { hand, ...rest } = p;
+    const { cards, ...rest } = p;
 
     return {
       ...rest,
-      numCards: hand.length,
+      numCards: cards.length,
     };
   }),
 
@@ -115,18 +104,17 @@ const getState = (game: Game): GameState => ({
   currDrawStack: game.currDrawStack,
 });
 
-// ok
 const getHand = (game: Game, id: string) => {
-  const player = game.players.find((p) => p.id === id);
+  const state = game.players.find((p) => p.id === id);
+  if (!state) return { cards: [], calledUno: false };
 
   return {
-    hand: player?.hand ?? [],
-    calledUno: player?.calledUno ?? false,
+    cards: state.cards.map((card) => ({ ...card })),
+    calledUno: state.calledUno,
   };
 };
 
-// ok
-const autoDraw = (game: Game) => {
+const autoDraw = (game: Game): HandState => {
   let cardsToDraw = 1;
 
   if (game.currEffect) {
@@ -134,31 +122,29 @@ const autoDraw = (game: Game) => {
     game.currDrawStack = 0;
   }
 
-  cardsHelper.draw(
+  const updatedHand = deckHelper.draw(
     game.players[game.currPlayerIndex],
     cardsToDraw,
-    game.deck,
-    game.pile
+    game
   );
+
+  return updatedHand;
 };
 
-// ok
 const advanceTurn = (game: Game) => {
   game.currEffect = game.nextEffect;
   game.nextEffect = null;
   game.currPlayerIndex = getNextPlayerIndex(game);
 };
 
-// ok
-const skipTurn = (game: Game) => {
-  const effect = game.currEffect;
+const skipTurn = (game: Game): HandState | undefined => {
+  let updatedHand: HandState | undefined = undefined;
 
-  if (effect !== "SKIP") {
-    cardsHelper.draw(
+  if (game.currEffect !== "SKIP") {
+    updatedHand = deckHelper.draw(
       game.players[game.currPlayerIndex],
       game.currDrawStack,
-      game.deck,
-      game.pile
+      game
     );
 
     game.currDrawStack = 0;
@@ -167,18 +153,17 @@ const skipTurn = (game: Game) => {
   game.currPlayerIndex = getNextPlayerIndex(game);
   game.currEffect = null;
   game.nextEffect = null;
+
+  return updatedHand;
 };
 
-// ok
 const applyEffect = (game: Game, type: CardType) => {
   switch (type) {
     case "SKIP":
       game.nextEffect = type;
       break;
     case "REVERSE":
-      if (game.players.length === 2)
-        game.nextEffect = "SKIP";
-      else game.direction = game.direction === 1 ? -1 : 1;
+      game.direction = game.direction === 1 ? -1 : 1;
       break;
     case "DRAW_TWO":
       game.nextEffect = type;
@@ -191,7 +176,6 @@ const applyEffect = (game: Game, type: CardType) => {
   }
 };
 
-// ok
 const cleanUp = (roomId: string) => {
   const timer = timers.get(roomId);
   if (timer) clearTimeout(timer);
@@ -201,22 +185,9 @@ const cleanUp = (roomId: string) => {
   games.delete(roomId);
 };
 
-const leave = (
-  game: Game,
-  playerId: string
-): LeaveGameRes | null => {
+const leave = (game: Game, playerId: string) => {
   const find = (p: Player) => p.id === playerId;
-  const filter = (p: Player) => p.id !== playerId;
-
   const playerIndex = game.players.findIndex(find);
-  if (playerIndex === -1) return null;
-
-  if (game.players.length === 2) {
-    const winner = game.players.find(filter);
-    if (!winner) return null;
-
-    return { type: "WON", id: winner.id };
-  }
 
   const newIndex = adjustPlayerIndex(
     game.currPlayerIndex,
@@ -229,13 +200,11 @@ const leave = (
   game.nextEffect = null;
   game.currDrawStack = 0;
 
-  game.deck.push(...game.players[playerIndex].hand);
-  game.players = game.players.splice(playerIndex, 1);
+  game.deck.push(...game.players[playerIndex].cards);
+  game.players.splice(playerIndex, 1);
   game.currPlayerIndex = newIndex;
 
-  const wasPlaying = playerIndex === game.currPlayerIndex;
-
-  return { type: "LEFT", wasPlaying };
+  return playerIndex === game.currPlayerIndex;
 };
 
 export default {

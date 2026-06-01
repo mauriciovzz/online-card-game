@@ -2,28 +2,31 @@ import { rooms, games, timers } from "@/stores";
 import { roomService, gameService } from "@/services";
 import {
   broadcastRoomList,
+  emitEffect,
   emitGameData,
   emitPlayerHand,
   emitPlayerQuit,
   emitRoomData,
   emitTimeout,
   emitTurn,
+  emitWinner,
   ok,
 } from "@/utils/emiterHelper";
-import cardsHelper from "@/utils/cardsHelper";
 import {
-  getTurnData,
   getGameData,
-  isPlayerInRoom,
+  getTurnData,
+  isInRoom,
 } from "@/utils/guards";
 
 import {
   Room,
-  ParsedCard,
   Game,
   Turn,
+  PlayerState,
   Card,
-  PlayerHand,
+  PlayedCard,
+  Player,
+  EmptyRes,
 } from "@shared/types";
 import {
   AppServer,
@@ -36,53 +39,76 @@ const timeout = (
   roomId: string,
   playerId: string
 ) => {
-  const data = getGameData(roomId);
-  if (!data) return;
+  const turnData = getTurnData(io, roomId);
+  if (!turnData) return;
 
-  const { room, game, turn } = data;
+  const { room, game, turn } = turnData;
 
-  emitTimeout(io, room.id, playerId);
+  let hadToDraw = false;
 
-  const usedACard = turn.cardPut || turn.cardDraw;
+  if (!turn.cardPut && !turn.cardDraw) {
+    hadToDraw = true;
 
-  if (!usedACard && game.currEffect !== "SKIP") {
-    gameService.autoDraw(game);
+    const updatedHand = gameService.autoDraw(game);
+    emitPlayerHand(io, playerId, updatedHand);
 
-    const playerId = game.players[game.currPlayerIndex].id;
-
-    const hand = gameService.getHand(game, playerId);
-    emitPlayerHand(io, playerId, hand);
-
-    const gameState = gameService.getState(game);
-    emitGameData(io, room.id, gameState);
+    emitGameData(io, room.id, gameService.getState(game));
   }
 
-  gameService.advanceTurn(game);
+  emitTimeout(io, playerId, hadToDraw);
 
+  gameService.advanceTurn(game);
   startTurn(io, roomId);
 };
 
-const startTurn = (io: AppServer, roomId: string) => {
-  const data = getTurnData(roomId);
-  if (!data) return;
+const applyPendingEffect = (
+  io: AppServer,
+  room: Room,
+  game: Game
+) => {
+  const { players, currEffect, currPlayerIndex } = game;
 
-  const { room, game } = data;
+  const affectedPlayer = players[currPlayerIndex];
+  const updatedHand = gameService.skipTurn(game);
+
+  if (currEffect !== "SKIP" && updatedHand) {
+    emitPlayerHand(io, affectedPlayer.id, updatedHand);
+
+    emitGameData(io, room.id, gameService.getState(game));
+  }
+
+  emitEffect(
+    io,
+    affectedPlayer.id,
+    affectedPlayer.pos,
+    updatedHand?.cards.length
+  );
+};
+
+const startTurn = (io: AppServer, roomId: string) => {
+  const gameData = getGameData(io, roomId);
+  if (!gameData) return;
+
+  const { room, game } = gameData;
 
   const existingTimer = timers.get(room.id);
   if (existingTimer) clearTimeout(existingTimer);
 
-  if (game.currEffect && !room.rules.stack) {
-    const effect = game.currEffect;
-    const skipped = game.players[game.currPlayerIndex].id;
+  if (game.currEffect) {
+    if (room.rules.stack) {
+      const { players, currEffect, currPlayerIndex } = game;
 
-    gameService.skipTurn(game);
+      const affectedPlayer = players[currPlayerIndex];
 
-    if (effect !== "SKIP") {
-      const hand = gameService.getHand(game, skipped);
-      emitPlayerHand(io, skipped, hand);
+      const canPlay = affectedPlayer.cards.some(
+        (c) => c.type === currEffect
+      );
 
-      const gameState = gameService.getState(game);
-      emitGameData(io, room.id, gameState);
+      if (!canPlay) {
+        applyPendingEffect(io, room, game);
+      }
+    } else {
+      applyPendingEffect(io, room, game);
     }
   }
 
@@ -106,66 +132,112 @@ const startTurn = (io: AppServer, roomId: string) => {
   timers.set(room.id, timer);
 };
 
-// ok
-const winGame = (
+const finishGame = (
   io: AppServer,
   room: Room,
-  winnerId: string
+  winner: PlayerState,
+  playerThatLeft?: string
 ) => {
-  io.to(room.id).emit("game:won", { playerId: winnerId });
-
   gameService.cleanUp(room.id);
 
-  const roomCap = Number(room.capacity);
+  const winnerInfo = {
+    id: winner.id,
+    name: winner.name,
+    pos: winner.pos,
+  };
+
+  emitWinner(io, room.id, winnerInfo, playerThatLeft);
+
+  const roomCapacity = Number(room.capacity);
   const members = room.players.length;
-
-  const isRoomFull = roomCap === members;
-  room.state = isRoomFull ? "FULL" : "WAITING";
-
-  emitRoomData(io, room);
+  const isRoomFull = roomCapacity === members;
 
   if (!isRoomFull) {
+    room.state = "WAITING";
+
+    emitRoomData(io, room);
     broadcastRoomList(io, roomService.getAvailable());
   }
-
-  return;
 };
 
-interface PlayerData {
-  id: string;
-  hand: Card[];
-  card: ParsedCard;
-}
-
-// ok
 const playCard = (
   io: AppServer,
-  callback: SocketCallback<PlayerHand>,
-  { id, hand, card }: PlayerData,
-  room: Room,
-  game: Game,
-  turn: Turn
+  callback: SocketCallback<EmptyRes>,
+  turnData: { room: Room; game: Game; turn: Turn },
+  playerId: string,
+  playedCard: PlayedCard
 ) => {
-  cardsHelper.put(card.raw, hand, game.pile);
+  const { room, game, turn } = turnData;
+  const { cardId, chosenColor } = playedCard;
 
-  game.topCard = card;
-  turn.cardPut = true;
+  const findPlayer = (p: PlayerState) => p.id === playerId;
+  const player = game.players.find(findPlayer);
+  if (!player) return;
 
-  gameService.applyEffect(game, card.type);
+  const findCard = (c: Card) => c.id === cardId;
+  const playedCardIndex = player.cards.findIndex(findCard);
+  if (playedCardIndex === -1) return;
 
-  if (hand.length === 0) {
-    winGame(io, room, id);
+  const cardPut = player.cards.splice(
+    playedCardIndex,
+    1
+  )[0];
+
+  const isWildcard = cardPut.type === "WILD_CARD";
+  const isDrawFour = cardPut.type === "DRAW_FOUR";
+
+  if ((isWildcard || isDrawFour) && chosenColor) {
+    cardPut.color = chosenColor;
   }
 
-  const playerHand = gameService.getHand(game, id);
-  ok(callback, playerHand);
+  game.pile.push(cardPut);
+  game.topCard = cardPut;
 
-  const gameState = gameService.getState(game);
-  emitGameData(io, room.id, gameState);
+  turn.cardPut = true;
 
-  const { stair, mirror, stack } = room.rules;
+  gameService.applyEffect(game, cardPut.type);
 
-  if (!stair && !mirror && !stack) {
+  if (player.cards.length === 0) {
+    finishGame(io, room, player);
+    return;
+  }
+
+  ok(callback, {});
+  emitTurn(io, room.id, turn);
+
+  emitGameData(io, room.id, gameService.getState(game));
+
+  if (
+    room.players.length === 2 &&
+    cardPut.type === "REVERSE"
+  ) {
+    gameService.advanceTurn(game);
+
+    const player = game.players[game.currPlayerIndex];
+    emitEffect(io, player.id, player.pos);
+
+    gameService.advanceTurn(game);
+    startTurn(io, room.id);
+    return;
+  }
+
+  const { mirror, stair } = room.rules;
+
+  const canMirror =
+    !mirror ||
+    cardPut.type !== "NUMBER" ||
+    !player.cards.some((c) => c.raw === cardPut.raw);
+
+  const canStair =
+    !stair ||
+    cardPut.type !== "NUMBER" ||
+    !player.cards.some(
+      (c) =>
+        c.type === "NUMBER" &&
+        c.number === cardPut.number + 1
+    );
+
+  if (canMirror && canStair) {
     gameService.advanceTurn(game);
     startTurn(io, room.id);
   }
@@ -178,37 +250,45 @@ const handleExit = (io: AppServer, socket: AppSocket) => {
   const room = rooms.get(roomId);
   if (!room) return;
 
-  const player = isPlayerInRoom(room, socket.id);
-  if (!player) {
-    console.log("shouldCheck");
-    return;
-  }
-
-  const roomDeleted = roomService.leave(room, socket.id);
+  const player = isInRoom(socket.id, room);
+  if (!player) return;
 
   void socket.leave(room.id);
   socket.data.roomId = undefined;
 
-  const game = games.get(roomId);
-
-  if (!game) {
-    if (!roomDeleted) emitRoomData(io, room);
+  if (room.players.length === 1) {
+    rooms.delete(room.id);
     broadcastRoomList(io, roomService.getAvailable());
     return;
   }
 
-  const gameRes = gameService.leave(game, socket.id);
-  if (!gameRes) return;
+  roomService.leave(room, socket.id);
 
-  const gamestate = gameService.getState(game);
-  emitPlayerQuit(socket, room.id, player.name, gamestate);
+  const game = games.get(roomId);
 
-  if (gameRes.type === "WON") {
-    winGame(io, room, gameRes.id);
+  if (!game) {
+    emitRoomData(io, room);
+    broadcastRoomList(io, roomService.getAvailable());
     return;
   }
 
-  if (room.state === "PLAYING" && gameRes.wasPlaying) {
+  if (game.players.length === 2) {
+    const filter = (p: Player) => p.id !== socket.id;
+    const winner = game.players.find(filter);
+    if (!winner) return;
+
+    finishGame(io, room, winner, player.name);
+    return;
+  }
+
+  const wasPlaying = gameService.leave(game, socket.id);
+
+  const gamestate = gameService.getState(game);
+
+  emitPlayerQuit(socket, room.id, player.name, gamestate);
+  emitRoomData(io, room);
+
+  if (wasPlaying) {
     startTurn(io, roomId);
   }
 };

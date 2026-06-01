@@ -4,7 +4,6 @@ import { useToggle } from "@mantine/hooks";
 import { IconQuestionMark } from "@tabler/icons-react";
 
 import { MainLayout } from "@/layouts";
-import { useNotification } from "@/hooks";
 import {
   ThemeToggler,
   AppButton,
@@ -17,12 +16,13 @@ import {
   RoomList,
   UserNameInput,
 } from "./components";
+import { useNavigate } from "react-router";
 
 export const HomePage = () => {
   const [view, toggleView] = useToggle(["list", "create"]);
   const [nameEditable, setNameEditable] = useState(false);
 
-  const { successNoti } = useNotification();
+  const navigate = useNavigate();
 
   const isListView = view === "list";
   const buttonText = isListView
@@ -51,9 +51,10 @@ export const HomePage = () => {
         />
 
         <AppActionIcon
-          icon={IconQuestionMark}
-          onClick={() => successNoti("hey")}
-        />
+          onClick={() => void navigate("/game-test")}
+        >
+          <IconQuestionMark size={20} stroke={2} />
+        </AppActionIcon>
 
         <LangToggler />
 

@@ -29,6 +29,7 @@ export const SlotBase = ({
       h={size ?? height}
       pos="relative"
       style={{ userSelect: "none" }}
+      p="sm"
     >
       {!isAvailable ? (
         <IconCancel color={color} />

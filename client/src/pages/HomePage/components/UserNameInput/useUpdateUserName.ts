@@ -1,15 +1,10 @@
 import { useTranslation } from "react-i18next";
 import { useForm } from "@mantine/form";
 
+import { ERRORS_MAP } from "@/constants";
 import { useSocket } from "@/contexts/SocketContext";
 
 import type { SocketRes, UserName } from "@shared/types";
-
-const ERROR_MAP: Record<string, string> = {
-  NAME_EMPTY: "errors.name.empty",
-  NAME_MAX_LENGTH: "errors.name.maxLength",
-  NAME_TAKEN: "errors.name.taken",
-};
 
 export const useUpdateUserName = (onUpdate: () => void) => {
   const { t } = useTranslation();
@@ -42,10 +37,8 @@ export const useUpdateUserName = (onUpdate: () => void) => {
           setUserName(res.data.name);
           onUpdate();
         } else {
-          form.setFieldError(
-            "name",
-            t(ERROR_MAP[res.error])
-          );
+          const errorMsg = ERRORS_MAP[res.error];
+          form.setFieldError("name", t(errorMsg));
         }
       }
     );

@@ -17,7 +17,7 @@ export const RoomButton = ({
 }: RoomListItemProps) => (
   <ItemButton onClick={joinRoom}>
     <Group w="100%" gap={10}>
-      <Text flex={1} size="sm">
+      <Text flex={1} size="sm" truncate="end">
         {room.name}
       </Text>
 

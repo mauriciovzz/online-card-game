@@ -1,19 +1,14 @@
 import { useCallback } from "react";
 import { useNavigate } from "react-router";
 
+import { ERRORS_MAP } from "@/constants";
 import { useSocket } from "@/contexts/SocketContext";
 import { useNotification } from "@/hooks";
 
 import type { RoomId, SocketRes } from "@shared/types";
 
-const ERROR_MAP: Record<string, string> = {
-  ROOM_NOT_FOUND: "room.error.notFound",
-  ROOM_IS_FULL: "room.error.isFull",
-};
-
 export const useJoinRoom = () => {
   const navigate = useNavigate();
-
   const { socket, fetchRooms } = useSocket();
   const { errorNoti } = useNotification();
 
@@ -24,9 +19,9 @@ export const useJoinRoom = () => {
         { roomId },
         (res: SocketRes<RoomId>) => {
           if (res.success) {
-            void navigate(`/room/${res.data.roomId}/lobby`);
+            void navigate(`/lobby/${res.data.roomId}`);
           } else {
-            errorNoti(ERROR_MAP[res.error]);
+            errorNoti(ERRORS_MAP[res.error]);
             fetchRooms();
           }
         }

@@ -1,9 +1,12 @@
 import {
-  PlayerHand,
   Turn,
   Room,
   GameState,
   AvailableRooms,
+  HandState,
+  NotificationInfo,
+  CutInfo,
+  PlayerPos,
 } from "@shared/types";
 import {
   AppServer,
@@ -20,10 +23,13 @@ export const ok = <T>(
 
 export const notOk = <T>(
   callback: SocketCallback<T>,
-  error: string
+  error: string,
+  type?: "VALIDATION" | "ROOM"
 ) => {
-  callback({ success: false, error });
+  callback({ success: false, type, error });
 };
+
+// ---
 
 export const emitRoomData = (
   io: AppServer,
@@ -48,7 +54,7 @@ export const syncRoom = (
   broadcastRoomList(io, rooms);
 };
 
-// game ------------------------------------------------------------
+// ---
 
 export const emitGameData = (
   io: AppServer,
@@ -61,7 +67,7 @@ export const emitGameData = (
 export const emitPlayerHand = (
   io: AppServer,
   playerId: string,
-  newData: PlayerHand
+  newData: HandState
 ) => {
   io.to(playerId).emit("game:hand", newData);
 };
@@ -71,25 +77,74 @@ export const emitTurn = (
   roomId: string,
   turn: Turn
 ) => {
-  io.to(roomId).emit("game:turn", turn);
+  io.to(roomId).emit("game:newTurn", turn);
+};
+
+export const emitUnoCall = (
+  socket: AppSocket,
+  roomId: string,
+  data: NotificationInfo
+) => {
+  socket.to(roomId).emit("game:unoCalled", data);
+};
+
+export const emitCutInfo = (
+  socket: AppSocket,
+  roomId: string,
+  data: CutInfo
+) => {
+  socket.to(roomId).emit("game:gotCut", data);
+};
+
+export const emitWinner = (
+  io: AppServer,
+  roomId: string,
+  winner: NotificationInfo,
+  playerThatLeft?: string
+) => {
+  io.to(roomId).emit("room:gameEnded", {
+    roomId,
+    winner,
+    playerThatLeft,
+  });
 };
 
 export const emitTimeout = (
   io: AppServer,
-  roomId: string,
-  playerId: string
+  playerId: string,
+  hadToDraw: boolean
 ) => {
-  io.to(roomId).emit("game:timeout", { playerId });
+  io.to(playerId).emit("game:timeout", { hadToDraw });
+};
+
+export const emitEffect = (
+  io: AppServer,
+  playerId: string,
+  playerPos: PlayerPos,
+  cardsDrawn?: number
+) => {
+  const data = cardsDrawn
+    ? {
+        type: "DRAW" as const,
+        pos: playerPos,
+        cards: cardsDrawn,
+      }
+    : {
+        type: "SKIP" as const,
+        pos: playerPos,
+      };
+
+  io.to(playerId).emit("game:effect", data);
 };
 
 export const emitPlayerQuit = (
   socket: AppSocket,
   roomId: string,
-  playerName: string,
+  name: string,
   gameState: GameState
 ) => {
   socket.to(roomId).emit("game:playerQuit", {
-    playerName,
+    name,
     gameState,
   });
 };

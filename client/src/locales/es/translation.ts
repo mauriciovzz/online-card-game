@@ -21,15 +21,19 @@ export const es = {
     create: "Crear Sala",
     join: "Unirse a una sala",
     new: "Nueva Sala",
-    startGame: "Iniciar Partida",
+    start: "Iniciar",
+    edit: "Editar",
     update: "Actualizar Sala",
     empty: "No hay salas disponibles",
     notification: {
+      left: "Sala abandonada",
       updated: "Sala actualizada",
       capacityUpdated: "Jugadores actualizado",
       userKickedOut: "Jugador expulsado",
       kickedOut: "Expulsado de la sala",
     },
+    settings: "Ajustes",
+    leave: "Abandonar sala",
   },
 
   rules: {
@@ -51,6 +55,27 @@ export const es = {
     },
   },
 
+  game: {
+    turn: "Turno",
+    myTurn: "Tu turno",
+    draw: "cargar",
+    clientWon: "Ganaste la partida!",
+    someoneWon: "{{name}} gano la partida!",
+    winnerByDefault:
+      "{{left}} abandono el juego / Ganaste!",
+    dontStack: "No responder",
+    cut: "{{cutter}} corto a {{cuttted}}!",
+    cutter: "Cortaste a {{name}}!",
+    cutted: "{{name}} te corto! (+2 cartas)",
+    calledUno: "Gritaste UNO!",
+    unoCalled: "{{name}} grito UNO!",
+    playerQuit: "{{name}} abandono el juego",
+    timeout: "Se acabo el tiempo",
+    timeoutWithCard: "Se acabo el tiempo (+1 carta)",
+    skipEffect: "Perdiste tu turno!",
+    drawEffect: "Carga {{cards}} cartas!",
+  },
+
   chat: {
     start: "Inicio del chat",
     newMessages: "Nuevos mensajes",
@@ -66,7 +91,6 @@ export const es = {
     },
     room: {
       maxLength: "Máximo 15 caracteres",
-      notFound: "Sala no encontrada",
       isFull: "La sala esta llena",
       capacityConflict:
         "Demasiados jugadores para este límite",
@@ -75,6 +99,9 @@ export const es = {
       notEnoughtPlayers: "No hay jugadores suficientes",
       notInRoom: "No forma parte de la sala",
       serverError: "Error del servidor",
+    },
+    game: {
+      notYourTurn: "No es tu turno",
     },
   },
 } as const;

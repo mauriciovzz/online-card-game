@@ -3,6 +3,11 @@ import { useNavigate } from "react-router";
 import { useTranslation } from "react-i18next";
 import { useForm } from "@mantine/form";
 
+import {
+  ERRORS_MAP,
+  ROOM_CAPACITY_OPTIONS,
+  TURN_DURATIONS,
+} from "@/constants";
 import { useSocket } from "@/contexts/SocketContext";
 
 import type {
@@ -11,23 +16,17 @@ import type {
   RoomId,
 } from "@shared/types";
 
-const ERROR_MAP: Record<string, string> = {
-  NAME_EMPTY: "errors.name.empty",
-  NAME_MAX_LENGTH: "errors.room.maxLength",
-};
-
 export const useCreateRoom = () => {
   const navigate = useNavigate();
   const { t } = useTranslation();
-
   const { socket } = useSocket();
 
   const form = useForm<CreateRoomProps>({
     mode: "uncontrolled",
     initialValues: {
       name: "",
-      turnDuration: "30",
-      capacity: "2",
+      turnDuration: TURN_DURATIONS[0].value,
+      capacity: ROOM_CAPACITY_OPTIONS[0].value,
       rules: {
         mirror: false,
         stair: false,
@@ -52,10 +51,10 @@ export const useCreateRoom = () => {
         newRoom,
         (res: SocketRes<RoomId>) => {
           if (res.success) {
-            void navigate(`/room/${res.data.roomId}/lobby`);
+            void navigate(`/lobby/${res.data.roomId}`);
           } else {
-            const key = ERROR_MAP[res.error];
-            form.setFieldError("name", t(key));
+            const errorMsg = ERRORS_MAP[res.error];
+            form.setFieldError("name", t(errorMsg));
           }
         }
       );

@@ -5,6 +5,7 @@ import cors from "cors";
 
 import { registerSocketHandlers } from "./sockets";
 
+import { env } from "./utils/env";
 import { AppServer } from "./types";
 
 const app = express();
@@ -16,7 +17,7 @@ const io: AppServer = new Server(httpServer, {
   cors: {
     origin: [
       "http://localhost:5173",
-      "http://192.168.100.182:5173",
+      `${env.HOST}:${env.CLIENT_PORT}`,
     ],
   },
 });
@@ -25,8 +26,6 @@ io.on("connection", (socket) => {
   registerSocketHandlers(io, socket);
 });
 
-const PORT = 3003;
-
-httpServer.listen(PORT, () => {
-  console.log("Server running on port" + PORT.toString());
+httpServer.listen(env.SERVER_PORT, () => {
+  console.log("Server running on port", env.SERVER_PORT);
 });

@@ -9,7 +9,7 @@ interface Content {
   content: string;
 }
 
-export interface ChatEvents {
+export interface ChatClientEvents {
   "chat:sendMessage": (newData: Content) => void;
 
   "chat:typing:start": () => void;
@@ -19,7 +19,7 @@ export interface ChatEvents {
   "chat:read": (newData: LastRead) => void;
 }
 
-export interface ChatResponses {
+export interface ChatServerEvents {
   "chat:newMessage": (newMessage: Message) => void;
 
   "chat:typing:start": (newData: PlayerId) => void;

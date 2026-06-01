@@ -1,8 +1,13 @@
+import { Text } from "@mantine/core";
 import { useTranslation } from "react-i18next";
 
 import { AppActionIcon } from "./AppActionIcon";
 
-export const LangToggler = () => {
+interface Props {
+  expand?: boolean;
+}
+
+export const LangToggler = ({ expand }: Props) => {
   const { t, i18n } = useTranslation();
 
   const toggleLenguage = () =>
@@ -15,9 +20,10 @@ export const LangToggler = () => {
     })();
 
   return (
-    <AppActionIcon
-      icon={t("common.lang")}
-      onClick={toggleLenguage}
-    />
+    <AppActionIcon expand={expand} onClick={toggleLenguage}>
+      <Text size="sm" fw={700}>
+        {t("common.lang")}
+      </Text>
+    </AppActionIcon>
   );
 };

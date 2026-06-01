@@ -8,20 +8,27 @@ import {
   useComputedColorScheme,
 } from "@mantine/core";
 
-export const ThemeToggler = () => {
+interface Props {
+  expand?: boolean;
+}
+
+export const ThemeToggler = ({ expand }: Props) => {
   const scheme = useComputedColorScheme("light");
   const isDark = scheme === "dark";
 
   const { setColorScheme } = useMantineColorScheme();
 
-  const toggleColorScheme = useCallback(() => {
+  const toggleColor = useCallback(() => {
     setColorScheme(isDark ? "light" : "dark");
   }, [isDark, setColorScheme]);
 
   return (
-    <AppActionIcon
-      icon={isDark ? IconSun : IconMoon}
-      onClick={toggleColorScheme}
-    />
+    <AppActionIcon expand={expand} onClick={toggleColor}>
+      {isDark ? (
+        <IconSun size={20} stroke={2} />
+      ) : (
+        <IconMoon size={20} stroke={2} />
+      )}
+    </AppActionIcon>
   );
 };

@@ -1,34 +1,11 @@
 /* CARDS */
 
-export type CardNumber =
-  | 0
-  | 1
-  | 2
-  | 3
-  | 4
-  | 5
-  | 6
-  | 7
-  | 8
-  | 9;
-
-export type CardLetter =
-  | "S"
-  | "R"
-  | "T";
-
-export type CardValue = CardNumber | CardLetter;
-
 export type CardColor = 
   | "R"
   | "Y"
   | "G"
-  | "B";
-
-export type Card =
-  | `${CardValue}${CardColor}`
-  | "FC"
-  | "WC";
+  | "B"
+  | "W";
 
 export type CardType =
   | "NUMBER"
@@ -44,73 +21,46 @@ export type CardEffect =
   | "DRAW_FOUR"
   | null;
 
-export interface NumberCard {
-  raw: Card;
+interface CardInfo {
+  id: string
+  raw: string;
+  color: CardColor;
+}
+
+export interface RegularCard extends CardInfo {
+  type: "SKIP" | "REVERSE" | "DRAW_TWO" | "DRAW_FOUR" | "WILD_CARD";
+}
+
+export interface NumberCard extends CardInfo {
   type: "NUMBER";
-  color: CardColor;
-  number: CardNumber;
+  number: number;
 }
 
-export interface SkipCard {
-  raw: Card;
-  type: "SKIP";
-  color: CardColor;
-}
-
-export interface ReverseCard {
-  raw: Card;
-  type: "REVERSE";
-  color: CardColor;
-}
-
-export interface DrawTwoCard {
-  raw: Card;
-  type: "DRAW_TWO";
-  color: CardColor;
-}
-
-export interface DrawFourCard {
-  raw: "FC";
-  type: "DRAW_FOUR";
-  color: CardColor;
-}
-
-export interface WildCard {
-  raw: "WC";
-  type: "WILD_CARD";
-  color: CardColor;
-}
-
-export type ParsedCard =
-  | NumberCard
-  | SkipCard
-  | ReverseCard
-  | DrawTwoCard
-  | WildCard
-  | DrawFourCard;
+export type Card = RegularCard | NumberCard;
 
 export interface PlayedCard {
-  playedCard: string;
-  chosenColor?: string;
+  cardId: string;
+  chosenColor?: CardColor;
 }
 
 /* PLAYERS */
+export type PlayerPos = 1 | 2 | 3 | 4;
 
 export interface Player {
   id: string;
-  pos: number;
+  pos: PlayerPos;
   name: string;
   joinedAt: number;
 }
 
-export interface PlayerHand {
-  hand: Card[];
+export interface HandState {
+  cards: Card[];
   calledUno: boolean;
 }
 
-export type PlayerState = Player & PlayerHand;
+export type PlayerState = Player & HandState;
 
-export interface OponnetState extends Player {
+export interface OpponentState extends Player {
   numCards: number;
   calledUno: boolean;
 }
@@ -124,10 +74,11 @@ export interface RoomRules {
 }
 
 export type RoomCapacity = "2" | "3" | "4";
+export type TurnDuration = "15" | "30" | "45";
 
 export interface RoomInfo {
   name: string;
-  turnDuration: "30" | "60" | "90";
+  turnDuration: TurnDuration;
   rules: RoomRules;
 }
 
@@ -145,23 +96,19 @@ export type CreateRoomProps = Omit<
   "id" | "adminId" | "players" | "state"
 >;
 
-export type UpdateRoomProps = Omit<
-  CreateRoomProps,
-  "capacity"
->;
-
 /* GAME */
 
-type Direction = 1 | -1;
+export type Direction = 1 | -1;
 
 export interface Game {
   players: PlayerState[];
   currPlayerIndex: number;
+
   direction: Direction;
 
   deck: Card[];
   pile: Card[];
-  topCard: ParsedCard;
+  topCard: Card;
 
   currEffect: CardEffect;
   currDrawStack: number;
@@ -169,10 +116,10 @@ export interface Game {
 }
 
 export interface GameState {
-  players: OponnetState[];
+  players: OpponentState[];
 
   direction: Direction;
-  topCard: ParsedCard;
+  topCard: Card;
 
   currDrawStack: number;
 }
@@ -206,15 +153,18 @@ export interface MessageCheck {
   isRead: boolean;
 }
 
-export interface ReadUpdate {
-  playerId: string;
-  lastReadCreatedAt: number;
-}
-
 /* RESPONSE TYPES */
+
+export interface EmptyRes {
+
+};
 
 export interface PlayerId {
   playerId: string;
+}
+
+export interface TimeoutRes {
+  hadToDraw: boolean;
 }
 
 export interface LastRead {
@@ -237,12 +187,50 @@ export interface AvailableRooms {
   availableRooms: Room[];
 }
 
-export interface InitialGameData extends PlayerHand {
-  gameState: GameState;
+export interface NotificationInfo {
+  id?: string;
+  name: string;
+  pos: PlayerPos;
 }
 
-export interface PlayerQuitProps {
-  playerName: string;
+export interface CutInfo {
+  cuttedId: string;
+  cuttedName: string;
+  cuttedPos: number;
+  cutterName: string;
+  cutterPos: number;
+}
+
+export interface WinnerInfo {
+  roomId: string;
+  winner: NotificationInfo;
+  playerThatLeft?: string;
+}
+
+interface SkipInfo {
+  type: "SKIP";
+  pos: PlayerPos;
+}
+
+interface DrawInfo {
+  type: "DRAW";
+  pos: PlayerPos;
+  cards: number;
+}
+
+export type EffectInfo = SkipInfo | DrawInfo;
+
+export interface ResMessage {
+  message: string;
+}
+
+export interface InitialGameData {
+  gameState: GameState;
+  cards: Card[];
+}
+
+export interface PlayerQuit {
+  name: string;
   gameState: GameState;
 }
 
@@ -253,6 +241,7 @@ export interface SuccessResponse<T> {
 
 export interface ErrorResponse {
   success: false;
+  type?: "VALIDATION" | "ROOM";
   error: string;
 }
 

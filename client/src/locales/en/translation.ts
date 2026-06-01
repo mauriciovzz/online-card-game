@@ -21,15 +21,19 @@ export const en = {
     create: "Create a room",
     join: "Join a room",
     new: "New room",
-    startGame: "Start Game",
+    start: "Start",
+    edit: "Edit",
     update: "Update room",
     empty: "No rooms available",
     notification: {
+      left: "Room left",
       updated: "Room updated",
       capacityUpdated: "Players updated",
       userKickedOut: "User kicked out",
       kickedOut: "Kicked out from room",
     },
+    settings: "Settings",
+    leave: "Leave room",
   },
 
   rules: {
@@ -49,6 +53,26 @@ export const en = {
     },
   },
 
+  game: {
+    turn: "Turn",
+    myTurn: "Your turn",
+    draw: "draw",
+    clientWon: "you won the match",
+    someoneWon: "{{name}} won the match",
+    winnerByDefault: "{{left}} left the game / You won!",
+    dontStack: "Don't respond",
+    cut: "{{cutter}} cut {{cutted}}!",
+    cutter: "You cut {{name}}!",
+    cutted: "{{name}} cut you! (+2 cards)",
+    calledUno: "You yelled UNO!",
+    unoCalled: "{{name}} yelled UNO!",
+    playerQuit: "{{name}} left the game",
+    timeout: "Timeout",
+    timeoutWithCard: "Timeout (+1 card)",
+    skipEffect: "Turn skipped!",
+    drawEffect: "Draw {{cards}} cards!",
+  },
+
   chat: {
     start: "Chat start",
     newMessages: "New Messages",
@@ -64,7 +88,6 @@ export const en = {
     },
     room: {
       maxLength: "Max length is 15",
-      notFound: "Room not found",
       isFull: "The room is full",
       capacityConflict: "Too many players for this limit",
       playerNotFound: "Player not found",
@@ -72,6 +95,9 @@ export const en = {
       notEnoughtPlayers: "Not enought players",
       notInRoom: "You are not in this room",
       serverError: "Server error",
+    },
+    game: {
+      notYourTurn: "Not your turn",
     },
   },
 } as const;

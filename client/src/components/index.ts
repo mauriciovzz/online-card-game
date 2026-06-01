@@ -14,16 +14,15 @@ import { ThemeToggler } from "./buttons/ThemeToggler";
 import { Chat } from "./chat";
 
 // forms
-import { CapacityChanger } from "./forms/CapacityChanger";
-import { EditableRoomPlayers } from "./forms/EditableRoomPlayers";
 import { FormInput } from "./forms/FormInput";
 import { FormSegmentedControl } from "./forms/FormSegmentedControl";
 import { RoomForm } from "./forms/RoomForm";
 
 // ui
-import { Card } from "./ui/Card";
+import { AppTitle } from "./ui/AppTitle";
 import { Label } from "./ui/Label";
-import { RoomPlayers } from "./ui/RoomPlayer/";
+import { RoomSettingsModal } from "./ui/RoomSettingsModal";
+import { RoomPlayers } from "./ui/RoomPlayers";
 import { SelectedRules } from "./ui/SelectedRules";
 import { Spinner } from "./ui/Spinner";
 
@@ -44,15 +43,14 @@ export {
   Chat,
 
   // forms
-  CapacityChanger,
-  EditableRoomPlayers,
   FormInput,
   FormSegmentedControl,
   RoomForm,
 
   // ui
-  Card,
+  AppTitle,
   Label,
+  RoomSettingsModal,
   RoomPlayers,
   SelectedRules,
   Spinner,

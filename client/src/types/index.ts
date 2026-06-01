@@ -1,3 +1,9 @@
+import type { Card } from "@shared/types";
+
+/* CARDS */
+
+export type SvgCardsMap = Record<string, string>;
+
 /* CHAT */
 
 export interface Typer {
@@ -17,3 +23,7 @@ export interface ReadUpdate {
 /* PAGES */
 
 export type View = "main" | "edit";
+
+/* GAME */
+
+export type Items = Record<string, Card[]>;

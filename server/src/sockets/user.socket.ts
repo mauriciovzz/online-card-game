@@ -4,6 +4,7 @@ import { ok } from "@/utils/emiterHelper";
 import { handleExit } from "@/loop/gameLoop";
 
 import { AppServer, AppSocket } from "@/types";
+import { checkUserName } from "@/utils/guards";
 
 export const userSocket = (
   io: AppServer,
@@ -13,23 +14,19 @@ export const userSocket = (
   socket.emit("user:connected", { name });
 
   socket.on("user:updateName", ({ newName }, callback) => {
-    const res = userService.updateName(socket.id, newName);
+    const trimmedName = newName.trim();
 
-    if (res.success) {
-      name = newName;
-      ok(callback, res.data);
-    } else {
-      callback(res);
-    }
+    const isTaken = checkUserName(trimmedName, callback);
+    if (!isTaken) return;
+
+    userService.updateName(socket.id, trimmedName);
+    name = newName;
+
+    ok(callback, { name: trimmedName });
   });
 
   socket.on("disconnect", () => {
-    const roomId = socket.data.roomId;
-
-    if (roomId) {
-      handleExit(io, socket);
-    }
-
+    handleExit(io, socket);
     users.delete(socket.id);
   });
 };

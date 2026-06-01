@@ -12,10 +12,13 @@ export const MainLayout = ({
   return (
     <Flex
       w="100%"
-      h="100vh"
+      h="100dvh"
       justify="center"
       align="center"
       p="md"
+      style={{
+        touchAction: "none",
+      }}
     >
       <Stack
         h="100%"

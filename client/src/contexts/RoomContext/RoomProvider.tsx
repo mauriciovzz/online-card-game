@@ -7,25 +7,19 @@ import {
 } from "react";
 import { useNavigate, useParams } from "react-router";
 
+import { MESSAGES_MAP, ERRORS_MAP } from "@/constants";
 import { SpinnerLayout } from "@/layouts";
 import { useSocket } from "@/contexts/SocketContext";
 import { useNotification } from "@/hooks";
-import { PLAYER_SLOTS } from "@/constants";
 import { RoomContext } from "./RoomContext";
 
 import type {
   Room,
   RoomId,
   SocketRes,
-  ErrorResponse,
+  ResMessage,
+  WinnerInfo,
 } from "@shared/types";
-
-const ERROR_MAP: Record<string, string> = {
-  ROOM_NOT_FOUND: "errors.room.notFound",
-  NOT_ENOUGHT_PLAYERS: "errors.room.notEnoughtPlayers",
-  NOT_IN_ROOM: "errors.roon.notInRoom",
-  SERVER_ERROR: "errors.roon.serverError",
-};
 
 export const RoomProvider = ({
   children,
@@ -33,56 +27,78 @@ export const RoomProvider = ({
   children: ReactNode;
 }) => {
   const { roomId } = useParams();
-  const { socket } = useSocket();
   const navigate = useNavigate();
+
+  const { socket } = useSocket();
 
   const [room, setRoom] = useState<Room | null>(null);
   const [isReady, setIsReady] = useState(false);
 
-  const { errorNoti } = useNotification();
+  const [stgOpened, setStgOpened] = useState(false);
 
-  const handleRoomExit = useCallback(() => {
-    void navigate("/");
-  }, [navigate]);
+  const { successNoti, errorNoti, winnerNoti } =
+    useNotification();
+
+  const isAdmin = useMemo(
+    () => socket?.id === room?.adminId,
+    [socket, room]
+  );
 
   const handleNewData = useCallback((newData: Room) => {
-    console.log(newData);
     setRoom(newData);
   }, []);
 
-  const handleKickedOut = useCallback(() => {
-    errorNoti("room.notification.kickedOut");
-    handleRoomExit();
-  }, [handleRoomExit, errorNoti]);
+  const handleKickedOut = useCallback(
+    ({ message }: ResMessage) => {
+      errorNoti(MESSAGES_MAP[message]);
+      void navigate("/");
+    },
+    [errorNoti, navigate]
+  );
 
   const handleGameStarted = useCallback(
     ({ roomId }: RoomId) => {
-      void navigate(`/room/${roomId}/game`);
+      void navigate(`/game/${roomId}`);
     },
     [navigate]
   );
 
+  const handleGameEndend = useCallback(
+    ({ roomId, winner, playerThatLeft }: WinnerInfo) => {
+      if (!winner.id) return;
+
+      const clientWon = winner.id === socket?.id;
+
+      winnerNoti(clientWon, winner, playerThatLeft);
+      void navigate(`/lobby/${roomId}`);
+    },
+    [navigate, socket?.id, winnerNoti]
+  );
+
   const handleError = useCallback(
-    (res: ErrorResponse) => {
-      switch (res.error) {
+    (error: string) => {
+      switch (error) {
         case "ROOM_NOT_FOUND":
+        case "GAME_NOT_FOUND":
+        case "TURN_NOT_FOUND":
         case "NOT_IN_ROOM":
-        case "SERVER_ERROR":
-          errorNoti(ERROR_MAP[res.error]);
-          handleRoomExit();
+          errorNoti(ERRORS_MAP[error]);
+          void navigate("/");
           return;
         case "NOT_ENOUGHT_PLAYERS":
-          errorNoti(ERROR_MAP[res.error]);
+        case "PLAYER_NOT_FOUND":
+        case "NOT_ADMIN":
+        case "NOT_YOUR_TURN":
+          errorNoti(ERRORS_MAP[error]);
+          return;
+        default:
+          errorNoti(ERRORS_MAP.SERVER_ERROR);
+          void navigate("/");
           return;
       }
     },
-    [handleRoomExit, errorNoti]
+    [errorNoti, navigate]
   );
-
-  useEffect(() => {
-    console.log("RoomProvider mounted");
-    return () => console.log("RoomProvider unmounted");
-  }, []);
 
   useEffect(() => {
     if (!socket) return;
@@ -92,18 +108,19 @@ export const RoomProvider = ({
         setRoom(res.data);
         setIsReady(true);
       } else {
-        handleError(res);
+        handleError(res.error);
       }
     });
 
     socket.on("room:currentData", handleNewData);
     socket.on("room:gameStarted", handleGameStarted);
+    socket.on("room:gameEnded", handleGameEndend);
     socket.on("room:kickedOut", handleKickedOut);
     socket.on("room:error", handleError);
-
     return () => {
       socket.off("room:currentData", handleNewData);
       socket.off("room:gameStarted", handleGameStarted);
+      socket.off("room:gameEnded", handleGameEndend);
       socket.off("room:kickedOut", handleKickedOut);
       socket.off("room:error", handleError);
     };
@@ -112,44 +129,43 @@ export const RoomProvider = ({
     roomId,
     handleNewData,
     handleGameStarted,
+    handleGameEndend,
     handleKickedOut,
     handleError,
   ]);
-
-  const isAdmin = useMemo(
-    () => socket?.id === room?.adminId,
-    [socket, room]
-  );
 
   const leaveRoom = useCallback(() => {
     if (!socket || !room) return;
 
     socket.emit("room:leave", { roomId: room.id });
-    handleRoomExit();
-  }, [socket, room, handleRoomExit]);
+    successNoti("room.notification.left");
+    void navigate("/");
+  }, [socket, room, successNoti, navigate]);
 
   const startGame = useCallback(() => {
     if (!socket || !room) return;
 
     socket.emit(
       "room:startGame",
-      (res: SocketRes<null>) => {
-        if (!res.success) {
-          handleError(res);
+      (res: SocketRes<RoomId>) => {
+        if (res.success) {
+          handleGameStarted(res.data);
+        } else {
+          handleError(res.error);
         }
       }
     );
-  }, [socket, room, handleError]);
+  }, [socket, room, handleGameStarted, handleError]);
 
-  const getPlayerColor = (playerId: string) => {
-    const player = room?.players.find(
-      (p) => p.id === playerId
-    );
+  const openSettings = useCallback(() => {
+    setStgOpened(true);
+  }, []);
 
-    return player
-      ? PLAYER_SLOTS[player.pos - 1]
-      : undefined;
-  };
+  const closeSettings = useCallback(() => {
+    setStgOpened(false);
+  }, []);
+
+  console.log("hey");
 
   if (!room || !isReady) {
     return <SpinnerLayout />;
@@ -160,10 +176,14 @@ export const RoomProvider = ({
       value={{
         room,
         isAdmin,
+
         leaveRoom,
         startGame,
         handleError,
-        getPlayerColor,
+
+        settingsOpened: stgOpened,
+        openSettings,
+        closeSettings,
       }}
     >
       {children}

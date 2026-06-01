@@ -5,11 +5,10 @@ import { users, rooms } from "@/stores";
 import {
   Room,
   CreateRoomProps,
-  RoomId,
-  SocketRes,
   RoomCapacity,
-  UpdateRoomProps,
+  RoomInfo,
   Player,
+  PlayerPos,
 } from "@shared/types";
 
 const generateId = () => {
@@ -19,41 +18,11 @@ const generateId = () => {
     .toUpperCase();
 };
 
-const checkName = (name: string): SocketRes<null> => {
-  const trimmedName = name.trim();
-
-  if (trimmedName.length < 1)
-    return { success: false, error: "NAME_EMPTY" };
-
-  if (trimmedName.length > 15)
-    return { success: false, error: "NAME_MAX_LENGTH" };
-
-  return { success: true, data: null };
-};
-
-const checkCapacity = (
-  numPlayers: number,
-  capacity: RoomCapacity
-): SocketRes<null> => {
-  if (Number(capacity) < numPlayers) {
-    return { success: false, error: "CAPACITY_CONFLICT" };
-  }
-
-  return { success: true, data: null };
-};
-
-// --------------------------------------------------------------
-
 const create = (
   payload: CreateRoomProps,
   playerId: string
-): SocketRes<RoomId> => {
-  const res = checkName(payload.name);
-
-  if (!res.success) return res;
-
+) => {
   let id = generateId();
-
   while (rooms.has(id)) id = generateId();
 
   rooms.set(id, {
@@ -74,10 +43,10 @@ const create = (
     rules: payload.rules,
   });
 
-  return { success: true, data: { roomId: id } };
+  return id;
 };
 
-const update = (room: Room, newData: UpdateRoomProps) => {
+const update = (room: Room, newData: RoomInfo) => {
   room.name = newData.name;
   room.turnDuration = newData.turnDuration;
   room.rules = newData.rules;
@@ -87,7 +56,10 @@ const updateCapacity = (
   room: Room,
   capacity: RoomCapacity
 ) => {
+  const isFull = room.players.length === Number(capacity);
+
   room.capacity = capacity;
+  room.state = isFull ? "FULL" : "WAITING";
 };
 
 const getAvailable = () => {
@@ -99,42 +71,22 @@ const getAvailable = () => {
 };
 
 const join = (room: Room, playerId: string) => {
-  const currPlayers = room.players.length;
-  const usedSlots: number[] = [];
-
-  for (let i = 0; i < currPlayers; i++) {
-    usedSlots.push(room.players[i].pos);
-  }
-
-  let currentPos = 0;
-  for (let i = 1; i < 5; i++) {
-    if (!usedSlots.includes(i)) {
-      currentPos = i;
-      break;
-    }
-  }
+  const numPlayers = room.players.length + 1;
 
   room.players.push({
     id: playerId,
     name: users.get(playerId) ?? "",
-    pos: currentPos,
+    pos: numPlayers as PlayerPos,
     joinedAt: new Date().getTime(),
   });
 
   room.players.sort((a, b) => a.pos - b.pos);
 
-  room.state =
-    currPlayers + 1 === Number(room.capacity)
-      ? "FULL"
-      : room.state;
+  const roomFull = numPlayers === Number(room.capacity);
+  room.state = roomFull ? "FULL" : room.state;
 };
 
 const leave = (room: Room, playerId: string) => {
-  if (room.players.length === 1) {
-    rooms.delete(room.id);
-    return true;
-  }
-
   const filter = (p: Player) => p.id !== playerId;
   const remainingPlayers = room.players.filter(filter);
 
@@ -142,7 +94,10 @@ const leave = (room: Room, playerId: string) => {
     room.adminId = remainingPlayers[0].id;
   }
 
-  room.players = remainingPlayers;
+  room.players = remainingPlayers.map((p, index) => {
+    p.pos = (index + 1) as PlayerPos;
+    return p;
+  });
 
   if (room.state !== "PLAYING") {
     room.state = "WAITING";
@@ -152,9 +107,6 @@ const leave = (room: Room, playerId: string) => {
 };
 
 export default {
-  checkName,
-  checkCapacity,
-
   create,
   update,
   updateCapacity,

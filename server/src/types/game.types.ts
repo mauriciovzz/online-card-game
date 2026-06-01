@@ -2,49 +2,68 @@ import {
   InitialGameData,
   GameState,
   Turn,
-  PlayerHand,
   PlayedCard,
   PlayerId,
-  PlayerQuitProps,
+  PlayerQuit,
+  HandState,
+  NotificationInfo,
+  CutInfo,
+  TimeoutRes,
+  EffectInfo,
+  EmptyRes,
 } from "@shared/types";
 import { SocketCallback } from "@/types";
 
-export interface GameEvents {
+export interface GameClientEvents {
   "game:getData": (
     callback: SocketCallback<InitialGameData>
   ) => void;
 
   "game:playCard": (
     playerCard: PlayedCard,
-    callback: SocketCallback<PlayerHand>
+    callback: SocketCallback<EmptyRes>
   ) => void;
 
   "game:drawCard": (
-    callback: SocketCallback<PlayerHand>
+    callback: SocketCallback<HandState>
   ) => void;
 
-  "game:endTurn": (callback: SocketCallback<null>) => void;
+  "game:endTurn": (
+    callback: SocketCallback<EmptyRes>
+  ) => void;
 
-  "game:unoCall": (callback: SocketCallback<null>) => void;
+  "game:endStack": (
+    callback: SocketCallback<HandState | EmptyRes>
+  ) => void;
+
+  "game:unoCall": (
+    callback: SocketCallback<NotificationInfo>
+  ) => void;
 
   "game:cutCall": (
     playerId: PlayerId,
-    callback: SocketCallback<null>
+    callback: SocketCallback<NotificationInfo>
   ) => void;
 
-  "game:leave": (callback: SocketCallback<null>) => void;
+  "game:leave": (
+    callback: SocketCallback<EmptyRes>
+  ) => void;
 }
 
-export interface GameResponses {
+export interface GameServerEvents {
   "game:currentData": (newData: GameState) => void;
 
-  "game:hand": (newData: PlayerHand) => void;
+  "game:hand": (newData: HandState) => void;
 
-  "game:turn": (newData: Turn) => void;
+  "game:newTurn": (newData: Turn) => void;
 
-  "game:timeout": (newData: PlayerId) => void;
+  "game:timeout": (newData: TimeoutRes) => void;
 
-  "game:playerQuit": (data: PlayerQuitProps) => void;
+  "game:unoCalled": (data: NotificationInfo) => void;
 
-  "game:won": (newData: PlayerId) => void;
+  "game:gotCut": (data: CutInfo) => void;
+
+  "game:playerQuit": (data: PlayerQuit) => void;
+
+  "game:effect": (data: EffectInfo) => void;
 }

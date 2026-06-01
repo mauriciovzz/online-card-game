@@ -114,7 +114,6 @@ export const Chat = () => {
 
   return (
     <AppBox
-      borderColor={themeColor}
       w="100%"
       h={outerHeight}
       bg={isDark ? "dark.7" : "white"}
@@ -123,6 +122,7 @@ export const Chat = () => {
         visibility: chatOpened ? "visible" : "hidden",
         position: "absolute",
         pointerEvents: chatOpened ? "auto" : "none",
+        zIndex: 1000,
       }}
     >
       <Stack w="100%" gap={5} p="sm">

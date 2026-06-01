@@ -8,6 +8,7 @@ import {
 import dayjs from "dayjs";
 import { IconCheck } from "@tabler/icons-react";
 
+import { GAME_COLORS } from "@/constants";
 import { useRoom } from "@/contexts/RoomContext";
 
 import type { Message } from "@shared/types";
@@ -29,7 +30,17 @@ export const MessageBubble = ({
   themeColor,
   msgRef,
 }: Props) => {
-  const { getPlayerColor } = useRoom();
+  const { room } = useRoom();
+
+  const getPlayerColor = (playerId: string) => {
+    const player = room.players.find(
+      (p) => p.id === playerId
+    );
+
+    return player
+      ? GAME_COLORS[player.pos - 1].hex
+      : undefined;
+  };
 
   return (
     <Group
@@ -51,7 +62,7 @@ export const MessageBubble = ({
         {!isMine && showUsername && (
           <Text
             size="xs"
-            c={getPlayerColor(message.senderId)?.string}
+            c={getPlayerColor(message.senderId)}
             fw={700}
           >
             {message.senderName}
@@ -98,7 +109,7 @@ export const MessageBubble = ({
                     stroke={1.5}
                     color={
                       isRead
-                        ? getPlayerColor(playerId)?.css
+                        ? getPlayerColor(playerId)
                         : themeColor
                     }
                   />

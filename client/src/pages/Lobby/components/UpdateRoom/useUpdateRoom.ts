@@ -2,31 +2,28 @@ import { useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import { useForm } from "@mantine/form";
 
+import { ERRORS_MAP, MESSAGES_MAP } from "@/constants";
 import { useSocket } from "@/contexts/SocketContext";
+import { useRoom } from "@/contexts/RoomContext";
 import { useNotification } from "@/hooks";
 
 import type {
-  UpdateRoomProps,
+  RoomInfo,
   Room,
   SocketRes,
+  ResMessage,
 } from "@shared/types";
-
-const ERROR_MAP: Record<string, string> = {
-  NAME_EMPTY: "errors.name.empty",
-  NAME_MAX_LENGTH: "errors.room.maxLength",
-  NOT_ADMIN: "errors.room.notAdmin",
-};
 
 export const useUpdateRoom = (
   room: Room,
   close: () => void
 ) => {
   const { t } = useTranslation();
-
+  const { successNoti } = useNotification();
   const { socket } = useSocket();
-  const { successNoti, errorNoti } = useNotification();
+  const { handleError } = useRoom();
 
-  const form = useForm<UpdateRoomProps>({
+  const form = useForm<RoomInfo>({
     mode: "uncontrolled",
     initialValues: {
       name: room.name,
@@ -46,30 +43,26 @@ export const useUpdateRoom = (
   });
 
   const updateRoom = useCallback(
-    (newData: UpdateRoomProps) => {
+    (newData: RoomInfo) => {
       socket?.emit(
         "room:update",
         newData,
-        (res: SocketRes<null>) => {
+        (res: SocketRes<ResMessage>) => {
           if (res.success) {
-            successNoti("room.notification.updated");
+            successNoti(MESSAGES_MAP[res.data.message]);
             close();
           } else {
-            const error = res.error;
-
-            if (error === "NOT_ADMIN") {
-              errorNoti(ERROR_MAP[error]);
+            if (res.type === "VALIDATION") {
+              const errorMsg = ERRORS_MAP[res.error];
+              form.setFieldError("name", t(errorMsg));
             } else {
-              form.setFieldError(
-                "name",
-                t(ERROR_MAP[error])
-              );
+              handleError(res.error);
             }
           }
         }
       );
     },
-    [socket, successNoti, close, errorNoti, form, t]
+    [socket, successNoti, close, form, t, handleError]
   );
 
   return { form, updateRoom };

@@ -1,46 +1,23 @@
 import { users } from "@/stores";
-import { SocketRes, UserName } from "@shared/types";
 
-const isNameTaken = (name: string) => {
-  return [...users.values()].includes(name);
-};
-
-const getNewName = () => {
-  const id = Math.floor(
-    Math.random() * 900 + 100
-  ).toString();
-
-  return "UNO_" + id;
+const createName = () => {
+  const id = Math.floor(Math.random() * 900 + 100);
+  return "UNO_" + id.toString();
 };
 
 const generateName = (userId: string) => {
-  let name = getNewName();
+  let name = createName();
 
-  while (isNameTaken(name)) {
-    name = getNewName();
+  while ([...users.values()].includes(name)) {
+    name = createName();
   }
 
   users.set(userId, name);
   return name;
 };
 
-const updateName = (
-  userId: string,
-  newName: string
-): SocketRes<UserName> => {
-  const trimmedName = newName.trim();
-
-  if (trimmedName.length < 1)
-    return { success: false, error: "NAME_EMPTY" };
-
-  if (trimmedName.length > 10)
-    return { success: false, error: "NAME_MAX_LENGTH" };
-
-  if (isNameTaken(trimmedName))
-    return { success: false, error: "NAME_TAKEN" };
-
-  users.set(userId, trimmedName);
-  return { success: true, data: { name: trimmedName } };
+const updateName = (userId: string, newName: string) => {
+  users.set(userId, newName);
 };
 
 export default {

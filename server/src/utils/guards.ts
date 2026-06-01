@@ -1,171 +1,195 @@
-import { games, rooms, turns } from "@/stores";
+import { games, rooms, turns, users } from "@/stores";
 import { notOk } from "./emiterHelper";
 
 import {
   Room,
   Game,
   Turn,
-  ErrorResponse,
   Player,
+  RoomCapacity,
+  PlayerState,
 } from "@shared/types";
-import { AppSocket, SocketCallback } from "@/types";
+import {
+  AppServer,
+  AppSocket,
+  SocketCallback,
+} from "@/types";
 
-const ERROR_MAP: Record<number, string> = {
-  1: "ROOM_NOT_FOUND",
-  2: "PLAYER_NOT_FOUND",
-  3: "NOT_ADMIN",
-  4: "SERVER_ERROR",
-};
-
-const roomNotFound = (
-  socket: AppSocket,
-  callback?: (res: ErrorResponse) => void
+export const checkUserName = <T>(
+  newName: string,
+  callback: SocketCallback<T>
 ) => {
-  if (callback) {
-    callback({ success: false, error: ERROR_MAP[1] });
-  } else {
-    socket.emit("room:error", { error: ERROR_MAP[1] });
-  }
-};
-
-export const getRoom = (
-  socket: AppSocket,
-  roomId?: string,
-  callback?: (res: ErrorResponse) => void
-): Room | null => {
-  const id = roomId ?? socket.data.roomId;
-  if (!id) {
-    roomNotFound(socket, callback);
-    return null;
+  if (newName.length < 1) {
+    notOk(callback, "NAME_EMPTY");
+    return false;
   }
 
-  const room = rooms.get(id);
-  if (!room) {
-    roomNotFound(socket, callback);
-    return null;
+  if (newName.length > 10) {
+    notOk(callback, "USER_MAX_LENGTH");
+    return false;
   }
 
-  return room;
-};
+  const isTaken = [...users.values()].includes(newName);
 
-export const isPlayerInRoom = (
-  room: Room,
-  playerId: string
-): Player | null => {
-  const player = room.players.find(
-    (p) => p.id === playerId
-  );
-
-  if (!player) {
-    return null;
-  }
-
-  return player;
-};
-
-export const isPlayerAdmin = (
-  socket: AppSocket,
-  room: Room,
-  callback: (res: ErrorResponse) => void
-) => {
-  const isAdmin = socket.id === room.adminId;
-
-  if (!isAdmin) {
-    callback({ success: false, error: ERROR_MAP[3] });
+  if (isTaken) {
+    notOk(callback, "NAME_TAKEN");
     return false;
   }
 
   return true;
 };
 
-export const getGame = (
+export const checkRoomName = <T>(
+  name: string,
+  callback: SocketCallback<T>
+) => {
+  const trimmedName = name.trim();
+
+  if (trimmedName.length < 1) {
+    notOk(callback, "NAME_EMPTY", "VALIDATION");
+    return false;
+  }
+
+  if (trimmedName.length > 15) {
+    notOk(callback, "ROOM_MAX_LENGTH", "VALIDATION");
+    return false;
+  }
+
+  return true;
+};
+
+export const isCapacityOk = <T>(
+  numPlayers: number,
+  capacity: RoomCapacity,
+  callback: SocketCallback<T>
+) => {
+  if (Number(capacity) < numPlayers) {
+    notOk(callback, "CAPACITY_CONFLICT", "VALIDATION");
+    return false;
+  }
+
+  return true;
+};
+
+// werid is in room? checking socket here
+export const getRoom = <T>({
+  socket,
+  roomId,
+  callback,
+}: {
+  socket: AppSocket;
+  roomId?: string;
+  callback?: SocketCallback<T>;
+}): Room | null => {
+  const id = roomId ?? socket.data.roomId;
+  const room = id ? rooms.get(id) : null;
+
+  if (!room) {
+    if (callback) {
+      notOk(callback, "ROOM_NOT_FOUND");
+    } else {
+      socket.emit("room:error", {
+        error: "ROOM_NOT_FOUND",
+      });
+    }
+
+    return null;
+  }
+
+  return room;
+};
+
+export const isInRoom = <T>(
+  playerId: string,
+  room: Room,
+  callback?: SocketCallback<T>
+): Player | null => {
+  const player = room.players.find(
+    (p) => p.id === playerId
+  );
+
+  if (!player) {
+    if (callback) {
+      notOk(callback, "NOT_IN_ROOM");
+    }
+
+    return null;
+  }
+
+  return player;
+};
+
+export const isPlayerAdmin = <T>(
+  socket: AppSocket,
+  room: Room,
+  callback: SocketCallback<T>
+) => {
+  const isAdmin = socket.id === room.adminId;
+
+  if (!isAdmin) {
+    notOk(callback, "NOT_ADMIN");
+    return false;
+  }
+
+  return true;
+};
+
+export const getGame = <T>(
   roomId: string,
-  callback: (res: ErrorResponse) => void
+  callback: SocketCallback<T>
 ): Game | null => {
   const game = games.get(roomId);
 
   if (!game) {
-    callback({ success: false, error: ERROR_MAP[4] });
+    notOk(callback, "GAME_NOT_FOUND");
     return null;
   }
 
   return game;
 };
 
-export const getTurn = (
+export const getTurn = <T>(
   roomId: string,
-  callback: (res: ErrorResponse) => void
+  callback: SocketCallback<T>
 ): Turn | null => {
   const turn = turns.get(roomId);
 
   if (!turn) {
-    callback({ success: false, error: ERROR_MAP[4] });
+    notOk(callback, "TURN_NOT_FOUND");
     return null;
   }
 
   return turn;
 };
 
-export const getTurnData = (roomId: string) => {
-  const room = rooms.get(roomId);
-  const game = games.get(roomId);
-
-  if (!room || !game) {
-    console.log("room:error", { error: "DATA_MISSING" });
-    return null;
-  }
-
-  return { room, game };
-};
-
-export const getGameData = (roomId: string) => {
-  const room = rooms.get(roomId);
-  const game = games.get(roomId);
-  const turn = turns.get(roomId);
-
-  if (!room || !game || !turn) {
-    console.log("room:error", { error: "DATA_MISSING" });
-    return null;
-  }
-
-  return { room, game, turn };
-};
-
 export const gameGuard = <T>(
   socket: AppSocket,
-  callback: SocketCallback<T>,
-  playerId?: string
+  callback: SocketCallback<T>
 ) => {
-  const room = getRoom(socket, undefined, callback);
+  const room = getRoom({ socket, callback });
   if (!room) return null;
 
-  const id = playerId ?? socket.id;
-  const isInRoom = isPlayerInRoom(room, id);
-  if (!isInRoom) {
-    notOk(callback, "NOT_IN_ROOM");
-    return null;
-  }
+  const player = isInRoom(socket.id, room, callback);
+  if (!player) return null;
 
   const game = getGame(room.id, callback);
   if (!game) return null;
 
-  return { room, game };
+  const find = (p: PlayerState) => p.id === socket.id;
+  const state = game.players.find(find);
+  if (!state) return null;
+
+  return { room, game, player, state };
 };
 
 export const turnGuard = <T>(
   socket: AppSocket,
   callback: SocketCallback<T>
 ) => {
-  const room = getRoom(socket, undefined, callback);
-  if (!room) return null;
+  const data = gameGuard(socket, callback);
+  if (!data) return null;
 
-  const isInRoom = isPlayerInRoom(room, socket.id);
-  if (!isInRoom) notOk(callback, "NOT_IN_ROOM");
-
-  const game = getGame(room.id, callback);
-  if (!game) return null;
-
-  const turn = getTurn(room.id, callback);
+  const turn = getTurn(data.room.id, callback);
   if (!turn) return null;
 
   if (turn.currentPlayerId !== socket.id) {
@@ -173,5 +197,42 @@ export const turnGuard = <T>(
     return null;
   }
 
-  return { room, game, turn };
+  return { ...data, turn };
+};
+
+export const getGameData = (
+  io: AppServer,
+  roomId: string
+) => {
+  const room = rooms.get(roomId);
+  const game = games.get(roomId);
+
+  if (!room || !game) {
+    const error = !room
+      ? "ROOM_NOT_FOUND"
+      : "GAME_NOT_FOUND";
+
+    io.to(roomId).emit("room:error", { error });
+    return null;
+  }
+
+  return { room, game };
+};
+
+export const getTurnData = (
+  io: AppServer,
+  roomId: string
+) => {
+  const gameData = getGameData(io, roomId);
+  if (!gameData) return null;
+
+  const turn = turns.get(roomId);
+
+  if (!turn) {
+    const error = { error: "TURN_NOT_FOUND" };
+    io.to(roomId).emit("room:error", error);
+    return null;
+  }
+
+  return { ...gameData, turn };
 };

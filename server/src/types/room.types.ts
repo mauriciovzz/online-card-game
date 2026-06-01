@@ -4,8 +4,10 @@ import {
   Room,
   AvailableRooms,
   CreateRoomProps,
-  UpdateRoomProps,
+  RoomInfo,
   PlayerId,
+  ResMessage,
+  WinnerInfo,
 } from "@shared/types";
 import { SocketCallback } from ".";
 
@@ -13,7 +15,7 @@ interface RoomError {
   error: string;
 }
 
-export interface RoomEvents {
+export interface RoomClientEvents {
   "room:create": (
     payload: CreateRoomProps,
     callback: SocketCallback<RoomId>
@@ -31,18 +33,18 @@ export interface RoomEvents {
   "room:getData": (callback: SocketCallback<Room>) => void;
 
   "room:update": (
-    payload: UpdateRoomProps,
-    callback: SocketCallback<null>
+    payload: RoomInfo,
+    callback: SocketCallback<ResMessage>
   ) => void;
 
   "room:updateCapacity": (
     payload: { capacity: RoomCapacity },
-    callback: SocketCallback<null>
+    callback: SocketCallback<ResMessage>
   ) => void;
 
   "room:kickPlayer": (
     payload: PlayerId,
-    callback: SocketCallback<null>
+    callback: SocketCallback<ResMessage>
   ) => void;
 
   "room:leave": (payload: RoomId) => void;
@@ -52,14 +54,16 @@ export interface RoomEvents {
   ) => void;
 }
 
-export interface RoomResponses {
+export interface RoomServerEvents {
   "room:availableRooms": (data: AvailableRooms) => void;
 
   "room:currentData": (newData: Room) => void;
 
   "room:gameStarted": (data: RoomId) => void;
 
-  "room:kickedOut": () => void;
+  "room:gameEnded": (data: WinnerInfo) => void;
+
+  "room:kickedOut": (data: ResMessage) => void;
 
   "room:error": (data: RoomError) => void;
 }

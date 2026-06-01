@@ -1,30 +1,29 @@
 import React from "react";
-import { ActionIcon, Text } from "@mantine/core";
-import type { IconProps } from "@tabler/icons-react";
+import { ActionIcon } from "@mantine/core";
 
 import { useIsMobile } from "@/hooks";
 
 interface Props {
   type?: "button" | "submit" | "reset";
-  icon: React.ComponentType<IconProps> | string;
   expand?: boolean;
   disabled?: boolean;
   onClick?: () => void;
+  children: React.ReactNode;
 }
 
 export const AppActionIcon = ({
-  type,
-  icon,
+  type = "button",
   expand,
   disabled,
   onClick,
+  children,
 }: Props) => {
   const isMobile = useIsMobile();
   const size = isMobile ? 42 : 36;
 
   return (
     <ActionIcon
-      type={type ?? "button"}
+      type={type}
       variant="default"
       h={size}
       w={expand ? "100%" : size}
@@ -32,17 +31,9 @@ export const AppActionIcon = ({
       bdrs="md"
       disabled={disabled}
       onClick={onClick}
+      p={isMobile ? 11 : 7}
     >
-      {typeof icon === "string" ? (
-        <Text size="sm" fw={700}>
-          {icon}
-        </Text>
-      ) : (
-        React.createElement(icon, {
-          size: 20,
-          stroke: 2,
-        })
-      )}
+      {children}
     </ActionIcon>
   );
 };

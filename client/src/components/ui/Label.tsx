@@ -17,7 +17,7 @@ export const Label = ({ size, text, error }: Props) => {
 
   return (
     <Group>
-      <Text fw={550} size={size} ml={2}>
+      <Text fw={550} size={size} ml={2} truncate="end">
         {t(text)}
       </Text>
       {error && (

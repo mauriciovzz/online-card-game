@@ -1,161 +1,236 @@
-import { useState, useEffect, useRef } from "react";
-import { useParams } from "react-router";
-import { Box, Flex, Group, Divider } from "@mantine/core";
-import { useSocket } from "@/contexts/SocketContext";
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
+import { Group } from "@mantine/core";
+import { useElementSize } from "@mantine/hooks";
+import {
+  DragDropProvider,
+  type DragEndEvent,
+  type DragOverEvent,
+} from "@dnd-kit/react";
+import { move } from "@dnd-kit/helpers";
+
 import { useRoom } from "@/contexts/RoomContext";
+import { useGame, usePendingCard, useTurn } from "./hooks";
+import { SpinnerLayout } from "@/layouts";
+import {
+  AppBox,
+  AppTitle,
+  InfoBox,
+  SelectedRules,
+} from "@/components";
+import {
+  GameBar,
+  Hand,
+  Pile,
+  TurnIndicator,
+  ColorPicker,
+  PlayersCards,
+} from "./components";
 
-import type { GameState } from "@shared/types";
+import moveHelper from "@shared/utils/moveHelper";
+import type { Card } from "@shared/types";
 
-interface Turn {
-  currentPlayerId: string;
-  turnStartedAt: Date | null;
-  hasDrawnCard: boolean;
-}
-
-type GSType = GameState | null;
+type Cont = HTMLDivElement | null;
+type IsValid = boolean | null;
 
 export const Game = () => {
-  const { roomId } = useParams();
-  const { socket } = useSocket();
+  const { ref, width } = useElementSize();
+
+  const [container, setContainer] = useState<Cont>(null);
+  const [validMove, setValidMove] = useState<IsValid>(null);
+
   const { room } = useRoom();
+  const { game, items, setItems, uno, funcs } = useGame();
+  const { turn, myTurn } = useTurn();
 
-  const [countdown, setCountdown] = useState(0);
-  const intervalRef = useRef<number | null>(null);
-
-  const [game, setGame] = useState<GSType>(null);
-  const [turn, setTurn] = useState<Turn | null>(null);
-  const [isMyTurn, setIsMyTurn] = useState(false);
+  const {
+    pending,
+    penId,
+    handlePending,
+    clearPending,
+    pickColor,
+  } = usePendingCard({
+    playCard: funcs.playCard,
+    setItems,
+  });
 
   useEffect(() => {
-    if (!socket) return;
+    if (myTurn) return;
+    setValidMove(null);
+    clearPending();
+  }, [myTurn, clearPending]);
 
-    const startLocalCountDown = (duration: number) => {
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current);
-        intervalRef.current = null;
-      }
+  const currentPlayerName = useMemo(
+    () =>
+      game?.players.find(
+        (player) => player.id === turn?.currentPlayerId
+      )?.name,
+    [game, turn]
+  );
 
-      const end = Date.now() + duration;
+  const onDragOver = useCallback(
+    (event: DragOverEvent) => {
+      const sourceData = event.operation.source?.data;
+      const card = sourceData?.card as Card | undefined;
 
-      intervalRef.current = window.setInterval(() => {
-        const remaining = Math.max(0, end - Date.now());
-        setCountdown(Math.ceil(remaining / 1000));
+      const targetId = event.operation.target?.id;
 
-        if (remaining <= 0 && intervalRef.current) {
-          clearInterval(intervalRef.current);
-          intervalRef.current = null;
+      if (targetId === "pile" && myTurn) {
+        if (!card || pending) return;
+
+        const canPlayAgain =
+          room.rules.stair || room.rules.mirror;
+
+        let isValid = false;
+
+        const topCard = items.pile[items.pile.length - 1];
+
+        if (items.cards.length === 1) {
+          isValid = card.type === "NUMBER";
+        } else if (turn?.effect) {
+          isValid = turn.effect === card.type;
+        } else {
+          if (turn?.cardPut && canPlayAgain) {
+            isValid = moveHelper.checkChainMove(
+              topCard,
+              card,
+              room.rules
+            );
+          } else {
+            isValid = moveHelper.checkMove(topCard, card);
+          }
         }
-      }, 200);
-    };
 
-    const handleUpdatedState = (
-      newGameState: GameState
-    ) => {
-      setGame(newGameState);
-    };
+        setValidMove(isValid);
 
-    const handleTurnStart = (newTurnData: Turn) => {
-      console.log(
-        "turn started for: ",
-        newTurnData.currentPlayerId
-      );
-
-      setTurn(newTurnData);
-
-      if (socket.id === newTurnData.currentPlayerId) {
-        setIsMyTurn(true);
-      } else {
-        setIsMyTurn(false);
+        return;
       }
 
-      startLocalCountDown(30000);
-    };
+      setItems((prev) => ({
+        ...prev,
+        cards: move(prev.cards, event),
+      }));
 
-    const handleTimeout = ({
-      playerId,
-    }: {
-      playerId: string;
-    }) => {
-      console.log("turn finished for:", playerId);
-    };
+      setValidMove(null);
+    },
+    [
+      myTurn,
+      setItems,
+      pending,
+      room.rules,
+      items.pile,
+      items.cards.length,
+      turn?.effect,
+      turn?.cardPut,
+    ]
+  );
 
-    socket.on("game:updatedState", handleUpdatedState);
+  const onDragEnd = useCallback(
+    (event: DragEndEvent) => {
+      const sourceData = event.operation.source?.data;
+      const card = sourceData?.card as Card | undefined;
 
-    socket.on("game:turnStart", handleTurnStart);
-    socket.on("game:playerTimeout", handleTimeout);
-    return () => {
-      socket.off("game:updatedState", handleUpdatedState);
-
-      socket.off("game:turnStart", handleTurnStart);
-      socket.off("game:playerTimeout", handleTimeout);
-
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current);
-        intervalRef.current = null;
+      if (!myTurn || !validMove || !card) {
+        setValidMove(null);
+        return;
       }
-    };
-  }, [roomId, socket]);
 
-  if (!socket) return;
+      const isWild =
+        card.type === "WILD_CARD" ||
+        card.type === "DRAW_FOUR";
+
+      if (isWild) {
+        handlePending(card);
+        setValidMove(null);
+        return;
+      }
+
+      setItems((prev) => {
+        const updated = move(prev, event);
+
+        const index = updated.pile.findIndex(
+          (item) => item.id === card.id
+        );
+
+        updated.pile.push(updated.pile.splice(index, 1)[0]);
+
+        return updated;
+      });
+
+      setValidMove(null);
+
+      setTimeout(() => {
+        funcs.playCard({
+          cardId: card.id,
+        });
+      }, 300);
+    },
+    [myTurn, validMove, setItems, handlePending, funcs]
+  );
+
+  if (!game || !turn) return <SpinnerLayout />;
 
   return (
-    <Flex direction="column" h="100vh">
-      <Box h={50}>{room.name}</Box>
+    <>
+      <AppTitle text={room.name} />
 
-      <Divider />
-
-      {/* <Box flex={1}>
-        {countdown}
-        {" - "}
-        {isMyTurn ? "is your turn!" : "is not your turn!"}
-
-        <Box>
-          {gameState?.myCards.map((card) => `${card} - `)}
-        </Box>
-
-        <Box flex={1} bg="blue">
-          <ChatButton
-            unreadMessages={unreadMessages}
-            onClick={openChat}
-          />
-        </Box>
-
-        <Box flex={1} bg="red">
-          <Button disabled={!isMyTurn} onClick={endTurn}>
-            end turn
-          </Button>
-        </Box>
-
-        <Chat
-          opened={chatOpened}
-          close={closeChat}
-          messages={messages}
-          sendMessage={sendMessage}
-          currentPlayerId={socket.id ?? ""}
+      <Group gap="sm">
+        <TurnIndicator
+          player={myTurn ? undefined : currentPlayerName}
+          turnDuration={room.turnDuration}
+          startTime={turn.startTime}
         />
-      </Box> */}
 
-      <Divider />
-
-      <Group p="sm">
-        <Flex
-          w="30"
-          bdrs="md"
-          bd="1px solid red"
-          justify="center"
-        >
-          {countdown}
-        </Flex>
-
-        <Flex
-          w={134}
-          bdrs="md"
-          bd="1px solid red"
-          justify="center"
-        >
-          {`${room.players.find((p) => p.id === turn?.currentPlayerId)?.name ?? "Unknown"}'s turn`}
-        </Flex>
+        <InfoBox
+          info={<SelectedRules rules={room.rules} />}
+        />
       </Group>
-    </Flex>
+
+      <DragDropProvider
+        onDragEnd={onDragEnd}
+        onDragOver={onDragOver}
+      >
+        <AppBox ref={setContainer} p="sm" pos="relative">
+          <PlayersCards
+            data={{ room, game, turn }}
+            cutCall={funcs.callCut}
+          >
+            <div ref={ref} style={{ width: "100%" }} />
+
+            <Pile
+              width={width}
+              pile={items.pile}
+              pendingCard={pending}
+              validMove={validMove}
+              game={game}
+              container={container}
+            />
+
+            <Hand
+              width={width}
+              cards={items.cards}
+              pendingCardId={penId}
+              container={container}
+            />
+          </PlayersCards>
+        </AppBox>
+      </DragDropProvider>
+
+      {pending ? (
+        <ColorPicker pick={pickColor} />
+      ) : (
+        <GameBar
+          turn={turn}
+          myTurn={myTurn}
+          canCallUno={items.cards.length === 1 && !uno}
+          stack={room.rules.stack}
+          funcs={funcs}
+        />
+      )}
+    </>
   );
 };

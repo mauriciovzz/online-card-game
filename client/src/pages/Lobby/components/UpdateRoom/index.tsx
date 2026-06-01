@@ -3,12 +3,9 @@ import { useTranslation } from "react-i18next";
 
 import { useThemeColor } from "@/hooks";
 import { useUpdateRoom } from "./useUpdateRoom";
-import {
-  AppButton,
-  RoomForm,
-  CapacityChanger,
-  EditableRoomPlayers,
-} from "@/components";
+import { AppButton, RoomForm } from "@/components";
+import { CapacityChanger } from "./CapacityChanger";
+import { EditableRoomPlayers } from "./EditableRoomPlayers";
 
 import type { Room } from "@shared/types";
 
@@ -17,7 +14,7 @@ interface Props {
   close: () => void;
 }
 
-export const UpdateRoomView = ({ room, close }: Props) => {
+export const UpdateRoom = ({ room, close }: Props) => {
   const { t } = useTranslation();
   const themeColor = useThemeColor();
   const { form, updateRoom } = useUpdateRoom(room, close);

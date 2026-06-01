@@ -10,6 +10,7 @@ import "./i18n";
 import "@mantine/core/styles.css";
 import "@mantine/notifications/styles.css";
 
+import { CardsProvider } from "./contexts/CardsContext";
 import { SocketProvider } from "@/contexts/SocketContext";
 import { App } from "./App";
 
@@ -21,9 +22,11 @@ if (rootElement) {
     <StrictMode>
       <MantineProvider theme={theme}>
         <BrowserRouter>
-          <SocketProvider>
-            <App />
-          </SocketProvider>
+          <CardsProvider>
+            <SocketProvider>
+              <App />
+            </SocketProvider>
+          </CardsProvider>
         </BrowserRouter>
       </MantineProvider>
     </StrictMode>

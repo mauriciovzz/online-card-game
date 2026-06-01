@@ -1,4 +1,4 @@
-import { getRoom, isPlayerInRoom } from "@/utils/guards";
+import { getRoom, isInRoom } from "@/utils/guards";
 import { chatService } from "@/services";
 
 import { AppServer, AppSocket } from "@/types";
@@ -8,10 +8,10 @@ export const chatSocket = (
   socket: AppSocket
 ) => {
   socket.on("chat:sendMessage", ({ content }) => {
-    const room = getRoom(socket, undefined, undefined);
+    const room = getRoom({ socket });
     if (!room) return;
 
-    const player = isPlayerInRoom(room, socket.id);
+    const player = isInRoom(socket.id, room);
     if (!player) return;
 
     const newMessage = chatService.createMessage(
@@ -24,10 +24,10 @@ export const chatSocket = (
   });
 
   socket.on("chat:typing:start", () => {
-    const room = getRoom(socket, undefined, undefined);
+    const room = getRoom({ socket });
     if (!room) return;
 
-    const player = isPlayerInRoom(room, socket.id);
+    const player = isInRoom(socket.id, room);
     if (!player) return;
 
     socket.to(room.id).emit("chat:typing:start", {
@@ -36,10 +36,10 @@ export const chatSocket = (
   });
 
   socket.on("chat:typing:stop", () => {
-    const room = getRoom(socket, undefined, undefined);
+    const room = getRoom({ socket });
     if (!room) return;
 
-    const player = isPlayerInRoom(room, socket.id);
+    const player = isInRoom(socket.id, room);
     if (!player) return;
 
     socket.to(room.id).emit("chat:typing:stop", {
@@ -48,7 +48,7 @@ export const chatSocket = (
   });
 
   socket.on("chat:read", ({ lastReadCreatedAt }) => {
-    const room = getRoom(socket, undefined, undefined);
+    const room = getRoom({ socket });
     if (!room) return;
 
     socket.to(room.id).emit("chat:readUpdate", {

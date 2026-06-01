@@ -3,7 +3,7 @@ import { Notifications } from "@mantine/notifications";
 
 import { RoomContextLayout } from "@/layouts";
 import { useIsMobile } from "./hooks/useIsMobile";
-import { HomePage, Lobby, Game } from "@/pages";
+import { HomePage, Lobby, Game, GameTest } from "@/pages";
 
 export const App = () => {
   const isMobile = useIsMobile();
@@ -14,20 +14,19 @@ export const App = () => {
         position="bottom-center"
         containerWidth={isMobile ? "100%" : 335}
         notificationMaxHeight={isMobile ? 42 : 36}
-        autoClose={2500}
+        limit={1}
+        autoClose={2000}
       />
 
       <Routes>
         <Route path="/" element={<HomePage />} />
+        <Route path="/game-test" element={<GameTest />} />
         <Route element={<RoomContextLayout />}>
           <Route
-            path="/room/:roomId/lobby"
+            path="/lobby/:roomId"
             element={<Lobby />}
           />
-          <Route
-            path="/room/:roomId/game"
-            element={<Game />}
-          />
+          <Route path="/game/:roomId" element={<Game />} />
         </Route>
       </Routes>
     </>

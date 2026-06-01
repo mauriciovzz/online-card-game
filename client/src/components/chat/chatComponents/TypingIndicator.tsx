@@ -1,6 +1,6 @@
 import { Group, Avatar, Flex, Loader } from "@mantine/core";
 
-import { PLAYER_SLOTS } from "@/constants";
+import { GAME_COLORS } from "@/constants";
 import { useRoom } from "@/contexts/RoomContext";
 
 interface Props {
@@ -24,7 +24,7 @@ export const TypingIndicator = ({
               key={`avatar_${p.id}`}
               variant="filled"
               size={22}
-              color={PLAYER_SLOTS[p.pos - 1].string}
+              color={GAME_COLORS[p.pos - 1].hex}
               name={p.name}
             />
           ))}

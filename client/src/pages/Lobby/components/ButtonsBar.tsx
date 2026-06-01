@@ -4,11 +4,7 @@ import {
   type SetStateAction,
 } from "react";
 import { Group } from "@mantine/core";
-import {
-  IconChevronLeft,
-  IconX,
-  IconSettings,
-} from "@tabler/icons-react";
+import { IconSettings } from "@tabler/icons-react";
 
 import { useRoom } from "@/contexts/RoomContext";
 import { useChat } from "@/contexts/ChatContext";
@@ -31,7 +27,7 @@ export const ButtonsBar = ({
   setView,
   canStartGame,
 }: Props) => {
-  const { leaveRoom, startGame, isAdmin } = useRoom();
+  const { startGame, isAdmin, openSettings } = useRoom();
   const { openChat, closeChat } = useChat();
 
   const toggleEdit = useCallback(() => {
@@ -50,28 +46,34 @@ export const ButtonsBar = ({
 
   return (
     <Group gap="sm">
-      <AppActionIcon
-        icon={IconChevronLeft}
-        onClick={leaveRoom}
-      />
-
       {isAdmin && (
-        <AppButton
-          text={"room.startGame"}
-          expand
-          disabled={!canStartGame}
-          onClick={startGame}
-        />
+        <>
+          <AppButton
+            text={"room.start"}
+            expand
+            disabled={!canStartGame}
+            onClick={startGame}
+          />
+          <AppButton
+            text={
+              view === "edit"
+                ? "common.return"
+                : "room.edit"
+            }
+            expand
+            onClick={toggleEdit}
+          />
+        </>
       )}
 
       <ChatButton expand={!isAdmin} onClick={toggleChat} />
 
-      {isAdmin && (
-        <AppActionIcon
-          icon={view === "edit" ? IconX : IconSettings}
-          onClick={toggleEdit}
-        />
-      )}
+      <AppActionIcon
+        expand={!isAdmin}
+        onClick={openSettings}
+      >
+        <IconSettings size={20} stroke={2} />
+      </AppActionIcon>
     </Group>
   );
 };

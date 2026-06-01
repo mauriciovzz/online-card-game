@@ -26,10 +26,9 @@ export const ScrollDownButton = ({
       bottom={0}
       right={isMobile ? 0 : 8}
     >
-      <AppActionIcon
-        icon={IconChevronDown}
-        onClick={() => onClick()}
-      />
+      <AppActionIcon onClick={() => onClick()}>
+        <IconChevronDown size={20} stroke={2} />
+      </AppActionIcon>
     </Indicator>
   );
 };

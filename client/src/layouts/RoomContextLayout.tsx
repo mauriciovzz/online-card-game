@@ -2,7 +2,7 @@ import { Outlet } from "react-router";
 
 import { RoomProvider } from "@/contexts/RoomContext";
 import { ChatProvider } from "@/contexts/ChatContext";
-import { Chat } from "@/components";
+import { Chat, RoomSettingsModal } from "@/components";
 import { MainLayout } from "./MainLayout";
 
 export const RoomContextLayout = () => {
@@ -13,6 +13,7 @@ export const RoomContextLayout = () => {
           <Outlet />
 
           <Chat />
+          <RoomSettingsModal />
         </MainLayout>
       </ChatProvider>
     </RoomProvider>

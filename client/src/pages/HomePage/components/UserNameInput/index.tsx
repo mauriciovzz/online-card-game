@@ -69,22 +69,21 @@ export const UserNameInput = ({
 
         <Group gap="sm" mt={24.8}>
           {!isEditable ? (
-            <AppActionIcon
-              icon={IconEdit}
-              onClick={startEditing}
-            />
+            <AppActionIcon onClick={startEditing}>
+              <IconEdit size={20} stroke={2} />
+            </AppActionIcon>
           ) : (
             <Group gap="sm">
-              <AppActionIcon
-                icon={IconX}
-                onClick={stopEditing}
-              />
+              <AppActionIcon onClick={stopEditing}>
+                <IconX size={20} stroke={2} />
+              </AppActionIcon>
 
               <AppActionIcon
-                icon={IconSend2}
                 type="submit"
                 disabled={form.values.name === userName}
-              />
+              >
+                <IconSend2 size={20} stroke={2} />
+              </AppActionIcon>
             </Group>
           )}
         </Group>
