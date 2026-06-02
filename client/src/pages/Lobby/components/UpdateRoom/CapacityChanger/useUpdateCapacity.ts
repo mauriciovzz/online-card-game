@@ -1,13 +1,19 @@
 import { useCallback, useState } from "react";
 
-import { ERRORS_MAP, MESSAGES_MAP } from "@/constants";
+import {
+  ERROR_METADATA,
+  RESPONSE_METADATA,
+} from "@/constants";
+import {
+  useNotification,
+  useRoomErrorHandler,
+} from "@/hooks";
 import { useSocket } from "@/contexts/SocketContext";
-import { useRoom } from "@/contexts/RoomContext";
-import { useNotification } from "@/hooks";
 
+import { ERROR_CODES } from "@shared/constants/errorCodes";
 import type {
   SocketRes,
-  ResMessage,
+  EmptyResponse,
   RoomCapacity,
   Room,
 } from "@shared/types";
@@ -19,7 +25,7 @@ interface Props {
 export const useUpdateCapacity = ({ room }: Props) => {
   const { successNoti } = useNotification();
   const { socket } = useSocket();
-  const { handleError } = useRoom();
+  const handleError = useRoomErrorHandler();
 
   const [capacity, setCapacity] = useState(room.capacity);
   const [capacityError, setCapacityError] = useState("");
@@ -29,15 +35,22 @@ export const useUpdateCapacity = ({ room }: Props) => {
       socket?.emit(
         "room:updateCapacity",
         { capacity },
-        (res: SocketRes<ResMessage>) => {
+        (res: SocketRes<EmptyResponse>) => {
           if (res.success) {
-            successNoti(MESSAGES_MAP[res.data.message]);
+            successNoti(RESPONSE_METADATA.CAPACITY_UPDATED);
           } else {
-            if (res.type === "VALIDATION") {
-              const errorMsg = ERRORS_MAP[res.error];
-              setCapacityError(errorMsg);
-            } else {
-              handleError(res.error);
+            switch (res.error) {
+              case ERROR_CODES.CAPACITY_CONFLICT: {
+                const meta = ERROR_METADATA[res.error];
+                if (!meta.message) return;
+
+                setCapacityError(meta.message);
+                return;
+              }
+
+              default:
+                handleError(res.error);
+                return;
             }
           }
         }

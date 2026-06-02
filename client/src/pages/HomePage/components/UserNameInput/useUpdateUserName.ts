@@ -1,7 +1,7 @@
 import { useTranslation } from "react-i18next";
 import { useForm } from "@mantine/form";
 
-import { ERRORS_MAP } from "@/constants";
+import { ERROR_METADATA } from "@/constants";
 import { useSocket } from "@/contexts/SocketContext";
 
 import type { SocketRes, UserName } from "@shared/types";
@@ -37,8 +37,10 @@ export const useUpdateUserName = (onUpdate: () => void) => {
           setUserName(res.data.name);
           onUpdate();
         } else {
-          const errorMsg = ERRORS_MAP[res.error];
-          form.setFieldError("name", t(errorMsg));
+          const meta = ERROR_METADATA[res.error];
+          if (!meta.message) return;
+
+          form.setFieldError("name", t(meta.message));
         }
       }
     );

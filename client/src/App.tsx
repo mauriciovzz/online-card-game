@@ -14,8 +14,8 @@ export const App = () => {
         position="bottom-center"
         containerWidth={isMobile ? "100%" : 335}
         notificationMaxHeight={isMobile ? 42 : 36}
+        pauseResetOnHover="notification"
         limit={1}
-        autoClose={2000}
       />
 
       <Routes>

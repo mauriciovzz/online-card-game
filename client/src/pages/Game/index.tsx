@@ -176,60 +176,70 @@ export const Game = () => {
 
   return (
     <>
-      <AppTitle text={room.name} />
+      <div ref={ref} style={{ width: "100%" }} />
 
-      <Group gap="sm">
-        <TurnIndicator
-          player={myTurn ? undefined : currentPlayerName}
-          turnDuration={room.turnDuration}
-          startTime={turn.startTime}
-        />
+      {width > 0 && (
+        <>
+          <AppTitle text={room.name} />
 
-        <InfoBox
-          info={<SelectedRules rules={room.rules} />}
-        />
-      </Group>
+          <Group gap="sm">
+            <TurnIndicator
+              player={
+                myTurn ? undefined : currentPlayerName
+              }
+              turnDuration={room.turnDuration}
+              startTime={turn.startTime}
+            />
 
-      <DragDropProvider
-        onDragEnd={onDragEnd}
-        onDragOver={onDragOver}
-      >
-        <AppBox ref={setContainer} p="sm" pos="relative">
-          <PlayersCards
-            data={{ room, game, turn }}
-            cutCall={funcs.callCut}
+            <InfoBox
+              info={<SelectedRules rules={room.rules} />}
+            />
+          </Group>
+
+          <DragDropProvider
+            onDragEnd={onDragEnd}
+            onDragOver={onDragOver}
           >
-            <div ref={ref} style={{ width: "100%" }} />
+            <AppBox
+              ref={setContainer}
+              p="sm"
+              pos="relative"
+            >
+              <PlayersCards
+                data={{ room, game, turn }}
+                cutCall={funcs.callCut}
+              >
+                <Pile
+                  width={width - 102}
+                  pile={items.pile}
+                  pendingCard={pending}
+                  validMove={validMove}
+                  game={game}
+                  container={container}
+                />
 
-            <Pile
-              width={width}
-              pile={items.pile}
-              pendingCard={pending}
-              validMove={validMove}
-              game={game}
-              container={container}
+                <Hand
+                  width={width - 102}
+                  cards={items.cards}
+                  pendingCardId={penId}
+                  container={container}
+                />
+              </PlayersCards>
+            </AppBox>
+          </DragDropProvider>
+
+          {pending ? (
+            <ColorPicker pick={pickColor} />
+          ) : (
+            <GameBar
+              turn={turn}
+              myTurn={myTurn}
+              canCallUno={items.cards.length === 1 && !uno}
+              stack={room.rules.stack}
+              funcs={funcs}
             />
-
-            <Hand
-              width={width}
-              cards={items.cards}
-              pendingCardId={penId}
-              container={container}
-            />
-          </PlayersCards>
-        </AppBox>
-      </DragDropProvider>
-
-      {pending ? (
-        <ColorPicker pick={pickColor} />
-      ) : (
-        <GameBar
-          turn={turn}
-          myTurn={myTurn}
-          canCallUno={items.cards.length === 1 && !uno}
-          stack={room.rules.stack}
-          funcs={funcs}
-        />
+          )}
+        </>
       )}
     </>
   );

@@ -8,7 +8,6 @@ interface RoomContextTypes {
 
   leaveRoom: () => void;
   startGame: () => void;
-  handleError: (error: string) => void;
 
   settingsOpened: boolean;
   openSettings: () => void;

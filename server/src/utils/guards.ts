@@ -1,4 +1,5 @@
 import { games, rooms, turns, users } from "@/stores";
+import { ERROR_CODES } from "@shared/constants/errorCodes";
 import { notOk } from "./emiterHelper";
 
 import {
@@ -20,19 +21,19 @@ export const checkUserName = <T>(
   callback: SocketCallback<T>
 ) => {
   if (newName.length < 1) {
-    notOk(callback, "NAME_EMPTY");
+    notOk(callback, ERROR_CODES.NAME_EMPTY);
     return false;
   }
 
   if (newName.length > 10) {
-    notOk(callback, "USER_MAX_LENGTH");
+    notOk(callback, ERROR_CODES.USER_LENGTH);
     return false;
   }
 
   const isTaken = [...users.values()].includes(newName);
 
   if (isTaken) {
-    notOk(callback, "NAME_TAKEN");
+    notOk(callback, ERROR_CODES.NAME_TAKEN);
     return false;
   }
 
@@ -46,12 +47,12 @@ export const checkRoomName = <T>(
   const trimmedName = name.trim();
 
   if (trimmedName.length < 1) {
-    notOk(callback, "NAME_EMPTY", "VALIDATION");
+    notOk(callback, ERROR_CODES.NAME_EMPTY);
     return false;
   }
 
   if (trimmedName.length > 15) {
-    notOk(callback, "ROOM_MAX_LENGTH", "VALIDATION");
+    notOk(callback, ERROR_CODES.ROOM_LENGTH);
     return false;
   }
 
@@ -64,7 +65,7 @@ export const isCapacityOk = <T>(
   callback: SocketCallback<T>
 ) => {
   if (Number(capacity) < numPlayers) {
-    notOk(callback, "CAPACITY_CONFLICT", "VALIDATION");
+    notOk(callback, ERROR_CODES.CAPACITY_CONFLICT);
     return false;
   }
 
@@ -86,11 +87,10 @@ export const getRoom = <T>({
 
   if (!room) {
     if (callback) {
-      notOk(callback, "ROOM_NOT_FOUND");
+      notOk(callback, ERROR_CODES.ROOM_NOT_FOUND);
     } else {
-      socket.emit("room:error", {
-        error: "ROOM_NOT_FOUND",
-      });
+      const err = { error: ERROR_CODES.ROOM_NOT_FOUND };
+      socket.emit("room:error", err);
     }
 
     return null;
@@ -110,7 +110,7 @@ export const isInRoom = <T>(
 
   if (!player) {
     if (callback) {
-      notOk(callback, "NOT_IN_ROOM");
+      notOk(callback, ERROR_CODES.NOT_IN_ROOM);
     }
 
     return null;
@@ -127,7 +127,7 @@ export const isPlayerAdmin = <T>(
   const isAdmin = socket.id === room.adminId;
 
   if (!isAdmin) {
-    notOk(callback, "NOT_ADMIN");
+    notOk(callback, ERROR_CODES.NOT_ADMIN);
     return false;
   }
 
@@ -141,7 +141,7 @@ export const getGame = <T>(
   const game = games.get(roomId);
 
   if (!game) {
-    notOk(callback, "GAME_NOT_FOUND");
+    notOk(callback, ERROR_CODES.GAME_NOT_FOUND);
     return null;
   }
 
@@ -155,7 +155,7 @@ export const getTurn = <T>(
   const turn = turns.get(roomId);
 
   if (!turn) {
-    notOk(callback, "TURN_NOT_FOUND");
+    notOk(callback, ERROR_CODES.TURN_NOT_FOUND);
     return null;
   }
 
@@ -193,7 +193,7 @@ export const turnGuard = <T>(
   if (!turn) return null;
 
   if (turn.currentPlayerId !== socket.id) {
-    notOk(callback, "NOT_YOUR_TURN");
+    notOk(callback, ERROR_CODES.NOT_YOUR_TURN);
     return null;
   }
 
@@ -209,8 +209,8 @@ export const getGameData = (
 
   if (!room || !game) {
     const error = !room
-      ? "ROOM_NOT_FOUND"
-      : "GAME_NOT_FOUND";
+      ? ERROR_CODES.ROOM_NOT_FOUND
+      : ERROR_CODES.GAME_NOT_FOUND;
 
     io.to(roomId).emit("room:error", { error });
     return null;
@@ -229,8 +229,8 @@ export const getTurnData = (
   const turn = turns.get(roomId);
 
   if (!turn) {
-    const error = { error: "TURN_NOT_FOUND" };
-    io.to(roomId).emit("room:error", error);
+    const err = { error: ERROR_CODES.TURN_NOT_FOUND };
+    io.to(roomId).emit("room:error", err);
     return null;
   }
 

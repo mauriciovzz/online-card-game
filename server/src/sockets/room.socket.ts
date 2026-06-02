@@ -14,6 +14,7 @@ import {
   syncRoom,
 } from "@/utils/emiterHelper";
 
+import { ERROR_CODES } from "@shared/constants/errorCodes";
 import { AppServer, AppSocket } from "@/types";
 
 export const roomSocket = (
@@ -42,7 +43,7 @@ export const roomSocket = (
     if (!room) return;
 
     if (room.state === "FULL") {
-      notOk(callback, "ROOM_FULL");
+      notOk(callback, ERROR_CODES.ROOM_FULL);
       return;
     }
 
@@ -77,7 +78,7 @@ export const roomSocket = (
 
     roomService.update(room, newData);
 
-    ok(callback, { message: "ROOM_UPDATED" });
+    ok(callback, {});
     syncRoom(io, room, roomService.getAvailable());
   });
 
@@ -96,7 +97,7 @@ export const roomSocket = (
 
     roomService.updateCapacity(room, newCap);
 
-    ok(callback, { message: "CAPACITY_UPDATED" });
+    ok(callback, {});
     syncRoom(io, room, roomService.getAvailable());
   });
 
@@ -108,7 +109,7 @@ export const roomSocket = (
     if (!isAdmin) return;
 
     if (room.players.length === 1) {
-      notOk(callback, "NOT_ENOUGHT_PLAYERS");
+      notOk(callback, ERROR_CODES.NOT_ENOUGH_PLAYERS);
       return;
     }
 
@@ -134,14 +135,14 @@ export const roomSocket = (
 
     const memberSocket = io.sockets.sockets.get(playerId);
     if (!memberSocket) {
-      notOk(callback, "PLAYER_NOT_FOUND");
+      notOk(callback, ERROR_CODES.PLAYER_NOT_FOUND);
       syncRoom(io, room, roomService.getAvailable());
       return;
     }
 
     const inRoom = isInRoom(memberSocket.id, room);
     if (!inRoom) {
-      notOk(callback, "PLAYER_NOT_FOUND");
+      notOk(callback, ERROR_CODES.PLAYER_NOT_FOUND);
       syncRoom(io, room, roomService.getAvailable());
       return;
     }

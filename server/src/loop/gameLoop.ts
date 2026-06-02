@@ -26,7 +26,7 @@ import {
   Card,
   PlayedCard,
   Player,
-  EmptyRes,
+  EmptyResponse,
 } from "@shared/types";
 import {
   AppServer,
@@ -162,7 +162,7 @@ const finishGame = (
 
 const playCard = (
   io: AppServer,
-  callback: SocketCallback<EmptyRes>,
+  callback: SocketCallback<EmptyResponse>,
   turnData: { room: Room; game: Game; turn: Turn },
   playerId: string,
   playedCard: PlayedCard

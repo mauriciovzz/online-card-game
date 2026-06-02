@@ -14,9 +14,11 @@ const getPlayerColor = (pos: number) =>
 const notificationProps: {
   message: ReactNode;
   withBorder: boolean;
+  autoClose: number;
 } = {
   message: undefined,
   withBorder: true,
+  autoClose: 2000,
 };
 
 export const useNotification = () => {
@@ -31,6 +33,8 @@ export const useNotification = () => {
     color?: string;
     props?: Record<string, unknown>;
   }) => {
+    notifications.clean();
+
     notifications.show({
       title: t(msg, props),
       color,

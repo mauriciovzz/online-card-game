@@ -10,7 +10,7 @@ import {
   CutInfo,
   TimeoutRes,
   EffectInfo,
-  EmptyRes,
+  EmptyResponse,
 } from "@shared/types";
 import { SocketCallback } from "@/types";
 
@@ -21,7 +21,7 @@ export interface GameClientEvents {
 
   "game:playCard": (
     playerCard: PlayedCard,
-    callback: SocketCallback<EmptyRes>
+    callback: SocketCallback<EmptyResponse>
   ) => void;
 
   "game:drawCard": (
@@ -29,11 +29,11 @@ export interface GameClientEvents {
   ) => void;
 
   "game:endTurn": (
-    callback: SocketCallback<EmptyRes>
+    callback: SocketCallback<EmptyResponse>
   ) => void;
 
   "game:endStack": (
-    callback: SocketCallback<HandState | EmptyRes>
+    callback: SocketCallback<HandState | EmptyResponse>
   ) => void;
 
   "game:unoCall": (
@@ -46,7 +46,7 @@ export interface GameClientEvents {
   ) => void;
 
   "game:leave": (
-    callback: SocketCallback<EmptyRes>
+    callback: SocketCallback<EmptyResponse>
   ) => void;
 }
 

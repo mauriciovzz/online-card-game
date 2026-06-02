@@ -1,7 +1,7 @@
 import { useCallback } from "react";
 import { useNavigate } from "react-router";
 
-import { ERRORS_MAP } from "@/constants";
+import { ERROR_METADATA } from "@/constants";
 import { useSocket } from "@/contexts/SocketContext";
 import { useNotification } from "@/hooks";
 
@@ -21,8 +21,12 @@ export const useJoinRoom = () => {
           if (res.success) {
             void navigate(`/lobby/${res.data.roomId}`);
           } else {
-            errorNoti(ERRORS_MAP[res.error]);
             fetchRooms();
+
+            const meta = ERROR_METADATA[res.error];
+            if (!meta.message) return;
+
+            errorNoti(meta.message);
           }
         }
       );

@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next";
 import { useForm } from "@mantine/form";
 
 import {
-  ERRORS_MAP,
+  ERROR_METADATA,
   ROOM_CAPACITY_OPTIONS,
   TURN_DURATIONS,
 } from "@/constants";
@@ -53,8 +53,10 @@ export const useCreateRoom = () => {
           if (res.success) {
             void navigate(`/lobby/${res.data.roomId}`);
           } else {
-            const errorMsg = ERRORS_MAP[res.error];
-            form.setFieldError("name", t(errorMsg));
+            const meta = ERROR_METADATA[res.error];
+            if (!meta.message) return;
+
+            form.setFieldError("name", t(meta.message));
           }
         }
       );

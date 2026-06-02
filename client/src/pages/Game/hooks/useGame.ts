@@ -2,8 +2,10 @@ import { useState, useEffect, useCallback } from "react";
 import { useParams } from "react-router";
 
 import { useSocket } from "@/contexts/SocketContext";
-import { useRoom } from "@/contexts/RoomContext";
-import { useNotification } from "@/hooks";
+import {
+  useNotification,
+  useRoomErrorHandler,
+} from "@/hooks";
 
 import type {
   SocketRes,
@@ -32,7 +34,7 @@ export const useGame = () => {
     effectNoti,
   } = useNotification();
   const { socket } = useSocket();
-  const { handleError } = useRoom();
+  const handleError = useRoomErrorHandler();
 
   const [game, setGame] = useState<GameState | null>(null);
 

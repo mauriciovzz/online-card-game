@@ -2,14 +2,12 @@ import { useState, useEffect, useCallback } from "react";
 import { useParams } from "react-router";
 
 import { useSocket } from "@/contexts/SocketContext";
-import { useRoom } from "@/contexts/RoomContext";
 
 import type { Turn } from "@shared/types";
 
 export const useTurn = () => {
   const { roomId } = useParams();
   const { socket } = useSocket();
-  const { room, handleError } = useRoom();
 
   const [turn, setTurn] = useState<Turn | null>(null);
   const [myTurn, setMyTurn] = useState(false);
@@ -30,13 +28,7 @@ export const useTurn = () => {
     return () => {
       socket.off("game:newTurn", handleNewTurn);
     };
-  }, [
-    socket,
-    roomId,
-    handleNewTurn,
-    handleError,
-    room.turnDuration,
-  ]);
+  }, [socket, roomId, handleNewTurn]);
 
   return {
     turn,

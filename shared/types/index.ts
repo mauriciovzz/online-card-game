@@ -1,5 +1,7 @@
 /* CARDS */
 
+import type { ErrorCode } from "@shared/constants/errorCodes";
+
 export type CardColor = 
   | "R"
   | "Y"
@@ -155,10 +157,6 @@ export interface MessageCheck {
 
 /* RESPONSE TYPES */
 
-export interface EmptyRes {
-
-};
-
 export interface PlayerId {
   playerId: string;
 }
@@ -220,10 +218,6 @@ interface DrawInfo {
 
 export type EffectInfo = SkipInfo | DrawInfo;
 
-export interface ResMessage {
-  message: string;
-}
-
 export interface InitialGameData {
   gameState: GameState;
   cards: Card[];
@@ -234,6 +228,8 @@ export interface PlayerQuit {
   gameState: GameState;
 }
 
+export interface EmptyResponse {}
+
 export interface SuccessResponse<T> {
   success: true;
   data: T;
@@ -241,8 +237,7 @@ export interface SuccessResponse<T> {
 
 export interface ErrorResponse {
   success: false;
-  type?: "VALIDATION" | "ROOM";
-  error: string;
+  error: ErrorCode;
 }
 
 export type SocketRes<T> =

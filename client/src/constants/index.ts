@@ -1,16 +1,17 @@
 import { CARD } from "./cardSize";
-import { GAME_RULES } from "./gameRules";
+import { ERROR_METADATA } from "./errorMetadata";
 import { GAME_COLORS } from "./gameColors";
-import { TURN_DURATIONS } from "./turnDurations";
+import { GAME_RULES } from "./gameRules";
+import { RESPONSE_METADATA } from "./responseMetadata";
 import { ROOM_CAPACITY_OPTIONS } from "./roomCapacity";
-import { ERRORS_MAP, MESSAGES_MAP } from "./responsesMaps";
+import { TURN_DURATIONS } from "./turnDurations";
 
 export {
   CARD,
-  GAME_RULES,
+  ERROR_METADATA,
   GAME_COLORS,
+  GAME_RULES,
+  RESPONSE_METADATA,
   ROOM_CAPACITY_OPTIONS,
   TURN_DURATIONS,
-  ERRORS_MAP,
-  MESSAGES_MAP,
 };

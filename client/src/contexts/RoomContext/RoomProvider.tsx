@@ -7,17 +7,19 @@ import {
 } from "react";
 import { useNavigate, useParams } from "react-router";
 
-import { MESSAGES_MAP, ERRORS_MAP } from "@/constants";
+import { RESPONSE_METADATA } from "@/constants";
 import { SpinnerLayout } from "@/layouts";
 import { useSocket } from "@/contexts/SocketContext";
-import { useNotification } from "@/hooks";
+import {
+  useNotification,
+  useRoomErrorHandler,
+} from "@/hooks";
 import { RoomContext } from "./RoomContext";
 
 import type {
   Room,
   RoomId,
   SocketRes,
-  ResMessage,
   WinnerInfo,
 } from "@shared/types";
 
@@ -38,6 +40,7 @@ export const RoomProvider = ({
 
   const { successNoti, errorNoti, winnerNoti } =
     useNotification();
+  const handleError = useRoomErrorHandler();
 
   const isAdmin = useMemo(
     () => socket?.id === room?.adminId,
@@ -48,13 +51,10 @@ export const RoomProvider = ({
     setRoom(newData);
   }, []);
 
-  const handleKickedOut = useCallback(
-    ({ message }: ResMessage) => {
-      errorNoti(MESSAGES_MAP[message]);
-      void navigate("/");
-    },
-    [errorNoti, navigate]
-  );
+  const handleKickedOut = useCallback(() => {
+    errorNoti(RESPONSE_METADATA.KICKED_OUT);
+    void navigate("/");
+  }, [errorNoti, navigate]);
 
   const handleGameStarted = useCallback(
     ({ roomId }: RoomId) => {
@@ -73,31 +73,6 @@ export const RoomProvider = ({
       void navigate(`/lobby/${roomId}`);
     },
     [navigate, socket?.id, winnerNoti]
-  );
-
-  const handleError = useCallback(
-    (error: string) => {
-      switch (error) {
-        case "ROOM_NOT_FOUND":
-        case "GAME_NOT_FOUND":
-        case "TURN_NOT_FOUND":
-        case "NOT_IN_ROOM":
-          errorNoti(ERRORS_MAP[error]);
-          void navigate("/");
-          return;
-        case "NOT_ENOUGHT_PLAYERS":
-        case "PLAYER_NOT_FOUND":
-        case "NOT_ADMIN":
-        case "NOT_YOUR_TURN":
-          errorNoti(ERRORS_MAP[error]);
-          return;
-        default:
-          errorNoti(ERRORS_MAP.SERVER_ERROR);
-          void navigate("/");
-          return;
-      }
-    },
-    [errorNoti, navigate]
   );
 
   useEffect(() => {
@@ -165,8 +140,6 @@ export const RoomProvider = ({
     setStgOpened(false);
   }, []);
 
-  console.log("hey");
-
   if (!room || !isReady) {
     return <SpinnerLayout />;
   }
@@ -179,7 +152,6 @@ export const RoomProvider = ({
 
         leaveRoom,
         startGame,
-        handleError,
 
         settingsOpened: stgOpened,
         openSettings,

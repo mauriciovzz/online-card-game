@@ -2,16 +2,22 @@ import { useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import { useForm } from "@mantine/form";
 
-import { ERRORS_MAP, MESSAGES_MAP } from "@/constants";
+import { ERROR_CODES } from "@shared/constants/errorCodes";
+import {
+  ERROR_METADATA,
+  RESPONSE_METADATA,
+} from "@/constants";
 import { useSocket } from "@/contexts/SocketContext";
-import { useRoom } from "@/contexts/RoomContext";
-import { useNotification } from "@/hooks";
+import {
+  useNotification,
+  useRoomErrorHandler,
+} from "@/hooks";
 
 import type {
   RoomInfo,
   Room,
   SocketRes,
-  ResMessage,
+  EmptyResponse,
 } from "@shared/types";
 
 export const useUpdateRoom = (
@@ -21,7 +27,7 @@ export const useUpdateRoom = (
   const { t } = useTranslation();
   const { successNoti } = useNotification();
   const { socket } = useSocket();
-  const { handleError } = useRoom();
+  const handleError = useRoomErrorHandler();
 
   const form = useForm<RoomInfo>({
     mode: "uncontrolled",
@@ -47,16 +53,24 @@ export const useUpdateRoom = (
       socket?.emit(
         "room:update",
         newData,
-        (res: SocketRes<ResMessage>) => {
+        (res: SocketRes<EmptyResponse>) => {
           if (res.success) {
-            successNoti(MESSAGES_MAP[res.data.message]);
+            successNoti(RESPONSE_METADATA.ROOM_UPDATED);
             close();
           } else {
-            if (res.type === "VALIDATION") {
-              const errorMsg = ERRORS_MAP[res.error];
-              form.setFieldError("name", t(errorMsg));
-            } else {
-              handleError(res.error);
+            switch (res.error) {
+              case ERROR_CODES.NAME_EMPTY:
+              case ERROR_CODES.ROOM_LENGTH: {
+                const meta = ERROR_METADATA[res.error];
+                if (!meta.message) return;
+
+                form.setFieldError("name", t(meta.message));
+                return;
+              }
+
+              default:
+                handleError(res.error);
+                return;
             }
           }
         }

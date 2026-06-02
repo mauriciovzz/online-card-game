@@ -18,6 +18,7 @@ import moveHelper from "@shared/utils/moveHelper";
 
 import { Card, PlayerState } from "@shared/types";
 import { AppServer, AppSocket } from "@/types";
+import { ERROR_CODES } from "@shared/constants/errorCodes";
 
 export const gameSocket = (
   io: AppServer,
@@ -48,7 +49,7 @@ export const gameSocket = (
     const card = cards.find(getCard);
 
     if (!card) {
-      notOk(callback, "CARD_NOT_FOUND");
+      notOk(callback, ERROR_CODES.CARD_NOT_FOUND);
       return;
     }
 
@@ -56,18 +57,18 @@ export const gameSocket = (
 
     if (type === "WILD_CARD" || type === "DRAW_FOUR") {
       if (!chosenColor) {
-        notOk(callback, "COLOR_MISSING");
+        notOk(callback, ERROR_CODES.COLOR_MISSING);
         return;
       }
 
       if (!CARD_COLORS.includes(chosenColor)) {
-        notOk(callback, "INVALID_COLOR");
+        notOk(callback, ERROR_CODES.INVALID_COLOR);
         return;
       }
     }
 
     if (cards.length === 1 && type !== "NUMBER") {
-      notOk(callback, "HAS_TO_BE_NUMBER");
+      notOk(callback, ERROR_CODES.HAS_TO_BE_NUMBER);
       return;
     }
 
@@ -79,7 +80,7 @@ export const gameSocket = (
       const isValid = game.currEffect === type;
 
       if (!isValid) {
-        notOk(callback, "INVALID_MOVE");
+        notOk(callback, ERROR_CODES.INVALID_MOVE);
         return;
       }
     }
@@ -93,7 +94,7 @@ export const gameSocket = (
       );
 
       if (!isValid) {
-        notOk(callback, "INVALID_MOVE");
+        notOk(callback, ERROR_CODES.INVALID_MOVE);
         return;
       }
     }
@@ -101,7 +102,7 @@ export const gameSocket = (
     // first move
     else {
       if (turn.cardPut) {
-        notOk(callback, "ALREADY_PLAYED");
+        notOk(callback, ERROR_CODES.ALREADY_PLAYED);
         return;
       }
 
@@ -111,7 +112,7 @@ export const gameSocket = (
       );
 
       if (!isValid) {
-        notOk(callback, "INVALID_MOVE");
+        notOk(callback, ERROR_CODES.INVALID_MOVE);
         return;
       }
     }
@@ -127,17 +128,17 @@ export const gameSocket = (
     const { room, game, turn, state } = turnData;
 
     if (game.currEffect) {
-      notOk(callback, "EFFECT_ON");
+      notOk(callback, ERROR_CODES.EFFECT_ON);
       return;
     }
 
     if (turn.cardPut) {
-      notOk(callback, "ALREADY_PLAYED");
+      notOk(callback, ERROR_CODES.ALREADY_PLAYED);
       return;
     }
 
     if (turn.cardDraw) {
-      notOk(callback, "ALREADY_DRAWN");
+      notOk(callback, ERROR_CODES.ALREADY_DRAW);
       return;
     }
 
@@ -160,7 +161,7 @@ export const gameSocket = (
     const notPlayed = !turn.cardPut && !turn.cardDraw;
 
     if (notPlayed) {
-      notOk(callback, "TURN_INCOMPLETE");
+      notOk(callback, ERROR_CODES.TURN_INCOMPLETE);
       return;
     }
 
@@ -206,12 +207,12 @@ export const gameSocket = (
     const { room, game, state } = gameData;
 
     if (state.cards.length !== 1) {
-      notOk(callback, "INVALID_UNO_CALL");
+      notOk(callback, ERROR_CODES.INVALID_UNO_CALL);
       return;
     }
 
     if (state.calledUno) {
-      notOk(callback, "UNO_ALREADY_CALLED");
+      notOk(callback, ERROR_CODES.UNO_ALREADY_CALLED);
       return;
     }
 
@@ -240,12 +241,12 @@ export const gameSocket = (
     if (!cutted) return;
 
     if (cutted.cards.length !== 1 || cutted.calledUno) {
-      notOk(callback, "INVALID_CUT_CALL");
+      notOk(callback, ERROR_CODES.INVALID_CUT_CALL);
       return;
     }
 
     if (playerId === socket.id) {
-      notOk(callback, "CANNOT_SELF_CUT");
+      notOk(callback, ERROR_CODES.CAN_NOT_SELF_CUT);
       return;
     }
 

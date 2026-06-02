@@ -1,25 +1,30 @@
 import { useCallback } from "react";
 
-import { MESSAGES_MAP } from "@/constants";
+import { RESPONSE_METADATA } from "@/constants";
 import { useSocket } from "@/contexts/SocketContext";
-import { useRoom } from "@/contexts/RoomContext";
-import { useNotification } from "@/hooks";
+import {
+  useNotification,
+  useRoomErrorHandler,
+} from "@/hooks";
 
-import type { SocketRes, ResMessage } from "@shared/types";
+import type {
+  SocketRes,
+  EmptyResponse,
+} from "@shared/types";
 
 export const useEditRoomPlayers = () => {
   const { successNoti } = useNotification();
   const { socket } = useSocket();
-  const { handleError } = useRoom();
+  const handleError = useRoomErrorHandler();
 
   const kickPlayerOut = useCallback(
     (playerId: string) => {
       socket?.emit(
         "room:kickPlayer",
         { playerId },
-        (res: SocketRes<ResMessage>) => {
+        (res: SocketRes<EmptyResponse>) => {
           if (res.success) {
-            successNoti(MESSAGES_MAP[res.data.message]);
+            successNoti(RESPONSE_METADATA.USER_KICKED_OUT);
           } else {
             handleError(res.error);
           }

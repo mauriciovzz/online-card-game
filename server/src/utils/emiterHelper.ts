@@ -13,6 +13,7 @@ import {
   AppSocket,
   SocketCallback,
 } from "@/types";
+import { ErrorCode } from "@shared/constants/errorCodes";
 
 export const ok = <T>(
   callback: SocketCallback<T>,
@@ -23,10 +24,9 @@ export const ok = <T>(
 
 export const notOk = <T>(
   callback: SocketCallback<T>,
-  error: string,
-  type?: "VALIDATION" | "ROOM"
+  error: ErrorCode
 ) => {
-  callback({ success: false, type, error });
+  callback({ success: false, error });
 };
 
 // ---
