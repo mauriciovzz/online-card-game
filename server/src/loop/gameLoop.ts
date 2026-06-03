@@ -44,18 +44,35 @@ const timeout = (
 
   const { room, game, turn } = turnData;
 
-  let hadToDraw = false;
+  const hasStackEffect =
+    room.rules.stack && game.currEffect;
 
-  if (!turn.cardPut && !turn.cardDraw) {
-    hadToDraw = true;
+  if (hasStackEffect) {
+    const find = (p: PlayerState) => p.id === playerId;
+    const state = game.players.find(find);
+    if (!state) return;
 
-    const updatedHand = gameService.autoDraw(game);
-    emitPlayerHand(io, playerId, updatedHand);
+    emitEffect(
+      io,
+      state.id,
+      state.pos,
+      game.currEffect !== "SKIP"
+        ? game.currDrawStack
+        : undefined
+    );
+  } else {
+    const hadToDraw = !turn.cardPut && !turn.cardDraw;
 
-    emitGameData(io, room.id, gameService.getState(game));
+    if (hadToDraw) {
+      const updatedHand = gameService.autoDraw(game);
+      emitPlayerHand(io, playerId, updatedHand);
+
+      const gameState = gameService.getState(game);
+      emitGameData(io, room.id, gameState);
+    }
+
+    emitTimeout(io, playerId, hadToDraw);
   }
-
-  emitTimeout(io, playerId, hadToDraw);
 
   gameService.advanceTurn(game);
   startTurn(io, roomId);
@@ -117,6 +134,7 @@ const startTurn = (io: AppServer, roomId: string) => {
 
   const turn = gameService.createTurn(
     room.id,
+    Number(room.turnDuration) * 1000,
     currPlayerId,
     game.currEffect
   );
@@ -202,7 +220,7 @@ const playCard = (
     return;
   }
 
-  ok(callback, {});
+  ok(callback, null);
   emitTurn(io, room.id, turn);
 
   emitGameData(io, room.id, gameService.getState(game));
@@ -221,23 +239,33 @@ const playCard = (
     return;
   }
 
+  // This code autoskips if you dont have a card to play when mirror or stairs
+  // is on, but it also lets the player now that they have something to play
+
   const { mirror, stair } = room.rules;
 
-  const canMirror =
-    !mirror ||
-    cardPut.type !== "NUMBER" ||
-    !player.cards.some((c) => c.raw === cardPut.raw);
+  // const canMirror =
+  //   !mirror ||
+  //   cardPut.type !== "NUMBER" ||
+  //   !player.cards.some((c) => c.raw === cardPut.raw);
 
-  const canStair =
-    !stair ||
-    cardPut.type !== "NUMBER" ||
-    !player.cards.some(
-      (c) =>
-        c.type === "NUMBER" &&
-        c.number === cardPut.number + 1
-    );
+  // const canStair =
+  //   !stair ||
+  //   cardPut.type !== "NUMBER" ||
+  //   !player.cards.some(
+  //     (c) =>
+  //       c.type === "NUMBER" &&
+  //       c.number === cardPut.number + 1
+  //   );
 
-  if (canMirror && canStair) {
+  // if (canMirror && canStair) {
+  //   gameService.advanceTurn(game);
+  //   startTurn(io, room.id);
+  // }
+
+  const notNumber = cardPut.type !== "NUMBER";
+
+  if ((!mirror && !stair) || notNumber) {
     gameService.advanceTurn(game);
     startTurn(io, room.id);
   }

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Group, Title } from "@mantine/core";
+import { Group } from "@mantine/core";
 import { useToggle } from "@mantine/hooks";
 import { IconQuestionMark } from "@tabler/icons-react";
 
@@ -10,6 +10,7 @@ import {
   LangToggler,
   AppActionIcon,
   DeactivatableBox,
+  AppTitle,
 } from "@/components";
 import {
   CreateRoom,
@@ -31,7 +32,7 @@ export const HomePage = () => {
 
   return (
     <MainLayout>
-      <Title>Uno Online</Title>
+      <AppTitle text="Uno Online" />
 
       <UserNameInput
         isEditable={nameEditable}

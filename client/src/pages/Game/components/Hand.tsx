@@ -15,14 +15,12 @@ const LAYOUT = {
 interface Props {
   width: number;
   cards: Card[];
-  pendingCardId: string | null;
   container: HTMLDivElement | null;
 }
 
 export const Hand = ({
   width,
   cards,
-  pendingCardId,
   container,
 }: Props) => {
   const { cardsMap } = useCardsMap();
@@ -61,10 +59,9 @@ export const Hand = ({
 
         top: row * LAYOUT.rowOffset,
         left: column * (CARD.width - overlapX),
-        isPreview: card.id === pendingCardId,
       };
     });
-  }, [cards, overlapX, pendingCardId]);
+  }, [cards, overlapX]);
 
   return (
     <Flex
@@ -75,18 +72,14 @@ export const Hand = ({
     >
       <Flex w="100%" h="100%" pos="relative">
         {positionedCards.map(
-          ({ index, card, top, left, isPreview }) => {
+          ({ index, card, top, left }) => {
             return (
               <SortableCard
                 key={card.id}
                 index={index}
                 card={card}
                 svg={cardsMap[card.raw]}
-                styles={{
-                  top,
-                  left,
-                  opacity: isPreview ? 0.4 : 1,
-                }}
+                styles={{ top, left }}
                 container={container}
               />
             );

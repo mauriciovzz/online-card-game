@@ -117,7 +117,7 @@ export const gameSocket = (
       }
     }
 
-    ok(callback, {});
+    ok(callback, null);
     playCard(io, callback, turnData, socket.id, playedCard);
   });
 
@@ -165,7 +165,7 @@ export const gameSocket = (
       return;
     }
 
-    ok(callback, {});
+    ok(callback, null);
 
     gameService.advanceTurn(game);
     startTurn(io, room.id);
@@ -177,13 +177,11 @@ export const gameSocket = (
 
     const { room, game, turn, state } = turnData;
 
-    let updatedHand = undefined;
-
     if (turn.effect !== "SKIP") {
       const nc = game.currDrawStack;
       game.currDrawStack = 0;
 
-      updatedHand = deckHelper.draw(state, nc, game);
+      const updatedHand = deckHelper.draw(state, nc, game);
       ok(callback, updatedHand);
 
       const numCards = updatedHand.cards.length;
@@ -192,7 +190,7 @@ export const gameSocket = (
       const gameState = gameService.getState(game);
       emitGameData(io, room.id, gameState);
     } else {
-      ok(callback, {});
+      ok(callback, null);
       emitEffect(io, state.id, state.pos);
     }
 

@@ -123,8 +123,8 @@ export const useNotification = () => {
   ) => {
     if (playerThatLeft) {
       showNoti({
-        msg: "game.winnerByDefault",
-        props: { left: playerThatLeft },
+        msg: "game.playerQuit",
+        props: { name: playerThatLeft },
         color: getPlayerColor(1),
       });
       return;

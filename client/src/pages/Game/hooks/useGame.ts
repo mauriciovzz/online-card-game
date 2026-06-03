@@ -1,4 +1,9 @@
-import { useState, useEffect, useCallback } from "react";
+import {
+  useState,
+  useEffect,
+  useCallback,
+  useRef,
+} from "react";
 import { useParams } from "react-router";
 
 import { useSocket } from "@/contexts/SocketContext";
@@ -19,9 +24,13 @@ import type {
   CutInfo,
   TimeoutRes,
   EffectInfo,
-  EmptyRes,
+  EmptyResponse,
+  Card,
 } from "@shared/types";
 import type { Items } from "@/types";
+import { ERROR_CODES } from "@shared/constants/errorCodes";
+
+type Move = Card & PlayedCard;
 
 export const useGame = () => {
   const { roomId } = useParams();
@@ -45,6 +54,10 @@ export const useGame = () => {
 
   const [uno, setUno] = useState<boolean | null>(false);
 
+  const pendingCardRef = useRef<Card | null>(null);
+  const queuedCardsRef = useRef<Card[]>([]);
+  const awaitingRollbackRef = useRef(false);
+
   const handleNewData = useCallback(
     (newData: GameState) => {
       setGame(newData);
@@ -62,12 +75,26 @@ export const useGame = () => {
     (newData: HandState) => {
       const { cards, calledUno } = newData;
 
+      if (pendingCardRef.current) {
+        queuedCardsRef.current.push(...cards);
+        return;
+      }
+
       setItems((prev) => {
         const prevIds = prev.cards.map((c) => c.id);
 
         const filtered = cards.filter(
           (c) => !prevIds.includes(c.id)
         );
+
+        if (
+          pendingCardRef.current &&
+          awaitingRollbackRef.current
+        ) {
+          queuedCardsRef.current.push(...filtered);
+
+          return prev;
+        }
 
         return {
           ...prev,
@@ -106,6 +133,10 @@ export const useGame = () => {
 
   const handleTimeout = useCallback(
     ({ hadToDraw }: TimeoutRes) => {
+      if (pendingCardRef.current) {
+        awaitingRollbackRef.current = true;
+      }
+
       timeoutNoti(hadToDraw);
     },
     [timeoutNoti]
@@ -164,19 +195,58 @@ export const useGame = () => {
     handleEffect,
   ]);
 
+  const rollbackCard = useCallback(() => {
+    const card = pendingCardRef.current;
+    if (!card) return;
+
+    const queuedCards = queuedCardsRef.current;
+
+    setItems((prev) => {
+      const alreadyExists = prev.cards.some(
+        (c) => c.id === card.id
+      );
+
+      return {
+        cards: alreadyExists
+          ? [...prev.cards, ...queuedCards]
+          : [...prev.cards, card, ...queuedCards],
+        pile: prev.pile.filter((c) => c.id !== card.id),
+      };
+    });
+
+    pendingCardRef.current = null;
+    queuedCardsRef.current = [];
+    awaitingRollbackRef.current = false;
+  }, []);
+
   const playCard = useCallback(
-    (playedCard: PlayedCard) => {
+    ({ cardId, chosenColor, ...card }: Move) => {
+      pendingCardRef.current = card;
+
       socket?.emit(
         "game:playCard",
-        playedCard,
-        (res: SocketRes<EmptyRes>) => {
-          if (!res.success) {
-            handleError(res.error);
+        { cardId, chosenColor },
+        (res: SocketRes<EmptyResponse>) => {
+          if (res.success) {
+            pendingCardRef.current = null;
+            queuedCardsRef.current = [];
+            awaitingRollbackRef.current = false;
+          } else {
+            switch (res.error) {
+              case ERROR_CODES.TURN_EXPIRED:
+              case ERROR_CODES.NOT_YOUR_TURN: {
+                rollbackCard();
+                return;
+              }
+              default:
+                handleError(res.error);
+                return;
+            }
           }
         }
       );
     },
-    [handleError, socket]
+    [handleError, rollbackCard, socket]
   );
 
   const drawCard = useCallback(() => {
@@ -195,7 +265,7 @@ export const useGame = () => {
   const endTurn = useCallback(() => {
     socket?.emit(
       "game:endTurn",
-      (res: SocketRes<EmptyRes>) => {
+      (res: SocketRes<EmptyResponse>) => {
         if (!res.success) {
           handleError(res.error);
         }
@@ -255,6 +325,9 @@ export const useGame = () => {
     setItems,
 
     uno,
+
+    pendingCardRef,
+    rollbackCard,
 
     funcs: {
       playCard,

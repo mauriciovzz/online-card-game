@@ -59,7 +59,6 @@ export const en = {
     draw: "draw",
     clientWon: "you won the match",
     someoneWon: "{{name}} won the match",
-    winnerByDefault: "{{left}} left the game / You won!",
     dontStack: "Don't respond",
     cut: "{{cutter}} cut {{cutted}}!",
     cutter: "You cut {{name}}!",

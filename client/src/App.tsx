@@ -11,11 +11,11 @@ export const App = () => {
   return (
     <>
       <Notifications
-        position="bottom-center"
+        position="top-center"
         containerWidth={isMobile ? "100%" : 335}
-        notificationMaxHeight={isMobile ? 42 : 36}
+        notificationMaxHeight={44.19}
         pauseResetOnHover="notification"
-        limit={1}
+        styles={{ notification: { shadow: "none" } }}
       />
 
       <Routes>

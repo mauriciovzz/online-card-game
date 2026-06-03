@@ -78,7 +78,7 @@ export const roomSocket = (
 
     roomService.update(room, newData);
 
-    ok(callback, {});
+    ok(callback, null);
     syncRoom(io, room, roomService.getAvailable());
   });
 
@@ -97,7 +97,7 @@ export const roomSocket = (
 
     roomService.updateCapacity(room, newCap);
 
-    ok(callback, {});
+    ok(callback, null);
     syncRoom(io, room, roomService.getAvailable());
   });
 
@@ -147,13 +147,10 @@ export const roomSocket = (
       return;
     }
 
-    const memberMessage = { message: "KICKED_OUT" };
-    memberSocket.emit("room:kickedOut", memberMessage);
-
+    memberSocket.emit("room:kickedOut", null);
     handleExit(io, memberSocket);
 
-    const adminMessage = { message: "USER_KICKED_OUT" };
-    ok(callback, adminMessage);
+    ok(callback, null);
   });
 
   socket.on("room:leave", () => {

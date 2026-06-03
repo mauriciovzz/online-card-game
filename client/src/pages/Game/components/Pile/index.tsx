@@ -12,7 +12,6 @@ import type { Card, GameState } from "@shared/types";
 interface Props {
   width: number;
   pile: Card[];
-  pendingCard: Card | null | undefined;
   validMove: boolean | null;
   game: GameState;
   container: HTMLDivElement | null;
@@ -21,7 +20,6 @@ interface Props {
 export const Pile = ({
   width,
   pile,
-  pendingCard,
   validMove,
   game,
   container,
@@ -31,11 +29,6 @@ export const Pile = ({
   const { ref } = useDroppable({
     id: "pile",
   });
-
-  const currentPile = [
-    ...pile,
-    ...(pendingCard ? [pendingCard] : []),
-  ];
 
   return (
     <Flex
@@ -47,7 +40,7 @@ export const Pile = ({
     >
       <CardPile ref={ref} validMove={validMove}>
         <Flex w={CARD.width} h={CARD.height}>
-          {currentPile.map((card, index) => (
+          {pile.map((card, index) => (
             <SortableCard
               key={card.id}
               index={index}
@@ -57,16 +50,6 @@ export const Pile = ({
               container={container}
             />
           ))}
-
-          {pendingCard && (
-            <SortableCard
-              index={currentPile.length}
-              card={pendingCard}
-              svg={cardsMap[pendingCard.raw]}
-              locked
-              container={container}
-            />
-          )}
         </Flex>
 
         <DirectionArrows

@@ -77,6 +77,10 @@ export const ERROR_METADATA: Record<
     message: "errors.game.notYourTurn",
   },
 
+  TURN_EXPIRED: {
+    message: undefined,
+  },
+
   // Card play
   CARD_NOT_FOUND: {
     message: undefined,

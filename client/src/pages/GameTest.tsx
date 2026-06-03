@@ -264,6 +264,8 @@ export const GameTest = () => {
     });
   };
 
+  console.log(items.pile, items.cards);
+
   return (
     <MainLayout>
       <Title w="100%">Besties</Title>

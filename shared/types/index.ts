@@ -128,6 +128,7 @@ export interface GameState {
 
 export interface Turn {
   startTime: number;
+  expiresAt: number;
   effect: CardEffect;
 
   currentPlayerId: string;
@@ -228,7 +229,7 @@ export interface PlayerQuit {
   gameState: GameState;
 }
 
-export interface EmptyResponse {}
+export type EmptyResponse = null;
 
 export interface SuccessResponse<T> {
   success: true;

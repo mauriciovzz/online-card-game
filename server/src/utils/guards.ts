@@ -192,6 +192,11 @@ export const turnGuard = <T>(
   const turn = getTurn(data.room.id, callback);
   if (!turn) return null;
 
+  if (Date.now() >= turn.expiresAt) {
+    notOk(callback, ERROR_CODES.TURN_EXPIRED);
+    return;
+  }
+
   if (turn.currentPlayerId !== socket.id) {
     notOk(callback, ERROR_CODES.NOT_YOUR_TURN);
     return null;

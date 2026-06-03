@@ -11,10 +11,14 @@ import {
   type DragEndEvent,
   type DragOverEvent,
 } from "@dnd-kit/react";
+import {
+  PointerSensor,
+  PointerActivationConstraints,
+} from "@dnd-kit/dom";
 import { move } from "@dnd-kit/helpers";
 
 import { useRoom } from "@/contexts/RoomContext";
-import { useGame, usePendingCard, useTurn } from "./hooks";
+import { useGame, useTurn } from "./hooks";
 import { SpinnerLayout } from "@/layouts";
 import {
   AppBox,
@@ -32,7 +36,7 @@ import {
 } from "./components";
 
 import moveHelper from "@shared/utils/moveHelper";
-import type { Card } from "@shared/types";
+import type { Card, CardColor } from "@shared/types";
 
 type Cont = HTMLDivElement | null;
 type IsValid = boolean | null;
@@ -43,26 +47,30 @@ export const Game = () => {
   const [container, setContainer] = useState<Cont>(null);
   const [validMove, setValidMove] = useState<IsValid>(null);
 
-  const { room } = useRoom();
-  const { game, items, setItems, uno, funcs } = useGame();
-  const { turn, myTurn } = useTurn();
+  const [penCard, setPenCard] = useState<Card | null>(null);
 
+  const { room } = useRoom();
   const {
-    pending,
-    penId,
-    handlePending,
-    clearPending,
-    pickColor,
-  } = usePendingCard({
-    playCard: funcs.playCard,
+    game,
+    items,
     setItems,
-  });
+    uno,
+    pendingCardRef,
+    rollbackCard,
+    funcs,
+  } = useGame();
+  const { turn, myTurn } = useTurn();
 
   useEffect(() => {
     if (myTurn) return;
+
     setValidMove(null);
-    clearPending();
-  }, [myTurn, clearPending]);
+
+    if (penCard) {
+      rollbackCard();
+      setPenCard(null);
+    }
+  }, [myTurn, penCard, rollbackCard]);
 
   const currentPlayerName = useMemo(
     () =>
@@ -72,6 +80,16 @@ export const Game = () => {
     [game, turn]
   );
 
+  const sensors = [
+    PointerSensor.configure({
+      activationConstraints: [
+        new PointerActivationConstraints.Distance({
+          value: 2,
+        }),
+      ],
+    }),
+  ];
+
   const onDragOver = useCallback(
     (event: DragOverEvent) => {
       const sourceData = event.operation.source?.data;
@@ -80,7 +98,7 @@ export const Game = () => {
       const targetId = event.operation.target?.id;
 
       if (targetId === "pile" && myTurn) {
-        if (!card || pending) return;
+        if (!card || penCard) return;
 
         const canPlayAgain =
           room.rules.stair || room.rules.mirror;
@@ -120,7 +138,7 @@ export const Game = () => {
     [
       myTurn,
       setItems,
-      pending,
+      penCard,
       room.rules,
       items.pile,
       items.cards.length,
@@ -139,16 +157,6 @@ export const Game = () => {
         return;
       }
 
-      const isWild =
-        card.type === "WILD_CARD" ||
-        card.type === "DRAW_FOUR";
-
-      if (isWild) {
-        handlePending(card);
-        setValidMove(null);
-        return;
-      }
-
       setItems((prev) => {
         const updated = move(prev, event);
 
@@ -163,20 +171,50 @@ export const Game = () => {
 
       setValidMove(null);
 
+      const isWild =
+        card.type === "WILD_CARD" ||
+        card.type === "DRAW_FOUR";
+
+      if (isWild) {
+        pendingCardRef.current = card;
+        setPenCard(card);
+
+        return;
+      }
+
       setTimeout(() => {
         funcs.playCard({
+          ...card,
           cardId: card.id,
         });
       }, 300);
     },
-    [myTurn, validMove, setItems, handlePending, funcs]
+    [myTurn, validMove, setItems, pendingCardRef, funcs]
+  );
+
+  const pickColor = useCallback(
+    (color: CardColor) => {
+      if (!penCard) return;
+
+      funcs.playCard({
+        ...penCard,
+        cardId: penCard.id,
+        chosenColor: color,
+      });
+
+      setPenCard(null);
+    },
+    [penCard, funcs]
   );
 
   if (!game || !turn) return <SpinnerLayout />;
 
   return (
     <>
-      <div ref={ref} style={{ width: "100%" }} />
+      <div
+        ref={ref}
+        style={{ width: "100%", position: "absolute" }}
+      />
 
       {width > 0 && (
         <>
@@ -197,6 +235,7 @@ export const Game = () => {
           </Group>
 
           <DragDropProvider
+            sensors={sensors}
             onDragEnd={onDragEnd}
             onDragOver={onDragOver}
           >
@@ -212,7 +251,6 @@ export const Game = () => {
                 <Pile
                   width={width - 102}
                   pile={items.pile}
-                  pendingCard={pending}
                   validMove={validMove}
                   game={game}
                   container={container}
@@ -221,14 +259,13 @@ export const Game = () => {
                 <Hand
                   width={width - 102}
                   cards={items.cards}
-                  pendingCardId={penId}
                   container={container}
                 />
               </PlayersCards>
             </AppBox>
           </DragDropProvider>
 
-          {pending ? (
+          {penCard ? (
             <ColorPicker pick={pickColor} />
           ) : (
             <GameBar

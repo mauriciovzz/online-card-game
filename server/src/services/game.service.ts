@@ -71,11 +71,15 @@ const createGame = (room: Room) => {
 
 const createTurn = (
   roomId: string,
+  turnDuration: number,
   currentPlayerId: string,
   effect: CardEffect
 ) => {
+  const now = new Date().getTime();
+
   const turn = {
-    startTime: new Date().getTime(),
+    startTime: now,
+    expiresAt: now + turnDuration,
     effect,
 
     currentPlayerId,
@@ -115,12 +119,7 @@ const getHand = (game: Game, id: string) => {
 };
 
 const autoDraw = (game: Game): HandState => {
-  let cardsToDraw = 1;
-
-  if (game.currEffect) {
-    cardsToDraw = game.currDrawStack;
-    game.currDrawStack = 0;
-  }
+  const cardsToDraw = 1;
 
   const updatedHand = deckHelper.draw(
     game.players[game.currPlayerIndex],

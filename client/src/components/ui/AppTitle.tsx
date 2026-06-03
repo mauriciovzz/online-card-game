@@ -6,9 +6,13 @@ interface Props {
 
 export const AppTitle = ({ text }: Props) => {
   return (
-    <Box h={44.19} w="100%">
+    <Box h={44.19}>
       <Flex h={44.19} align="center">
-        <Text size="34px" truncate="end" fw={700}>
+        <Text
+          truncate="end"
+          fw={700}
+          style={{ fontSize: 34, lineHeight: 2 }}
+        >
           {text}
         </Text>
       </Flex>

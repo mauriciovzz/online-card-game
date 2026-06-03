@@ -61,10 +61,8 @@ export const es = {
     draw: "cargar",
     clientWon: "Ganaste la partida!",
     someoneWon: "{{name}} gano la partida!",
-    winnerByDefault:
-      "{{left}} abandono el juego / Ganaste!",
     dontStack: "No responder",
-    cut: "{{cutter}} corto a {{cuttted}}!",
+    cut: "{{cutter}} corto a {{cutted}}!",
     cutter: "Cortaste a {{name}}!",
     cutted: "{{name}} te corto! (+2 cartas)",
     calledUno: "Gritaste UNO!",
