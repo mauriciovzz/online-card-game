@@ -1,9 +1,9 @@
-import { Route, Routes } from "react-router";
+import { Route, Routes, Navigate } from "react-router";
 import { Notifications } from "@mantine/notifications";
 
-import { RoomContextLayout } from "@/layouts";
 import { useIsMobile } from "./hooks/useIsMobile";
-import { HomePage, Lobby, Game, GameTest } from "@/pages";
+import { HomePage, Room, GameTest } from "@/pages";
+import { RoomContextLayout } from "./layouts";
 
 export const App = () => {
   const isMobile = useIsMobile();
@@ -20,14 +20,16 @@ export const App = () => {
 
       <Routes>
         <Route path="/" element={<HomePage />} />
-        <Route path="/game-test" element={<GameTest />} />
         <Route element={<RoomContextLayout />}>
-          <Route
-            path="/lobby/:roomId"
-            element={<Lobby />}
-          />
-          <Route path="/game/:roomId" element={<Game />} />
+          <Route path="/room/:roomId" element={<Room />} />
         </Route>
+
+        <Route path="/game-test" element={<GameTest />} />
+
+        <Route
+          path="/*"
+          element={<Navigate to="/" replace />}
+        />
       </Routes>
     </>
   );

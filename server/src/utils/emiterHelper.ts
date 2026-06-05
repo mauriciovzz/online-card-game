@@ -103,7 +103,6 @@ export const emitWinner = (
   playerThatLeft?: string
 ) => {
   io.to(roomId).emit("room:gameEnded", {
-    roomId,
     winner,
     playerThatLeft,
   });

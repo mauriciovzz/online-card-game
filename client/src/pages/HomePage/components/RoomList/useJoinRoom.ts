@@ -19,7 +19,7 @@ export const useJoinRoom = () => {
         { roomId },
         (res: SocketRes<RoomId>) => {
           if (res.success) {
-            void navigate(`/lobby/${res.data.roomId}`);
+            void navigate(`/room/${res.data.roomId}`);
           } else {
             fetchRooms();
 

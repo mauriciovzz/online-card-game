@@ -17,11 +17,12 @@ import {
 import { RoomContext } from "./RoomContext";
 
 import type {
+  EmptyResponse,
   Room,
-  RoomId,
   SocketRes,
   WinnerInfo,
 } from "@shared/types";
+type RoomView = "lobby" | "game";
 
 export const RoomProvider = ({
   children,
@@ -32,6 +33,9 @@ export const RoomProvider = ({
   const navigate = useNavigate();
 
   const { socket } = useSocket();
+
+  const [roomView, setRoomView] =
+    useState<RoomView>("lobby");
 
   const [room, setRoom] = useState<Room | null>(null);
   const [isReady, setIsReady] = useState(false);
@@ -51,29 +55,26 @@ export const RoomProvider = ({
     setRoom(newData);
   }, []);
 
-  const handleKickedOut = useCallback(() => {
-    errorNoti(RESPONSE_METADATA.KICKED_OUT);
-    void navigate("/");
-  }, [errorNoti, navigate]);
-
-  const handleGameStarted = useCallback(
-    ({ roomId }: RoomId) => {
-      void navigate(`/game/${roomId}`);
-    },
-    [navigate]
-  );
+  const handleGameStarted = useCallback(() => {
+    setRoomView("game");
+  }, []);
 
   const handleGameEndend = useCallback(
-    ({ roomId, winner, playerThatLeft }: WinnerInfo) => {
+    ({ winner, playerThatLeft }: WinnerInfo) => {
       if (!winner.id) return;
 
       const clientWon = winner.id === socket?.id;
 
       winnerNoti(clientWon, winner, playerThatLeft);
-      void navigate(`/lobby/${roomId}`);
+      setRoomView("lobby");
     },
-    [navigate, socket?.id, winnerNoti]
+    [socket?.id, winnerNoti]
   );
+
+  const handleKickedOut = useCallback(() => {
+    errorNoti(RESPONSE_METADATA.KICKED_OUT);
+    void navigate("/", { replace: true });
+  }, [errorNoti, navigate]);
 
   useEffect(() => {
     if (!socket) return;
@@ -109,28 +110,18 @@ export const RoomProvider = ({
     handleError,
   ]);
 
-  const leaveRoom = useCallback(() => {
-    if (!socket || !room) return;
-
-    socket.emit("room:leave", { roomId: room.id });
-    successNoti("room.notification.left");
-    void navigate("/");
-  }, [socket, room, successNoti, navigate]);
-
   const startGame = useCallback(() => {
-    if (!socket || !room) return;
-
-    socket.emit(
+    socket?.emit(
       "room:startGame",
-      (res: SocketRes<RoomId>) => {
+      (res: SocketRes<EmptyResponse>) => {
         if (res.success) {
-          handleGameStarted(res.data);
+          handleGameStarted();
         } else {
           handleError(res.error);
         }
       }
     );
-  }, [socket, room, handleGameStarted, handleError]);
+  }, [socket, handleGameStarted, handleError]);
 
   const openSettings = useCallback(() => {
     setStgOpened(true);
@@ -140,6 +131,30 @@ export const RoomProvider = ({
     setStgOpened(false);
   }, []);
 
+  const leaveRoom = useCallback(() => {
+    successNoti("room.notification.left");
+
+    socket?.emit("room:leave");
+    void navigate("/", { replace: true });
+  }, [socket, successNoti, navigate]);
+
+  // handle browser return
+  useEffect(() => {
+    window.history.pushState(
+      null,
+      "",
+      window.location.href
+    );
+  }, []);
+
+  useEffect(() => {
+    window.addEventListener("popstate", leaveRoom);
+
+    return () => {
+      window.removeEventListener("popstate", leaveRoom);
+    };
+  }, [socket, navigate, leaveRoom]);
+
   if (!room || !isReady) {
     return <SpinnerLayout />;
   }
@@ -147,6 +162,8 @@ export const RoomProvider = ({
   return (
     <RoomContext.Provider
       value={{
+        roomView,
+
         room,
         isAdmin,
 

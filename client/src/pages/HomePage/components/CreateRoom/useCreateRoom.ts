@@ -51,7 +51,7 @@ export const useCreateRoom = () => {
         newRoom,
         (res: SocketRes<RoomId>) => {
           if (res.success) {
-            void navigate(`/lobby/${res.data.roomId}`);
+            void navigate(`/room/${res.data.roomId}`);
           } else {
             const meta = ERROR_METADATA[res.error];
             if (!meta.message) return;

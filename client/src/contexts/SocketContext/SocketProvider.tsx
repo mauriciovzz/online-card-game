@@ -63,10 +63,6 @@ export const SocketProvider = ({ children }: Props) => {
   useEffect(() => {
     const socket = io(SOCKET_URL);
 
-    socket.onAny((eventName, ...args) => {
-      console.log(`Received event: ${eventName}`, args);
-    });
-
     socketRef.current = socket;
 
     socket.on("user:connected", handleConnected);

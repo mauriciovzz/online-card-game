@@ -201,7 +201,6 @@ export interface CutInfo {
 }
 
 export interface WinnerInfo {
-  roomId: string;
   winner: NotificationInfo;
   playerThatLeft?: string;
 }

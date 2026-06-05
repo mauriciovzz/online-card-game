@@ -3,6 +3,8 @@ import { createContext, useContext } from "react";
 import type { Room } from "@shared/types";
 
 interface RoomContextTypes {
+  roomView: "lobby" | "game";
+
   room: Room;
   isAdmin: boolean;
 

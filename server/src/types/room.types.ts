@@ -50,7 +50,7 @@ export interface RoomClientEvents {
   "room:leave": (payload: RoomId) => void;
 
   "room:startGame": (
-    callback: SocketCallback<RoomId>
+    callback: SocketCallback<EmptyResponse>
   ) => void;
 }
 
@@ -59,7 +59,7 @@ export interface RoomServerEvents {
 
   "room:currentData": (newData: Room) => void;
 
-  "room:gameStarted": (data: RoomId) => void;
+  "room:gameStarted": (data: EmptyResponse) => void;
 
   "room:gameEnded": (data: WinnerInfo) => void;
 

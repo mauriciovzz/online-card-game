@@ -72,7 +72,6 @@ export const isCapacityOk = <T>(
   return true;
 };
 
-// werid is in room? checking socket here
 export const getRoom = <T>({
   socket,
   roomId,

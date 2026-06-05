@@ -116,10 +116,8 @@ export const roomSocket = (
     room.state = "PLAYING";
     gameService.createGame(room);
 
-    const res = { roomId: room.id };
-
-    ok(callback, res);
-    socket.to(room.id).emit("room:gameStarted", res);
+    ok(callback, null);
+    socket.to(room.id).emit("room:gameStarted", null);
 
     setTimeout(() => {
       startTurn(io, room.id);

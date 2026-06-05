@@ -19,7 +19,7 @@ export const useRoomErrorHandler = () => {
       }
 
       if (meta.redirect) {
-        void navigate(meta.redirect);
+        void navigate(meta.redirect, { replace: true });
       }
     },
     [errorNoti, navigate]

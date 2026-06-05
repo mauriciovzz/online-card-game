@@ -11,7 +11,6 @@ export const RoomContextLayout = () => {
       <ChatProvider>
         <MainLayout>
           <Outlet />
-
           <Chat />
           <RoomSettingsModal />
         </MainLayout>
