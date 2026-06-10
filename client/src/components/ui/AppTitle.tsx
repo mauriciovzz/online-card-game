@@ -6,7 +6,7 @@ interface Props {
 
 export const AppTitle = ({ text }: Props) => {
   return (
-    <Box h={44.19}>
+    <Box h={44.19} style={{ userSelect: "none" }}>
       <Flex h={44.19} align="center">
         <Text
           truncate="end"

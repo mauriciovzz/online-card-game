@@ -18,6 +18,28 @@ const generateId = () => {
     .toUpperCase();
 };
 
+const COMPUTER_METADATA: {
+  id: string;
+  name: string;
+  pos: 2 | 3 | 4;
+}[] = [
+  {
+    id: "PC-BLUE",
+    name: "ROBOT-2",
+    pos: 2,
+  },
+  {
+    id: "PC-YELLOW",
+    name: "ROBOT-3",
+    pos: 3,
+  },
+  {
+    id: "PC-GREEN",
+    name: "ROBOT-4",
+    pos: 4,
+  },
+];
+
 const create = (
   payload: CreateRoomProps,
   playerId: string
@@ -25,19 +47,35 @@ const create = (
   let id = generateId();
   while (rooms.has(id)) id = generateId();
 
+  const aiPlayers: Player[] = payload.players
+    .filter((p) => p.type === "ai")
+    .map((p) => ({
+      ...COMPUTER_METADATA[p.pos - 2],
+      type: "ai",
+      joinedAt: new Date().getTime(),
+    }));
+
+  const players: Player[] = [
+    {
+      id: playerId,
+      name: users.get(playerId) ?? "",
+      type: "human",
+      pos: 1,
+      joinedAt: new Date().getTime(),
+    },
+    ...aiPlayers,
+  ];
+
+  const capacity = (payload.players.filter(
+    (p) => p.type !== undefined
+  ).length + 1) as RoomCapacity;
+
   rooms.set(id, {
     id,
     name: payload.name,
     adminId: playerId,
-    capacity: payload.capacity,
-    players: [
-      {
-        id: playerId,
-        name: users.get(playerId) ?? "",
-        pos: 1,
-        joinedAt: new Date().getTime(),
-      },
-    ],
+    capacity,
+    players,
     state: "WAITING",
     turnDuration: payload.turnDuration,
     rules: payload.rules,
@@ -56,7 +94,7 @@ const updateCapacity = (
   room: Room,
   capacity: RoomCapacity
 ) => {
-  const isFull = room.players.length === Number(capacity);
+  const isFull = room.players.length === capacity;
 
   room.capacity = capacity;
   room.state = isFull ? "FULL" : "WAITING";
@@ -75,6 +113,7 @@ const join = (room: Room, playerId: string) => {
 
   room.players.push({
     id: playerId,
+    type: "human",
     name: users.get(playerId) ?? "",
     pos: numPlayers as PlayerPos,
     joinedAt: new Date().getTime(),
@@ -82,7 +121,7 @@ const join = (room: Room, playerId: string) => {
 
   room.players.sort((a, b) => a.pos - b.pos);
 
-  const roomFull = numPlayers === Number(room.capacity);
+  const roomFull = numPlayers === room.capacity;
   room.state = roomFull ? "FULL" : room.state;
 };
 
@@ -91,7 +130,11 @@ const leave = (room: Room, playerId: string) => {
   const remainingPlayers = room.players.filter(filter);
 
   if (room.adminId === playerId) {
-    room.adminId = remainingPlayers[0].id;
+    const firstHumanIndex = remainingPlayers.findIndex(
+      (p) => p.type === "human"
+    );
+
+    room.adminId = remainingPlayers[firstHumanIndex].id;
   }
 
   room.players = remainingPlayers.map((p, index) => {

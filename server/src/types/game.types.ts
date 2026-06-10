@@ -25,7 +25,7 @@ export interface GameClientEvents {
   ) => void;
 
   "game:drawCard": (
-    callback: SocketCallback<HandState>
+    callback: SocketCallback<EmptyResponse>
   ) => void;
 
   "game:endTurn": (
@@ -33,7 +33,7 @@ export interface GameClientEvents {
   ) => void;
 
   "game:endStack": (
-    callback: SocketCallback<HandState | EmptyResponse>
+    callback: SocketCallback<EmptyResponse>
   ) => void;
 
   "game:unoCall": (

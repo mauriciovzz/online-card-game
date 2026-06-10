@@ -10,7 +10,6 @@ import {
   emitTimeout,
   emitTurn,
   emitWinner,
-  ok,
 } from "@/utils/emiterHelper";
 import {
   getGameData,
@@ -21,18 +20,13 @@ import {
 import {
   Room,
   Game,
-  Turn,
   PlayerState,
-  Card,
-  PlayedCard,
   Player,
-  EmptyResponse,
 } from "@shared/types";
-import {
-  AppServer,
-  AppSocket,
-  SocketCallback,
-} from "@/types";
+import { AppServer, AppSocket } from "@/types";
+import { startAiTurn } from "./aiLoop";
+import logger from "@/utils/logger";
+import { endTurn } from "./gameActions";
 
 const timeout = (
   io: AppServer,
@@ -42,16 +36,12 @@ const timeout = (
   const turnData = getTurnData(io, roomId);
   if (!turnData) return;
 
-  const { room, game, turn } = turnData;
+  const { room, game, turn, state } = turnData;
 
   const hasStackEffect =
     room.rules.stack && game.currEffect;
 
   if (hasStackEffect) {
-    const find = (p: PlayerState) => p.id === playerId;
-    const state = game.players.find(find);
-    if (!state) return;
-
     emitEffect(
       io,
       state.id,
@@ -74,8 +64,7 @@ const timeout = (
     emitTimeout(io, playerId, hadToDraw);
   }
 
-  gameService.advanceTurn(game);
-  startTurn(io, roomId);
+  endTurn(io, roomId, game);
 };
 
 const applyPendingEffect = (
@@ -141,6 +130,15 @@ const startTurn = (io: AppServer, roomId: string) => {
 
   emitTurn(io, room.id, turn);
 
+  const currentPlayer = game.players[currPlayerIndex];
+
+  if (currentPlayer.type === "ai") {
+    void startAiTurn(io, room.id);
+    return;
+  }
+
+  logger.turnStart(currentPlayer.name, game);
+
   const countDown = Number(room.turnDuration) * 1000;
 
   const timer = setTimeout(() => {
@@ -166,7 +164,7 @@ const finishGame = (
 
   emitWinner(io, room.id, winnerInfo, playerThatLeft);
 
-  const roomCapacity = Number(room.capacity);
+  const roomCapacity = room.capacity;
   const members = room.players.length;
   const isRoomFull = roomCapacity === members;
 
@@ -175,99 +173,6 @@ const finishGame = (
 
     emitRoomData(io, room);
     broadcastRoomList(io, roomService.getAvailable());
-  }
-};
-
-const playCard = (
-  io: AppServer,
-  callback: SocketCallback<EmptyResponse>,
-  turnData: { room: Room; game: Game; turn: Turn },
-  playerId: string,
-  playedCard: PlayedCard
-) => {
-  const { room, game, turn } = turnData;
-  const { cardId, chosenColor } = playedCard;
-
-  const findPlayer = (p: PlayerState) => p.id === playerId;
-  const player = game.players.find(findPlayer);
-  if (!player) return;
-
-  const findCard = (c: Card) => c.id === cardId;
-  const playedCardIndex = player.cards.findIndex(findCard);
-  if (playedCardIndex === -1) return;
-
-  const cardPut = player.cards.splice(
-    playedCardIndex,
-    1
-  )[0];
-
-  const isWildcard = cardPut.type === "WILD_CARD";
-  const isDrawFour = cardPut.type === "DRAW_FOUR";
-
-  if ((isWildcard || isDrawFour) && chosenColor) {
-    cardPut.color = chosenColor;
-  }
-
-  game.pile.push(cardPut);
-  game.topCard = cardPut;
-
-  turn.cardPut = true;
-
-  gameService.applyEffect(game, cardPut.type);
-
-  if (player.cards.length === 0) {
-    finishGame(io, room, player);
-    return;
-  }
-
-  ok(callback, null);
-  emitTurn(io, room.id, turn);
-
-  emitGameData(io, room.id, gameService.getState(game));
-
-  if (
-    room.players.length === 2 &&
-    cardPut.type === "REVERSE"
-  ) {
-    gameService.advanceTurn(game);
-
-    const player = game.players[game.currPlayerIndex];
-    emitEffect(io, player.id, player.pos);
-
-    gameService.advanceTurn(game);
-    startTurn(io, room.id);
-    return;
-  }
-
-  // This code autoskips if you dont have a card to play when mirror or stairs
-  // is on, but it also lets the player now that they have something to play
-
-  const { mirror, stair } = room.rules;
-
-  // const canMirror =
-  //   !mirror ||
-  //   cardPut.type !== "NUMBER" ||
-  //   !player.cards.some((c) => c.raw === cardPut.raw);
-
-  // const canStair =
-  //   !stair ||
-  //   cardPut.type !== "NUMBER" ||
-  //   !player.cards.some(
-  //     (c) =>
-  //       c.type === "NUMBER" &&
-  //       c.number === cardPut.number + 1
-  //   );
-
-  // if (canMirror && canStair) {
-  //   gameService.advanceTurn(game);
-  //   startTurn(io, room.id);
-  // }
-
-  const notNumber = cardPut.type !== "NUMBER";
-
-  if ((!mirror && !stair) || notNumber) {
-    gameService.advanceTurn(game);
-    startTurn(io, room.id);
   }
 };
 
@@ -284,7 +189,11 @@ const handleExit = (io: AppServer, socket: AppSocket) => {
   void socket.leave(room.id);
   socket.data.roomId = undefined;
 
-  if (room.players.length === 1) {
+  const realPlayers = room.players.filter(
+    (p) => p.type === "human"
+  ).length;
+
+  if (realPlayers === 1) {
     rooms.delete(room.id);
     broadcastRoomList(io, roomService.getAvailable());
     return;
@@ -321,4 +230,4 @@ const handleExit = (io: AppServer, socket: AppSocket) => {
   }
 };
 
-export { startTurn, playCard, handleExit };
+export { startTurn, finishGame, handleExit };

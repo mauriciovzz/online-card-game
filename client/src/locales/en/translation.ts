@@ -3,6 +3,7 @@ export const en = {
     return: "Return",
     save: "Save Changes",
     lang: "ES",
+    you: "You",
   },
 
   user: {
@@ -17,7 +18,17 @@ export const en = {
     name: "Room name",
     turnDuration: "Turn duration",
     numPlayers: "Players",
-    members: "Members",
+    members: {
+      title: "Members",
+      descriptionTitle: "Members selection",
+      description: `A room can have from 2 to 4 members.  
+        Include one clicking +, and then choose it's type.
+        delete one clicking on x.`,
+      human: "Human",
+      humanDescription: "The members is an human online.",
+      ai: "AI",
+      aiDescription: "The member is an AI.",
+    },
     create: "Create a room",
     join: "Join a room",
     new: "New room",
@@ -40,16 +51,17 @@ export const en = {
     title: "Rules",
     mirror: {
       title: "Mirror",
-      description: "Play same number and color card twice.",
+      description:
+        "Play cards with same number and color twice.",
     },
     stair: {
       title: "Stair",
-      description:
-        "Play number cards in increasing order, any color.",
+      description: "Play number cards in increasing order.",
     },
     stack: {
       title: "Stack",
-      description: "Action card's effects combine.",
+      description:
+        "Action card's effects (+2, +4, 🚫) combine.",
     },
   },
 

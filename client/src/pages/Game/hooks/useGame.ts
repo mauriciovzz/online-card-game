@@ -252,15 +252,13 @@ export const useGame = () => {
   const drawCard = useCallback(() => {
     socket?.emit(
       "game:drawCard",
-      (res: SocketRes<HandState>) => {
-        if (res.success) {
-          handleNewHand(res.data);
-        } else {
+      (res: SocketRes<EmptyResponse>) => {
+        if (!res.success) {
           handleError(res.error);
         }
       }
     );
-  }, [handleError, handleNewHand, socket]);
+  }, [handleError, socket]);
 
   const endTurn = useCallback(() => {
     socket?.emit(
@@ -277,15 +275,12 @@ export const useGame = () => {
     socket?.emit(
       "game:endStack",
       (res: SocketRes<HandState | null>) => {
-        if (res.success) {
-          if (!res.data) return;
-          handleNewHand(res.data);
-        } else {
+        if (!res.success) {
           handleError(res.error);
         }
       }
     );
-  }, [handleError, handleNewHand, socket]);
+  }, [handleError, socket]);
 
   const callUno = useCallback(() => {
     socket?.emit(

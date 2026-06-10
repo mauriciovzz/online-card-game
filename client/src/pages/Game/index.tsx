@@ -4,7 +4,7 @@ import {
   useMemo,
   useState,
 } from "react";
-import { Group } from "@mantine/core";
+import { Box, Group } from "@mantine/core";
 import { useElementSize } from "@mantine/hooks";
 import {
   DragDropProvider,
@@ -37,12 +37,14 @@ import {
 
 import moveHelper from "@shared/utils/moveHelper";
 import type { Card, CardColor } from "@shared/types";
+import { useIsMobile } from "@/hooks";
 
 type Cont = HTMLDivElement | null;
 type IsValid = boolean | null;
 
 export const Game = () => {
   const { ref, width } = useElementSize();
+  const isMobile = useIsMobile();
 
   const [container, setContainer] = useState<Cont>(null);
   const [validMove, setValidMove] = useState<IsValid>(null);
@@ -59,6 +61,7 @@ export const Game = () => {
     rollbackCard,
     funcs,
   } = useGame();
+
   const { turn, myTurn } = useTurn();
 
   useEffect(() => {
@@ -207,8 +210,6 @@ export const Game = () => {
     [penCard, funcs]
   );
 
-  if (!game || !turn) return <SpinnerLayout />;
-
   return (
     <>
       <div
@@ -216,7 +217,9 @@ export const Game = () => {
         style={{ width: "100%", position: "absolute" }}
       />
 
-      {width > 0 && (
+      {!game || !turn || width === 0 ? (
+        <SpinnerLayout />
+      ) : (
         <>
           <AppTitle text={room.name} />
 
@@ -265,17 +268,21 @@ export const Game = () => {
             </AppBox>
           </DragDropProvider>
 
-          {penCard ? (
-            <ColorPicker pick={pickColor} />
-          ) : (
-            <GameBar
-              turn={turn}
-              myTurn={myTurn}
-              canCallUno={items.cards.length === 1 && !uno}
-              stack={room.rules.stack}
-              funcs={funcs}
-            />
-          )}
+          <Box h={isMobile ? 42 : 36}>
+            {penCard ? (
+              <ColorPicker pick={pickColor} />
+            ) : (
+              <GameBar
+                turn={turn}
+                myTurn={myTurn}
+                canCallUno={
+                  items.cards.length === 1 && !uno
+                }
+                stack={room.rules.stack}
+                funcs={funcs}
+              />
+            )}
+          </Box>
         </>
       )}
     </>

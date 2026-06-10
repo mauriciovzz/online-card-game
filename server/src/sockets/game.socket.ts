@@ -2,15 +2,18 @@ import { gameService } from "@/services";
 import { turnGuard, gameGuard } from "@/utils/guards";
 import {
   emitCutInfo,
-  emitEffect,
   emitGameData,
   emitPlayerHand,
-  emitTurn,
   emitUnoCall,
   notOk,
   ok,
 } from "@/utils/emiterHelper";
-import { playCard, startTurn } from "@/loop/gameLoop";
+import {
+  drawCard,
+  endStack,
+  endTurn,
+  playCard,
+} from "@/loop/gameActions";
 import deckHelper from "@/utils/deckHelper";
 
 import { CARD_COLORS } from "@shared/constants/cardVariables";
@@ -19,6 +22,7 @@ import moveHelper from "@shared/utils/moveHelper";
 import { Card, PlayerState } from "@shared/types";
 import { AppServer, AppSocket } from "@/types";
 import { ERROR_CODES } from "@shared/constants/errorCodes";
+import logger from "@/utils/logger";
 
 export const gameSocket = (
   io: AppServer,
@@ -118,14 +122,14 @@ export const gameSocket = (
     }
 
     ok(callback, null);
-    playCard(io, callback, turnData, socket.id, playedCard);
+    playCard(io, turnData, playedCard);
   });
 
   socket.on("game:drawCard", (callback) => {
     const turnData = turnGuard(socket, callback);
     if (!turnData) return;
 
-    const { room, game, turn, state } = turnData;
+    const { game, turn, state } = turnData;
 
     if (game.currEffect) {
       notOk(callback, ERROR_CODES.EFFECT_ON);
@@ -142,21 +146,21 @@ export const gameSocket = (
       return;
     }
 
-    const updatedHand = deckHelper.draw(state, 1, game);
-    ok(callback, updatedHand);
+    ok(callback, null);
+    const newHand = drawCard(io, turnData);
 
-    turn.cardDraw = true;
-    emitTurn(io, room.id, turn);
-
-    const gameState = gameService.getState(game);
-    emitGameData(io, room.id, gameState);
+    logger.drawCard(
+      state.name,
+      newHand.cards[0].raw,
+      state.cards.map((c) => c.raw)
+    );
   });
 
   socket.on("game:endTurn", (callback) => {
     const turnData = turnGuard(socket, callback);
     if (!turnData) return;
 
-    const { room, game, turn } = turnData;
+    const { room, game, turn, state } = turnData;
 
     const notPlayed = !turn.cardPut && !turn.cardDraw;
 
@@ -165,37 +169,18 @@ export const gameSocket = (
       return;
     }
 
-    ok(callback, null);
+    logger.info(`[${state.name}] ENDED TURN ON BUTTOM`);
 
-    gameService.advanceTurn(game);
-    startTurn(io, room.id);
+    ok(callback, null);
+    endTurn(io, room.id, game);
   });
 
   socket.on("game:endStack", (callback) => {
     const turnData = turnGuard(socket, callback);
     if (!turnData) return;
 
-    const { room, game, turn, state } = turnData;
-
-    if (turn.effect !== "SKIP") {
-      const nc = game.currDrawStack;
-      game.currDrawStack = 0;
-
-      const updatedHand = deckHelper.draw(state, nc, game);
-      ok(callback, updatedHand);
-
-      const numCards = updatedHand.cards.length;
-      emitEffect(io, state.id, state.pos, numCards);
-
-      const gameState = gameService.getState(game);
-      emitGameData(io, room.id, gameState);
-    } else {
-      ok(callback, null);
-      emitEffect(io, state.id, state.pos);
-    }
-
-    gameService.advanceTurn(game);
-    startTurn(io, room.id);
+    ok(callback, null);
+    endStack(io, turnData);
   });
 
   socket.on("game:unoCall", (callback) => {

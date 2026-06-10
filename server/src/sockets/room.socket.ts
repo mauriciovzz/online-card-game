@@ -56,8 +56,8 @@ export const roomSocket = (
     syncRoom(io, room, roomService.getAvailable());
   });
 
-  socket.on("room:getData", (callback) => {
-    const room = getRoom({ socket, callback });
+  socket.on("room:getData", ({ roomId }, callback) => {
+    const room = getRoom({ socket, roomId, callback });
     if (!room) return;
 
     const inRoom = isInRoom(socket.id, room, callback);

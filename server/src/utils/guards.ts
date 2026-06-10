@@ -64,7 +64,7 @@ export const isCapacityOk = <T>(
   capacity: RoomCapacity,
   callback: SocketCallback<T>
 ) => {
-  if (Number(capacity) < numPlayers) {
+  if (capacity < numPlayers) {
     notOk(callback, ERROR_CODES.CAPACITY_CONFLICT);
     return false;
   }
@@ -238,5 +238,8 @@ export const getTurnData = (
     return null;
   }
 
-  return { ...gameData, turn };
+  const { game } = gameData;
+  const state = game.players[game.currPlayerIndex];
+
+  return { ...gameData, turn, state };
 };

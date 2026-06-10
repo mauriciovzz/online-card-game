@@ -1,10 +1,6 @@
-import { ROOM_CAPACITY_OPTIONS } from "@/constants";
 import { useCreateRoom } from "./useCreateRoom";
-import {
-  AppButton,
-  FormSegmentedControl,
-  RoomForm,
-} from "@/components";
+import { AppButton, RoomForm } from "@/components";
+import { RoomMembers } from "./RoomMembers";
 
 export const CreateRoom = () => {
   const { form, createRoom } = useCreateRoom();
@@ -21,14 +17,7 @@ export const CreateRoom = () => {
     >
       <RoomForm
         form={form}
-        capacityComponent={
-          <FormSegmentedControl
-            label={"room.numPlayers"}
-            data={ROOM_CAPACITY_OPTIONS}
-            form={form}
-            formKey="capacity"
-          />
-        }
+        capacityComponent={<RoomMembers form={form} />}
       />
 
       <AppButton

@@ -3,6 +3,7 @@ export const es = {
     return: "Regresar",
     save: "Guardar Cambios",
     lang: "EN",
+    you: "Tú",
   },
 
   user: {
@@ -17,7 +18,19 @@ export const es = {
     name: "Nombre de la Sala",
     turnDuration: "Duración del turno",
     numPlayers: "Jugadores",
-    members: "Miembros",
+    members: {
+      title: "Miembros",
+      descriptionTitle: "Selección de miembros",
+      description: `Una sala puede tener de 2 a 4 miembros.  
+        Incluye uno haciendo clic en + y luego selecciona
+        su tipo. 
+        Elimina uno haciendo clic x.`,
+      human: "Humano",
+      humanDescription:
+        "El miembro es otra persona en línea.",
+      ai: "IA",
+      aiDescription: "El miembro es IA.",
+    },
     create: "Crear Sala",
     join: "Unirse a una sala",
     new: "Nueva Sala",
@@ -28,12 +41,12 @@ export const es = {
     notification: {
       left: "Sala abandonada",
       updated: "Sala actualizada",
-      capacityUpdated: "Jugadores actualizado",
+      capacityUpdated: "Jugadores actualizados",
       userKickedOut: "Jugador expulsado",
       kickedOut: "Expulsado de la sala",
     },
     settings: "Ajustes",
-    leave: "Abandonar sala",
+    leave: "Salir",
   },
 
   rules: {
@@ -41,17 +54,16 @@ export const es = {
     mirror: {
       title: "Espejito",
       description:
-        "Juega cartas que tengan el mismo número y color dos veces.",
+        "Juega cartas numéricas iguales dos veces.",
     },
     stair: {
       title: "Escalerita",
       description:
-        "Juega cartas numéricas en orden ascendente, de cualquier color.",
+        "Juega cartas numéricas en orden ascendente.",
     },
     stack: {
-      title: "Stack",
-      description:
-        "Los efectos de las cartas de acción se combinan.",
+      title: "Combo",
+      description: "Los efectos (+2, +4, 🚫) se combinan.",
     },
   },
 
@@ -68,8 +80,8 @@ export const es = {
     calledUno: "Gritaste UNO!",
     unoCalled: "{{name}} grito UNO!",
     playerQuit: "{{name}} abandono el juego",
-    timeout: "Se acabo el tiempo",
-    timeoutWithCard: "Se acabo el tiempo (+1 carta)",
+    timeout: "Se acabó el tiempo",
+    timeoutWithCard: "Se acabó el tiempo (+1 carta)",
     skipEffect: "Perdiste tu turno!",
     drawEffect: "Carga {{cards}} cartas!",
   },

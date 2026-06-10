@@ -16,7 +16,7 @@ export const Label = ({ size, text, error }: Props) => {
   const { t } = useTranslation();
 
   return (
-    <Group>
+    <Group style={{ userSelect: "none" }}>
       <Text fw={550} size={size} ml={2} truncate="end">
         {t(text)}
       </Text>

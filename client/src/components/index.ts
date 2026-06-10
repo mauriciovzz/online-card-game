@@ -20,6 +20,7 @@ import { RoomForm } from "./forms/RoomForm";
 
 // ui
 import { AppTitle } from "./ui/AppTitle";
+import { LabelWithPopover } from "./ui/LabelWithPopover";
 import { Label } from "./ui/Label";
 import { RoomSettingsModal } from "./ui/RoomSettingsModal";
 import { RoomPlayers } from "./ui/RoomPlayers";
@@ -49,6 +50,7 @@ export {
 
   // ui
   AppTitle,
+  LabelWithPopover,
   Label,
   RoomSettingsModal,
   RoomPlayers,

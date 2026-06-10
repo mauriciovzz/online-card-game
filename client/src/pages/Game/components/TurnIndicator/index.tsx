@@ -46,8 +46,9 @@ export const TurnIndicator = (props: Props) => {
               px={7}
               miw={0}
               justify="center"
+              align="center"
             >
-              <Text truncate="end">
+              <Text truncate="end" inline={true}>
                 {player ?? t("game.myTurn")}
               </Text>
             </Flex>

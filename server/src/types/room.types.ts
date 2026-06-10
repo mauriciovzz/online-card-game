@@ -30,7 +30,10 @@ export interface RoomClientEvents {
     callback: SocketCallback<RoomId>
   ) => void;
 
-  "room:getData": (callback: SocketCallback<Room>) => void;
+  "room:getData": (
+    payload: RoomId,
+    callback: SocketCallback<Room>
+  ) => void;
 
   "room:update": (
     payload: RoomInfo,

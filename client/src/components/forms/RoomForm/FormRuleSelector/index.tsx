@@ -11,11 +11,9 @@ import clsx from "clsx";
 
 import { GAME_RULES } from "@/constants";
 import { useIsMobile } from "@/hooks";
-import { Label } from "@/components";
-import { RulesPopover } from "./RulesPopover";
+import { LabelWithPopover } from "@/components";
 
 import classes from "./FormRuleSelector.module.css";
-
 import type { RoomRules } from "@shared/types";
 
 interface RulebuttonProps {
@@ -76,10 +74,7 @@ export const FormRuleSelector = <T extends WithRules>({
 
   return (
     <Stack gap={0} flex={1}>
-      <Group gap={3}>
-        <Label size="sm" text={"rules.title"} />
-        <RulesPopover />
-      </Group>
+      <LabelWithPopover label="rules.title" data={GAME_RULES} />
 
       <Group
         w="100%"

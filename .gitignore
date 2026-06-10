@@ -35,6 +35,7 @@ server/yarn-debug.log*
 server/yarn-error.log*
 server/pnpm-debug.log*
 server/lerna-debug.log*
+server/gameLog.txt
 
 server/node_modules
 server/dist

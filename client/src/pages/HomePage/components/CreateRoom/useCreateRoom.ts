@@ -5,7 +5,6 @@ import { useForm } from "@mantine/form";
 
 import {
   ERROR_METADATA,
-  ROOM_CAPACITY_OPTIONS,
   TURN_DURATIONS,
 } from "@/constants";
 import { useSocket } from "@/contexts/SocketContext";
@@ -22,11 +21,15 @@ export const useCreateRoom = () => {
   const { socket } = useSocket();
 
   const form = useForm<CreateRoomProps>({
-    mode: "uncontrolled",
+    mode: "controlled",
     initialValues: {
       name: "",
       turnDuration: TURN_DURATIONS[0].value,
-      capacity: ROOM_CAPACITY_OPTIONS[0].value,
+      players: [
+        { pos: 2, type: "human" },
+        { pos: 3, type: undefined },
+        { pos: 4, type: undefined },
+      ],
       rules: {
         mirror: false,
         stair: false,

@@ -47,9 +47,11 @@ export interface PlayedCard {
 
 /* PLAYERS */
 export type PlayerPos = 1 | 2 | 3 | 4;
+export type PlayerType = "human"  | "ai";
 
 export interface Player {
   id: string;
+  type: PlayerType
   pos: PlayerPos;
   name: string;
   joinedAt: number;
@@ -75,7 +77,7 @@ export interface RoomRules {
   stack: boolean;
 }
 
-export type RoomCapacity = "2" | "3" | "4";
+export type RoomCapacity = 2 | 3 | 4;
 export type TurnDuration = "15" | "30" | "45";
 
 export interface RoomInfo {
@@ -93,10 +95,12 @@ export interface Room extends RoomInfo {
   players: Player[];
 }
 
-export type CreateRoomProps = Omit<
-  Room,
-  "id" | "adminId" | "players" | "state"
->;
+export interface CreateRoomProps extends RoomInfo {
+  players: {
+    pos: 2 | 3 | 4,
+    type?: PlayerType
+  }[]
+}
 
 /* GAME */
 

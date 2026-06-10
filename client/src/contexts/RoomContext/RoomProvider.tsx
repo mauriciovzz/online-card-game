@@ -79,14 +79,18 @@ export const RoomProvider = ({
   useEffect(() => {
     if (!socket) return;
 
-    socket.emit("room:getData", (res: SocketRes<Room>) => {
-      if (res.success) {
-        setRoom(res.data);
-        setIsReady(true);
-      } else {
-        handleError(res.error);
+    socket.emit(
+      "room:getData",
+      { roomId },
+      (res: SocketRes<Room>) => {
+        if (res.success) {
+          setRoom(res.data);
+          setIsReady(true);
+        } else {
+          handleError(res.error);
+        }
       }
-    });
+    );
 
     socket.on("room:currentData", handleNewData);
     socket.on("room:gameStarted", handleGameStarted);
@@ -123,6 +127,13 @@ export const RoomProvider = ({
     );
   }, [socket, handleGameStarted, handleError]);
 
+  const leaveRoom = useCallback(() => {
+    successNoti("room.notification.left");
+
+    socket?.emit("room:leave");
+    void navigate("/", { replace: true });
+  }, [socket, successNoti, navigate]);
+
   const openSettings = useCallback(() => {
     setStgOpened(true);
   }, []);
@@ -130,13 +141,6 @@ export const RoomProvider = ({
   const closeSettings = useCallback(() => {
     setStgOpened(false);
   }, []);
-
-  const leaveRoom = useCallback(() => {
-    successNoti("room.notification.left");
-
-    socket?.emit("room:leave");
-    void navigate("/", { replace: true });
-  }, [socket, successNoti, navigate]);
 
   // handle browser return
   useEffect(() => {

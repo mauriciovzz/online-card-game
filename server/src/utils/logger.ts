@@ -1,22 +1,40 @@
-const message = (message: string) => {
-  console.log(message);
-};
+import { Game } from "@shared/types";
+import fs from "fs";
+import path from "path";
 
-const error = (message: string) => {
-  console.log("ERROR: ", message);
-};
+const LOG_FILE = path.join(process.cwd(), "gameLog.txt");
 
-const socketLog = (id: string, message: string) => {
-  console.log(`[s: ${id}]: ${message}`);
-};
-
-const roomLog = (id: string, message: string) => {
-  console.log(`[r: ${id}]: ${message}`);
+const write = (message: string) => {
+  fs.appendFileSync(LOG_FILE, `${message}\n`);
 };
 
 export default {
-  message,
-  socketLog,
-  roomLog,
-  error,
+  turnStart(player: string, game: Game) {
+    write(`
+      TURN START: ${player}
+      index=${game.currPlayerIndex.toString()}
+      direction=${game.direction.toString()}
+      effect=${game.currEffect ?? "n/e"}
+      drawStack=${game.currDrawStack.toString()}
+      topCard=${game.topCard.raw}
+    `);
+  },
+
+  playCard(player: string, card: string, hand: string[]) {
+    write(
+      `[${player}] PLAYED ${card} | HAND [${hand.join(
+        ", "
+      )}]`
+    );
+  },
+
+  drawCard(player: string, card: string, hand: string[]) {
+    write(
+      `[${player}] DRAW ${card} | HAND [${hand.join(", ")}]`
+    );
+  },
+
+  info(msg: string) {
+    write(msg);
+  },
 };
