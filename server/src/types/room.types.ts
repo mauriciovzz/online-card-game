@@ -1,13 +1,13 @@
 import {
   RoomId,
-  RoomCapacity,
   Room,
   AvailableRooms,
   CreateRoomProps,
   RoomInfo,
-  PlayerId,
   EmptyResponse,
   WinnerInfo,
+  RoomSeat,
+  PlayerPos,
 } from "@shared/types";
 import { SocketCallback } from ".";
 
@@ -16,13 +16,13 @@ interface RoomError {
 }
 
 export interface RoomClientEvents {
+  "room:getAvailable": (
+    callback: SocketCallback<AvailableRooms>
+  ) => void;
+
   "room:create": (
     payload: CreateRoomProps,
     callback: SocketCallback<RoomId>
-  ) => void;
-
-  "room:getAvailable": (
-    callback: SocketCallback<AvailableRooms>
   ) => void;
 
   "room:join": (
@@ -40,21 +40,30 @@ export interface RoomClientEvents {
     callback: SocketCallback<EmptyResponse>
   ) => void;
 
-  "room:updateCapacity": (
-    payload: { capacity: RoomCapacity },
+  "room:openSeat": (
+    payload: RoomSeat,
+    callback: SocketCallback<EmptyResponse>
+  ) => void;
+
+  "room:closeSeat": (
+    payload: { pos: PlayerPos },
     callback: SocketCallback<EmptyResponse>
   ) => void;
 
   "room:kickPlayer": (
-    payload: PlayerId,
+    payload: { pos: PlayerPos },
     callback: SocketCallback<EmptyResponse>
   ) => void;
-
-  "room:leave": (payload: RoomId) => void;
 
   "room:startGame": (
     callback: SocketCallback<EmptyResponse>
   ) => void;
+
+  "room:stopGame": (
+    callback: SocketCallback<EmptyResponse>
+  ) => void;
+
+  "room:leave": (payload: RoomId) => void;
 }
 
 export interface RoomServerEvents {

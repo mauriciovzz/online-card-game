@@ -17,7 +17,7 @@ export const Label = ({ size, text, error }: Props) => {
 
   return (
     <Group style={{ userSelect: "none" }}>
-      <Text fw={550} size={size} ml={2} truncate="end">
+      <Text fw={550} size={size} truncate="end">
         {t(text)}
       </Text>
       {error && (

@@ -15,15 +15,13 @@ import { Chat } from "./chat";
 
 // forms
 import { FormInput } from "./forms/FormInput";
-import { FormSegmentedControl } from "./forms/FormSegmentedControl";
-import { RoomForm } from "./forms/RoomForm";
+import { RoomFormBase } from "./forms/RoomFormBase";
 
 // ui
 import { AppTitle } from "./ui/AppTitle";
 import { LabelWithPopover } from "./ui/LabelWithPopover";
 import { Label } from "./ui/Label";
 import { RoomSettingsModal } from "./ui/RoomSettingsModal";
-import { RoomPlayers } from "./ui/RoomPlayers";
 import { SelectedRules } from "./ui/SelectedRules";
 import { Spinner } from "./ui/Spinner";
 
@@ -45,15 +43,13 @@ export {
 
   // forms
   FormInput,
-  FormSegmentedControl,
-  RoomForm,
+  RoomFormBase,
 
   // ui
   AppTitle,
   LabelWithPopover,
   Label,
   RoomSettingsModal,
-  RoomPlayers,
   SelectedRules,
   Spinner,
 };

@@ -18,18 +18,24 @@ export const es = {
     name: "Nombre de la Sala",
     turnDuration: "Duración del turno",
     numPlayers: "Jugadores",
-    members: {
-      title: "Miembros",
-      descriptionTitle: "Selección de miembros",
-      description: `Una sala puede tener de 2 a 4 miembros.  
-        Incluye uno haciendo clic en + y luego selecciona
-        su tipo. 
-        Elimina uno haciendo clic x.`,
+    seats: {
+      title: "Asientos",
+
+      selectionTitle: "Selección de asientos",
+      selectionDescription: `Una sala puede tener de 2 a 4 asientos para jugadores.  
+        Abre uno haciendo clic en + y luego selecciona su tipo. 
+        Cierra uno haciendo clic en ⊖.`,
+
+      updateTitle: "Actualizacion de asientos",
+      updateDescription: `Una sala puede tener de 2 a 4 asientos para jugadores.  
+        Abre uno haciendo clic en + y luego selecciona su tipo.
+        Cierra uno haciendo clic en ⊖.
+        Saca a un jugador de la sala haciendo clic en ⊗.`,
+
       human: "Humano",
-      humanDescription:
-        "El miembro es otra persona en línea.",
+      humanDescription: "El asiento es para humanos",
       ai: "IA",
-      aiDescription: "El miembro es IA.",
+      aiDescription: "El asiento es para una IA",
     },
     create: "Crear Sala",
     join: "Unirse a una sala",
@@ -44,6 +50,7 @@ export const es = {
       capacityUpdated: "Jugadores actualizados",
       userKickedOut: "Jugador expulsado",
       kickedOut: "Expulsado de la sala",
+      cancelled: "Partida cancelada",
     },
     settings: "Ajustes",
     leave: "Salir",
@@ -101,12 +108,13 @@ export const es = {
     },
     room: {
       maxLength: "Máximo 15 caracteres",
+      gameStarted: "El juego ya ha iniciado",
       isFull: "La sala esta llena",
-      capacityConflict:
-        "Demasiados jugadores para este límite",
       playerNotFound: "Jugador no encontrado",
       notAdmin: "Solicitud denegada",
       notEnoughtPlayers: "No hay jugadores suficientes",
+      notEnoughtSeats: "Se necesitan minimo 2 miembros",
+      seatTaken: "El asiento esta ocupado",
       notInRoom: "No forma parte de la sala",
       serverError: "Error del servidor",
     },

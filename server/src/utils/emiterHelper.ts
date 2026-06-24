@@ -96,10 +96,10 @@ export const emitCutInfo = (
   socket.to(roomId).emit("game:gotCut", data);
 };
 
-export const emitWinner = (
+export const emitGameEnded = (
   io: AppServer,
   roomId: string,
-  winner: NotificationInfo,
+  winner?: NotificationInfo,
   playerThatLeft?: string
 ) => {
   io.to(roomId).emit("room:gameEnded", {

@@ -1,11 +1,17 @@
 import { gameService, roomService } from "@/services";
-import { startTurn, handleExit } from "@/loop/gameLoop";
+import {
+  startTurn,
+  handleExit,
+  endGame,
+} from "@/loop/gameLoop";
 import {
   getRoom,
-  isCapacityOk,
   isInRoom,
   isPlayerAdmin,
   checkRoomName,
+  checkSeatsCount,
+  isSeatTakenByHuman,
+  isSeatTaken,
 } from "@/utils/guards";
 import {
   ok,
@@ -14,15 +20,22 @@ import {
   syncRoom,
 } from "@/utils/emiterHelper";
 
-import { ERROR_CODES } from "@shared/constants/errorCodes";
+import { ERROR_CODES } from "@shared/constants";
 import { AppServer, AppSocket } from "@/types";
 
 export const roomSocket = (
   io: AppServer,
   socket: AppSocket
 ) => {
+  socket.on("room:getAvailable", (callback) => {
+    ok(callback, roomService.getAvailable());
+  });
+
   socket.on("room:create", (payload, callback) => {
-    const isOk = checkRoomName(payload.name, callback);
+    const isFree = checkRoomName(payload.name, callback);
+    if (!isFree) return;
+
+    const isOk = checkSeatsCount(payload.seats, callback);
     if (!isOk) return;
 
     const roomId = roomService.create(payload, socket.id);
@@ -34,25 +47,25 @@ export const roomSocket = (
     broadcastRoomList(io, roomService.getAvailable());
   });
 
-  socket.on("room:getAvailable", (callback) => {
-    ok(callback, roomService.getAvailable());
-  });
-
   socket.on("room:join", ({ roomId }, callback) => {
     const room = getRoom({ socket, roomId, callback });
     if (!room) return;
 
-    if (room.state === "FULL") {
-      notOk(callback, ERROR_CODES.ROOM_FULL);
-      return;
+    if (room.state !== "WAITING") {
+      notOk(callback, ERROR_CODES.GAME_STARTED);
     }
 
-    roomService.join(room, socket.id);
+    const success = roomService.join(room, socket.id);
 
-    void socket.join(room.id);
-    socket.data.roomId = room.id;
+    if (success) {
+      void socket.join(room.id);
+      socket.data.roomId = room.id;
 
-    ok(callback, { roomId });
+      ok(callback, { roomId });
+    } else {
+      notOk(callback, ERROR_CODES.ROOM_FULL);
+    }
+
     syncRoom(io, room, roomService.getAvailable());
   });
 
@@ -82,57 +95,54 @@ export const roomSocket = (
     syncRoom(io, room, roomService.getAvailable());
   });
 
-  socket.on("room:updateCapacity", (newData, callback) => {
+  socket.on("room:openSeat", ({ pos, type }, callback) => {
     const room = getRoom({ socket });
     if (!room) return;
 
     const isAdmin = isPlayerAdmin(socket, room, callback);
     if (!isAdmin) return;
 
-    const players = room.players.length;
-    const newCap = newData.capacity;
+    const isTaken = isSeatTaken(room, pos, callback);
+    if (isTaken) return;
 
-    const isOk = isCapacityOk(players, newCap, callback);
-    if (!isOk) return;
-
-    roomService.updateCapacity(room, newCap);
+    roomService.updateSeat(room, { pos, type });
 
     ok(callback, null);
     syncRoom(io, room, roomService.getAvailable());
   });
 
-  socket.on("room:startGame", (callback) => {
-    const room = getRoom({ socket, callback });
+  socket.on("room:closeSeat", ({ pos }, callback) => {
+    const room = getRoom({ socket });
     if (!room) return;
 
     const isAdmin = isPlayerAdmin(socket, room, callback);
     if (!isAdmin) return;
 
-    if (room.players.length === 1) {
-      notOk(callback, ERROR_CODES.NOT_ENOUGH_PLAYERS);
-      return;
-    }
+    const isTaken = isSeatTakenByHuman(room, pos, callback);
+    if (isTaken) return;
 
-    room.state = "PLAYING";
-    gameService.createGame(room);
+    roomService.updateSeat(room, { pos, type: undefined });
 
     ok(callback, null);
-    socket.to(room.id).emit("room:gameStarted", null);
-
-    setTimeout(() => {
-      startTurn(io, room.id);
-    }, 1000);
+    syncRoom(io, room, roomService.getAvailable());
   });
 
-  socket.on("room:kickPlayer", ({ playerId }, callback) => {
+  socket.on("room:kickPlayer", ({ pos }, callback) => {
     const room = getRoom({ socket, callback });
     if (!room) return;
 
     const isAdmin = isPlayerAdmin(socket, room, callback);
     if (!isAdmin) return;
 
-    const memberSocket = io.sockets.sockets.get(playerId);
-    if (!memberSocket) {
+    const playerId = room.players.find(
+      (p) => p.pos === pos
+    )?.id;
+
+    const memberSocket = io.sockets.sockets.get(
+      playerId ?? ""
+    );
+
+    if (!playerId || !memberSocket) {
       notOk(callback, ERROR_CODES.PLAYER_NOT_FOUND);
       syncRoom(io, room, roomService.getAvailable());
       return;
@@ -149,6 +159,41 @@ export const roomSocket = (
     handleExit(io, memberSocket);
 
     ok(callback, null);
+  });
+
+  socket.on("room:startGame", (callback) => {
+    const room = getRoom({ socket, callback });
+    if (!room) return;
+
+    const isAdmin = isPlayerAdmin(socket, room, callback);
+    if (!isAdmin) return;
+
+    if (room.players.length === 1) {
+      notOk(callback, ERROR_CODES.NOT_ENOUGH_PLAYERS);
+      return;
+    }
+
+    room.state = "PLAYING";
+    syncRoom(io, room, roomService.getAvailable());
+
+    gameService.createGame(room);
+
+    ok(callback, null);
+    socket.to(room.id).emit("room:gameStarted", null);
+
+    setTimeout(() => {
+      startTurn(io, room.id);
+    }, 1000);
+  });
+
+  socket.on("room:stopGame", (callback) => {
+    const room = getRoom({ socket, callback });
+    if (!room) return;
+
+    const isAdmin = isPlayerAdmin(socket, room, callback);
+    if (!isAdmin) return;
+
+    endGame(io, room);
   });
 
   socket.on("room:leave", () => {

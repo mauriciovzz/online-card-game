@@ -37,6 +37,10 @@ export const ERROR_METADATA: Record<
     redirect: "/",
   },
 
+  GAME_STARTED: {
+    message: "errors.room.gameStarted",
+  },
+
   ROOM_FULL: {
     message: "errors.room.isFull",
   },
@@ -54,8 +58,12 @@ export const ERROR_METADATA: Record<
     message: "errors.room.notEnoughtPlayers",
   },
 
-  CAPACITY_CONFLICT: {
-    message: undefined,
+  NOT_ENOUGH_SEATS: {
+    message: "errors.room.notEnoughtSeats",
+  },
+
+  SEAT_TAKEN: {
+    message: "errors.room.seatTaken",
   },
 
   PLAYER_NOT_FOUND: {

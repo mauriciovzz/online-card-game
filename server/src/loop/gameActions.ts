@@ -18,8 +18,7 @@ import {
 } from "@shared/types";
 
 import { AppServer } from "@/types";
-import { startTurn, finishGame } from "./gameLoop";
-import logger from "@/utils/logger";
+import { startTurn, endGame } from "./gameLoop";
 
 export const drawCard = (
   io: AppServer,
@@ -81,30 +80,6 @@ export const endStack = (
   endTurn(io, room.id, game);
 };
 
-const checkIfReverseIsSkip = (
-  io: AppServer,
-  room: Room,
-  game: Game,
-  state: PlayerState,
-  card: Card
-) => {
-  const twoPlayers = room.players.length === 2;
-  const reverseCard = card.type === "REVERSE";
-
-  if (twoPlayers && reverseCard) {
-    gameService.advanceTurn(game);
-
-    const player = game.players[game.currPlayerIndex];
-    emitEffect(io, player.id, player.pos);
-
-    logger.info(`[${state.name}] ENDED TURN ON REVERSE`);
-    endTurn(io, room.id, game);
-    return true;
-  }
-
-  return false;
-};
-
 export const playCard = (
   io: AppServer,
   turnData: {
@@ -137,24 +112,29 @@ export const playCard = (
 
   turn.cardPut = true;
 
-  logger.playCard(
-    state.name,
-    card.raw,
-    state.cards.map((c) => c.raw)
-  );
-
-  if (state.cards.length === 0) {
-    finishGame(io, room, state);
-    return;
-  }
-
   emitTurn(io, room.id, turn);
   emitGameData(io, room.id, gameService.getState(game));
 
-  if (checkIfReverseIsSkip(io, room, game, state, card)) {
+  if (state.cards.length === 0) {
+    endGame(io, room, state);
     return;
   }
 
+  // handle reverse card with 2 players
+  const twoPlayers = room.players.length === 2;
+  const reverseCard = card.type === "REVERSE";
+
+  if (twoPlayers && reverseCard) {
+    gameService.advanceTurn(game);
+
+    const player = game.players[game.currPlayerIndex];
+    emitEffect(io, player.id, player.pos);
+
+    endTurn(io, room.id, game);
+    return;
+  }
+
+  // handle chain rules
   const { mirror, stair } = room.rules;
 
   const hasChainRule = mirror || stair;
@@ -163,7 +143,6 @@ export const playCard = (
   const canContinueTurn = hasChainRule && playedNumberCard;
 
   if (!canContinueTurn) {
-    logger.info(`[${state.name}] ENDED TURN ON RULES`);
     endTurn(io, room.id, game);
   }
 };

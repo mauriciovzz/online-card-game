@@ -1,5 +1,5 @@
 import { games, rooms, turns, users } from "@/stores";
-import { ERROR_CODES } from "@shared/constants/errorCodes";
+import { ERROR_CODES } from "@shared/constants";
 import { notOk } from "./emiterHelper";
 
 import {
@@ -7,14 +7,19 @@ import {
   Game,
   Turn,
   Player,
-  RoomCapacity,
   PlayerState,
+  PlayerPos,
+  RoomSeat,
 } from "@shared/types";
 import {
   AppServer,
   AppSocket,
   SocketCallback,
 } from "@/types";
+import {
+  getSeatPlayer,
+  isSeatOccupied,
+} from "./seatsHelper";
 
 export const checkUserName = <T>(
   newName: string,
@@ -59,17 +64,48 @@ export const checkRoomName = <T>(
   return true;
 };
 
-export const isCapacityOk = <T>(
-  numPlayers: number,
-  capacity: RoomCapacity,
+export const checkSeatsCount = <T>(
+  seats: RoomSeat[],
   callback: SocketCallback<T>
 ) => {
-  if (capacity < numPlayers) {
-    notOk(callback, ERROR_CODES.CAPACITY_CONFLICT);
+  const numSeats = seats.filter((s) => s.type).length;
+
+  if (numSeats === 0) {
+    notOk(callback, ERROR_CODES.NOT_ENOUGH_SEATS);
     return false;
   }
 
   return true;
+};
+
+export const isSeatTaken = <T>(
+  room: Room,
+  position: PlayerPos,
+  callback: SocketCallback<T>
+) => {
+  const isOccupied = isSeatOccupied(room, position);
+
+  if (isOccupied) {
+    notOk(callback, ERROR_CODES.SEAT_TAKEN);
+    return true;
+  }
+
+  return false;
+};
+
+export const isSeatTakenByHuman = <T>(
+  room: Room,
+  position: PlayerPos,
+  callback: SocketCallback<T>
+) => {
+  const player = getSeatPlayer(room, position);
+
+  if (player?.type === "human") {
+    notOk(callback, ERROR_CODES.SEAT_TAKEN);
+    return true;
+  }
+
+  return false;
 };
 
 export const getRoom = <T>({

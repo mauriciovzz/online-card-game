@@ -9,6 +9,7 @@ interface RoomContextTypes {
   isAdmin: boolean;
 
   leaveRoom: () => void;
+  stopGame: () => void;
   startGame: () => void;
 
   settingsOpened: boolean;

@@ -61,14 +61,17 @@ export const RoomProvider = ({
 
   const handleGameEndend = useCallback(
     ({ winner, playerThatLeft }: WinnerInfo) => {
-      if (!winner.id) return;
+      if (winner) {
+        const clientWon = winner.id === socket?.id;
+        winnerNoti(clientWon, winner, playerThatLeft);
+      } else {
+        errorNoti("room.notification.cancelled");
+      }
 
-      const clientWon = winner.id === socket?.id;
-
-      winnerNoti(clientWon, winner, playerThatLeft);
+      setStgOpened(false);
       setRoomView("lobby");
     },
-    [socket?.id, winnerNoti]
+    [errorNoti, socket?.id, winnerNoti]
   );
 
   const handleKickedOut = useCallback(() => {
@@ -134,6 +137,17 @@ export const RoomProvider = ({
     void navigate("/", { replace: true });
   }, [socket, successNoti, navigate]);
 
+  const stopGame = useCallback(() => {
+    socket?.emit(
+      "room:stopGame",
+      (res: SocketRes<EmptyResponse>) => {
+        if (!res.success) {
+          handleError(res.error);
+        }
+      }
+    );
+  }, [handleError, socket]);
+
   const openSettings = useCallback(() => {
     setStgOpened(true);
   }, []);
@@ -172,6 +186,7 @@ export const RoomProvider = ({
         isAdmin,
 
         leaveRoom,
+        stopGame,
         startGame,
 
         settingsOpened: stgOpened,

@@ -45,11 +45,13 @@ const adjustPlayerIndex = (
 const createGame = (room: Room) => {
   const { deck, pile } = deckHelper.createDeck();
 
-  const players = room.players.map((p) => ({
-    ...p,
-    cards: deck.splice(0, 7),
-    calledUno: false,
-  }));
+  const players = [...room.players]
+    .sort((a, b) => a.pos - b.pos)
+    .map((p) => ({
+      ...p,
+      cards: deck.splice(0, 7),
+      calledUno: false,
+    }));
 
   const game: Game = {
     players,

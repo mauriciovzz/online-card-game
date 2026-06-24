@@ -1,5 +1,5 @@
 import { RoomList } from "./RoomList";
-import { CreateRoom } from "./CreateRoom";
+import { CreateRoomForm } from "./CreateRoomForm";
 import { UserNameInput } from "./UserNameInput";
 
-export { RoomList, CreateRoom, UserNameInput };
+export { RoomList, CreateRoomForm, UserNameInput };

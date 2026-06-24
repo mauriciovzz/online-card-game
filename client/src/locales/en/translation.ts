@@ -18,16 +18,24 @@ export const en = {
     name: "Room name",
     turnDuration: "Turn duration",
     numPlayers: "Players",
-    members: {
-      title: "Members",
-      descriptionTitle: "Members selection",
-      description: `A room can have from 2 to 4 members.  
-        Include one clicking +, and then choose it's type.
-        delete one clicking on x.`,
+    seats: {
+      title: "Seats",
+
+      selectionTitle: "Seats selection",
+      selectionDescription: `A room can have from 2 to 4 seats for players.  
+        Open one clicking +, and then choose it's type.
+        Close one clicking on ⊖.`,
+
+      updateTitle: "Seats update",
+      updateDescription: `A room can have from 2 to 4 seats for players.  
+        Open one clicking +, and then choose it's type.
+        Close one clicking on ⊖.
+        Kick a player from the room clicking ⊗.`,
+
       human: "Human",
-      humanDescription: "The members is an human online.",
+      humanDescription: "The seats is for humans",
       ai: "AI",
-      aiDescription: "The member is an AI.",
+      aiDescription: "The seats is for an AI",
     },
     create: "Create a room",
     join: "Join a room",
@@ -42,6 +50,7 @@ export const en = {
       capacityUpdated: "Players updated",
       userKickedOut: "User kicked out",
       kickedOut: "Kicked out from room",
+      cancelled: "Match cancelled",
     },
     settings: "Settings",
     leave: "Leave room",
@@ -99,11 +108,13 @@ export const en = {
     },
     room: {
       maxLength: "Max length is 15",
+      gameStarted: "The game has already started",
       isFull: "The room is full",
-      capacityConflict: "Too many players for this limit",
       playerNotFound: "Player not found",
       notAdmin: "Request denied",
       notEnoughtPlayers: "Not enought players",
+      notEnoughtSeats: "Need at least 2 members",
+      seatTaken: "Seat taken",
       notInRoom: "You are not in this room",
       serverError: "Server error",
     },

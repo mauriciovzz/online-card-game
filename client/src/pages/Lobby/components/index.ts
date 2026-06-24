@@ -1,5 +1,4 @@
-import { ButtonsBar } from "./ButtonsBar";
-import { Overview } from "./Overview";
-import { UpdateRoom } from "./UpdateRoom";
+import { RoomUpdateForm } from "./RoomUpdateForm";
+import { RoomSeats } from "./RoomSeats";
 
-export { ButtonsBar, Overview, UpdateRoom };
+export { RoomUpdateForm, RoomSeats };

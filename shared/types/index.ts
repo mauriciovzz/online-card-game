@@ -1,6 +1,6 @@
-/* CARDS */
-
 import type { ErrorCode } from "@shared/constants/errorCodes";
+
+/* CARDS */
 
 export type CardColor = 
   | "R"
@@ -47,6 +47,7 @@ export interface PlayedCard {
 
 /* PLAYERS */
 export type PlayerPos = 1 | 2 | 3 | 4;
+
 export type PlayerType = "human"  | "ai";
 
 export interface Player {
@@ -71,14 +72,18 @@ export interface OpponentState extends Player {
 
 /* ROOMS */
 
+export type TurnDuration = "15" | "30" | "45";
+
 export interface RoomRules {
   mirror: boolean;
   stair: boolean;
   stack: boolean;
 }
 
-export type RoomCapacity = 2 | 3 | 4;
-export type TurnDuration = "15" | "30" | "45";
+export interface RoomSeat {
+  pos: PlayerPos;
+  type?: PlayerType;
+}
 
 export interface RoomInfo {
   name: string;
@@ -89,17 +94,14 @@ export interface RoomInfo {
 export interface Room extends RoomInfo {
   id: string;
   state: "WAITING" | "FULL" | "PLAYING";
-
   adminId: string;
-  capacity: RoomCapacity;
+
+  seats: RoomSeat[];
   players: Player[];
 }
 
 export interface CreateRoomProps extends RoomInfo {
-  players: {
-    pos: 2 | 3 | 4,
-    type?: PlayerType
-  }[]
+  seats: RoomSeat[]
 }
 
 /* GAME */
@@ -205,7 +207,7 @@ export interface CutInfo {
 }
 
 export interface WinnerInfo {
-  winner: NotificationInfo;
+  winner?: NotificationInfo;
   playerThatLeft?: string;
 }
 

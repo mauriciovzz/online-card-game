@@ -14,6 +14,7 @@ import type {
   SocketRes,
   RoomId,
 } from "@shared/types";
+import { ERROR_CODES } from "@shared/constants";
 
 export const useCreateRoom = () => {
   const navigate = useNavigate();
@@ -25,8 +26,8 @@ export const useCreateRoom = () => {
     initialValues: {
       name: "",
       turnDuration: TURN_DURATIONS[0].value,
-      players: [
-        { pos: 2, type: "human" },
+      seats: [
+        { pos: 2, type: undefined },
         { pos: 3, type: undefined },
         { pos: 4, type: undefined },
       ],
@@ -39,19 +40,30 @@ export const useCreateRoom = () => {
     validate: {
       name: (value) => {
         const trimmed = value.trim();
+
         if (!trimmed) return t("errors.common.empty");
+
         if (trimmed.length > 15)
           return t("errors.room.maxLength");
+
+        return null;
+      },
+      seats: (value) => {
+        const members = value.filter((s) => s.type).length;
+
+        if (members === 0)
+          return t("errors.room.notEnoughtSeats");
+
         return null;
       },
     },
   });
 
   const createRoom = useCallback(
-    (newRoom: CreateRoomProps) => {
+    (newData: CreateRoomProps) => {
       socket?.emit(
         "room:create",
-        newRoom,
+        newData,
         (res: SocketRes<RoomId>) => {
           if (res.success) {
             void navigate(`/room/${res.data.roomId}`);
@@ -59,7 +71,19 @@ export const useCreateRoom = () => {
             const meta = ERROR_METADATA[res.error];
             if (!meta.message) return;
 
-            form.setFieldError("name", t(meta.message));
+            switch (res.error) {
+              case ERROR_CODES.ROOM_LENGTH: {
+                form.setFieldError("name", t(meta.message));
+                return;
+              }
+              case ERROR_CODES.NOT_ENOUGH_SEATS: {
+                form.setFieldError(
+                  "seats",
+                  t(meta.message)
+                );
+                return;
+              }
+            }
           }
         }
       );

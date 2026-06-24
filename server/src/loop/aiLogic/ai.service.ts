@@ -44,11 +44,10 @@ const chooseColor = (player: PlayerState) => {
     B: 0,
     G: 0,
     Y: 0,
-    W: 0,
   };
 
   for (const card of player.cards) {
-    if (card.color in counts) {
+    if (card.color !== "W" && card.color in counts) {
       counts[card.color]++;
     }
   }

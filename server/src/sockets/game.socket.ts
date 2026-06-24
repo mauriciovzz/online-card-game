@@ -21,8 +21,7 @@ import moveHelper from "@shared/utils/moveHelper";
 
 import { Card, PlayerState } from "@shared/types";
 import { AppServer, AppSocket } from "@/types";
-import { ERROR_CODES } from "@shared/constants/errorCodes";
-import logger from "@/utils/logger";
+import { ERROR_CODES } from "@shared/constants";
 
 export const gameSocket = (
   io: AppServer,
@@ -129,7 +128,7 @@ export const gameSocket = (
     const turnData = turnGuard(socket, callback);
     if (!turnData) return;
 
-    const { game, turn, state } = turnData;
+    const { game, turn } = turnData;
 
     if (game.currEffect) {
       notOk(callback, ERROR_CODES.EFFECT_ON);
@@ -147,20 +146,14 @@ export const gameSocket = (
     }
 
     ok(callback, null);
-    const newHand = drawCard(io, turnData);
-
-    logger.drawCard(
-      state.name,
-      newHand.cards[0].raw,
-      state.cards.map((c) => c.raw)
-    );
+    drawCard(io, turnData);
   });
 
   socket.on("game:endTurn", (callback) => {
     const turnData = turnGuard(socket, callback);
     if (!turnData) return;
 
-    const { room, game, turn, state } = turnData;
+    const { room, game, turn } = turnData;
 
     const notPlayed = !turn.cardPut && !turn.cardDraw;
 
@@ -168,8 +161,6 @@ export const gameSocket = (
       notOk(callback, ERROR_CODES.TURN_INCOMPLETE);
       return;
     }
-
-    logger.info(`[${state.name}] ENDED TURN ON BUTTOM`);
 
     ok(callback, null);
     endTurn(io, room.id, game);

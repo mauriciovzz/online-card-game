@@ -45,6 +45,7 @@ type IsValid = boolean | null;
 export const Game = () => {
   const { ref, width } = useElementSize();
   const isMobile = useIsMobile();
+  const height = isMobile ? 42 : 36;
 
   const [container, setContainer] = useState<Cont>(null);
   const [validMove, setValidMove] = useState<IsValid>(null);
@@ -248,7 +249,11 @@ export const Game = () => {
               pos="relative"
             >
               <PlayersCards
-                data={{ room, game, turn }}
+                data={{
+                  room,
+                  game,
+                  currentPlayerId: turn.currentPlayerId,
+                }}
                 cutCall={funcs.callCut}
               >
                 <Pile
@@ -268,18 +273,19 @@ export const Game = () => {
             </AppBox>
           </DragDropProvider>
 
-          <Box h={isMobile ? 42 : 36}>
-            {penCard ? (
-              <ColorPicker pick={pickColor} />
-            ) : (
-              <GameBar
-                turn={turn}
-                myTurn={myTurn}
-                canCallUno={
-                  items.cards.length === 1 && !uno
-                }
-                stack={room.rules.stack}
-                funcs={funcs}
+          <Box h={height} w="100%" pos="relative">
+            <GameBar
+              turn={turn}
+              myTurn={myTurn}
+              canCallUno={items.cards.length === 1 && !uno}
+              stack={room.rules.stack}
+              funcs={funcs}
+            />
+
+            {penCard && (
+              <ColorPicker
+                height={height}
+                pick={pickColor}
               />
             )}
           </Box>

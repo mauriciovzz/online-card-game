@@ -5,11 +5,37 @@ import { users, rooms } from "@/stores";
 import {
   Room,
   CreateRoomProps,
-  RoomCapacity,
   RoomInfo,
   Player,
-  PlayerPos,
+  RoomSeat,
 } from "@shared/types";
+import {
+  getSeatPlayer,
+  updateRoomState,
+} from "@/utils/seatsHelper";
+
+const AI_PLAYER_METADATA = {
+  1: {
+    id: "AI-RED",
+    name: "ROBOT-1",
+    pos: 1,
+  },
+  2: {
+    id: "AI-BLUE",
+    name: "ROBOT-2",
+    pos: 2,
+  },
+  3: {
+    id: "AI-YELLOW",
+    name: "ROBOT-3",
+    pos: 3,
+  },
+  4: {
+    id: "AI-GREEN",
+    name: "ROBOT-4",
+    pos: 4,
+  },
+} as const;
 
 const generateId = () => {
   return crypto
@@ -18,28 +44,6 @@ const generateId = () => {
     .toUpperCase();
 };
 
-const COMPUTER_METADATA: {
-  id: string;
-  name: string;
-  pos: 2 | 3 | 4;
-}[] = [
-  {
-    id: "PC-BLUE",
-    name: "ROBOT-2",
-    pos: 2,
-  },
-  {
-    id: "PC-YELLOW",
-    name: "ROBOT-3",
-    pos: 3,
-  },
-  {
-    id: "PC-GREEN",
-    name: "ROBOT-4",
-    pos: 4,
-  },
-];
-
 const create = (
   payload: CreateRoomProps,
   playerId: string
@@ -47,38 +51,56 @@ const create = (
   let id = generateId();
   while (rooms.has(id)) id = generateId();
 
-  const aiPlayers: Player[] = payload.players
-    .filter((p) => p.type === "ai")
-    .map((p) => ({
-      ...COMPUTER_METADATA[p.pos - 2],
-      type: "ai",
-      joinedAt: new Date().getTime(),
-    }));
+  const joinedAt = new Date().getTime();
 
-  const players: Player[] = [
-    {
-      id: playerId,
-      name: users.get(playerId) ?? "",
-      type: "human",
-      pos: 1,
-      joinedAt: new Date().getTime(),
-    },
-    ...aiPlayers,
-  ];
+  const otherSeats: RoomSeat[] = [];
+  const aiPlayers: Player[] = [];
 
-  const capacity = (payload.players.filter(
-    (p) => p.type !== undefined
-  ).length + 1) as RoomCapacity;
+  for (let i = 2; i < 5; i++) {
+    const seat = payload.seats.find(
+      (seat) => seat.pos === i
+    );
+    if (!seat) break;
+
+    if (seat.type === "ai") {
+      const meta = AI_PLAYER_METADATA[i as 2 | 3 | 4];
+
+      aiPlayers.push({
+        ...meta,
+        type: "ai",
+        joinedAt,
+      });
+    }
+
+    otherSeats.push(seat);
+  }
+
+  const state =
+    aiPlayers.length ===
+    otherSeats.filter((s) => s.type).length
+      ? "FULL"
+      : "WAITING";
 
   rooms.set(id, {
     id,
-    name: payload.name,
+    state,
     adminId: playerId,
-    capacity,
-    players,
-    state: "WAITING",
+
+    name: payload.name,
     turnDuration: payload.turnDuration,
     rules: payload.rules,
+
+    seats: [{ pos: 1, type: "human" }, ...otherSeats],
+    players: [
+      {
+        id: playerId,
+        name: users.get(playerId) ?? "",
+        pos: 1,
+        type: "human",
+        joinedAt,
+      },
+      ...aiPlayers,
+    ],
   });
 
   return id;
@@ -90,14 +112,32 @@ const update = (room: Room, newData: RoomInfo) => {
   room.rules = newData.rules;
 };
 
-const updateCapacity = (
+const updateSeat = (
   room: Room,
-  capacity: RoomCapacity
+  { pos, type }: RoomSeat
 ) => {
-  const isFull = room.players.length === capacity;
+  const index = room.seats.findIndex((s) => s.pos === pos);
 
-  room.capacity = capacity;
-  room.state = isFull ? "FULL" : "WAITING";
+  if (room.seats[index].type === "ai" && !type) {
+    const aiPlayer = getSeatPlayer(room, pos);
+    if (!aiPlayer) return;
+
+    leave(room, aiPlayer.id);
+  }
+
+  if (type === "ai") {
+    const meta = AI_PLAYER_METADATA[pos as 1 | 2 | 3 | 4];
+
+    room.players.push({
+      ...meta,
+      type: "ai",
+      joinedAt: new Date().getTime(),
+    });
+  }
+
+  room.seats.splice(index, 1, { pos, type });
+
+  updateRoomState(room);
 };
 
 const getAvailable = () => {
@@ -109,50 +149,51 @@ const getAvailable = () => {
 };
 
 const join = (room: Room, playerId: string) => {
-  const numPlayers = room.players.length + 1;
+  const { players } = room;
+
+  const avalilableSeat = room.seats
+    .filter((s) => s.type === "human")
+    .find((s) => !players.some((p) => p.pos === s.pos));
+
+  if (!avalilableSeat) return false;
 
   room.players.push({
     id: playerId,
     type: "human",
     name: users.get(playerId) ?? "",
-    pos: numPlayers as PlayerPos,
+    pos: avalilableSeat.pos,
     joinedAt: new Date().getTime(),
   });
 
-  room.players.sort((a, b) => a.pos - b.pos);
+  updateRoomState(room);
 
-  const roomFull = numPlayers === room.capacity;
-  room.state = roomFull ? "FULL" : room.state;
+  return true;
 };
 
 const leave = (room: Room, playerId: string) => {
-  const filter = (p: Player) => p.id !== playerId;
-  const remainingPlayers = room.players.filter(filter);
+  room.players = room.players.filter(
+    (p) => p.id !== playerId
+  );
 
   if (room.adminId === playerId) {
-    const firstHumanIndex = remainingPlayers.findIndex(
-      (p) => p.type === "human"
-    );
+    const nextAdmin = room.players
+      .filter((p) => p.type === "human")
+      .sort((a, b) => a.joinedAt - b.joinedAt)[0];
 
-    room.adminId = remainingPlayers[firstHumanIndex].id;
+    room.adminId = nextAdmin.id;
   }
-
-  room.players = remainingPlayers.map((p, index) => {
-    p.pos = (index + 1) as PlayerPos;
-    return p;
-  });
 
   if (room.state !== "PLAYING") {
-    room.state = "WAITING";
+    updateRoomState(room);
   }
 
-  return false;
+  return true;
 };
 
 export default {
   create,
   update,
-  updateCapacity,
+  updateSeat,
   getAvailable,
   join,
   leave,

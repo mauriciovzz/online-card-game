@@ -1,15 +1,24 @@
 import { Group, Modal, Stack } from "@mantine/core";
+import { useTranslation } from "react-i18next";
 
 import { useRoom } from "@/contexts/RoomContext";
-import { LangToggler } from "../buttons/LangToggler";
-import { ThemeToggler } from "../buttons/ThemeToggler";
-import { AppButton } from "../buttons/AppButton";
-import { useTranslation } from "react-i18next";
+import {
+  LangToggler,
+  ThemeToggler,
+  AppButton,
+} from "@/components";
 
 export const RoomSettingsModal = () => {
   const { t } = useTranslation();
-  const { settingsOpened, closeSettings, leaveRoom } =
-    useRoom();
+
+  const {
+    isAdmin,
+    roomView,
+    settingsOpened,
+    closeSettings,
+    stopGame,
+    leaveRoom,
+  } = useRoom();
 
   return (
     <Modal
@@ -29,6 +38,10 @@ export const RoomSettingsModal = () => {
 
           <ThemeToggler expand />
         </Group>
+
+        {isAdmin && roomView === "game" && (
+          <AppButton text="Lobby" onClick={stopGame} />
+        )}
 
         <AppButton text="room.leave" onClick={leaveRoom} />
       </Stack>

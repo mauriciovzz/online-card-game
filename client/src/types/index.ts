@@ -22,7 +22,8 @@ export interface ReadUpdate {
 
 /* PAGES */
 
-export type View = "main" | "edit";
+export type LobbyView = "main" | "edit";
+export type HomeView = "list" | "create";
 
 /* GAME */
 

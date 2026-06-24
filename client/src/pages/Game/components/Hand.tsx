@@ -32,7 +32,7 @@ export const Hand = ({
 
     const overlapX = Math.max(
       0,
-      Math.ceil(spaceLeft / spacesBetweenCards)
+      spaceLeft / spacesBetweenCards
     );
 
     const rows = Math.ceil(
@@ -69,6 +69,7 @@ export const Hand = ({
       h={height}
       pos="absolute"
       bottom={26 + 12}
+      style={{ zIndex: 15 }}
     >
       <Flex w="100%" h="100%" pos="relative">
         {positionedCards.map(

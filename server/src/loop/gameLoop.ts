@@ -9,7 +9,7 @@ import {
   emitRoomData,
   emitTimeout,
   emitTurn,
-  emitWinner,
+  emitGameEnded,
 } from "@/utils/emiterHelper";
 import {
   getGameData,
@@ -24,9 +24,9 @@ import {
   Player,
 } from "@shared/types";
 import { AppServer, AppSocket } from "@/types";
-import { startAiTurn } from "./aiLoop";
-import logger from "@/utils/logger";
+import { startAiTurn } from "./aiLogic/aiLoop";
 import { endTurn } from "./gameActions";
+import { isRoomFull } from "@/utils/seatsHelper";
 
 const timeout = (
   io: AppServer,
@@ -137,8 +137,6 @@ const startTurn = (io: AppServer, roomId: string) => {
     return;
   }
 
-  logger.turnStart(currentPlayer.name, game);
-
   const countDown = Number(room.turnDuration) * 1000;
 
   const timer = setTimeout(() => {
@@ -148,27 +146,25 @@ const startTurn = (io: AppServer, roomId: string) => {
   timers.set(room.id, timer);
 };
 
-const finishGame = (
+const endGame = (
   io: AppServer,
   room: Room,
-  winner: PlayerState,
+  winner?: PlayerState,
   playerThatLeft?: string
 ) => {
   gameService.cleanUp(room.id);
 
-  const winnerInfo = {
-    id: winner.id,
-    name: winner.name,
-    pos: winner.pos,
-  };
+  const winnerInfo = !winner
+    ? undefined
+    : {
+        id: winner.id,
+        name: winner.name,
+        pos: winner.pos,
+      };
 
-  emitWinner(io, room.id, winnerInfo, playerThatLeft);
+  emitGameEnded(io, room.id, winnerInfo, playerThatLeft);
 
-  const roomCapacity = room.capacity;
-  const members = room.players.length;
-  const isRoomFull = roomCapacity === members;
-
-  if (!isRoomFull) {
+  if (!isRoomFull(room)) {
     room.state = "WAITING";
 
     emitRoomData(io, room);
@@ -214,7 +210,7 @@ const handleExit = (io: AppServer, socket: AppSocket) => {
     const winner = game.players.find(filter);
     if (!winner) return;
 
-    finishGame(io, room, winner, player.name);
+    endGame(io, room, winner, player.name);
     return;
   }
 
@@ -230,4 +226,4 @@ const handleExit = (io: AppServer, socket: AppSocket) => {
   }
 };
 
-export { startTurn, finishGame, handleExit };
+export { startTurn, endGame, handleExit };

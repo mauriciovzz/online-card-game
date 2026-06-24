@@ -12,6 +12,7 @@ import {
   useRoomErrorHandler,
 } from "@/hooks";
 
+import { ERROR_CODES } from "@shared/constants";
 import type {
   SocketRes,
   GameState,
@@ -28,7 +29,6 @@ import type {
   Card,
 } from "@shared/types";
 import type { Items } from "@/types";
-import { ERROR_CODES } from "@shared/constants/errorCodes";
 
 type Move = Card & PlayedCard;
 

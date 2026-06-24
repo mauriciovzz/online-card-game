@@ -1,14 +1,13 @@
-import { aiService } from "@/services";
+import aiService from "./ai.service";
 import {
   playCard,
   endTurn,
   endStack,
   drawCard,
-} from "./gameActions";
+} from "../gameActions";
 import { getTurnData } from "@/utils/guards";
 
 import { AppServer } from "@/types";
-import logger from "@/utils/logger";
 
 const sleep = (ms: number) =>
   new Promise((resolve) => setTimeout(resolve, ms));
@@ -24,8 +23,6 @@ export const startAiTurn = async (
 
   const { room, game, state } = turnData;
 
-  logger.turnStart(state.name, game);
-
   await sleep(1200);
 
   // STACK RESPONSE
@@ -33,9 +30,9 @@ export const startAiTurn = async (
   if (game.currEffect) {
     const stackMove = aiService.getMove(game, state);
 
-    if (!stackMove) {
-      logger.info(`[${state.name}] ENDED STACK`);
+    await sleep(1200);
 
+    if (!stackMove) {
       endStack(io, turnData);
       return;
     }
@@ -57,20 +54,14 @@ export const startAiTurn = async (
   if (!move) {
     await sleep(1200);
 
-    const newHand = drawCard(io, turnData);
+    drawCard(io, turnData);
 
-    logger.drawCard(
-      state.name,
-      newHand.cards[0].raw,
-      state.cards.map((c) => c.raw)
-    );
+    await sleep(1200);
 
     move = aiService.getMove(game, state);
 
     // Still can't play
     if (!move) {
-      logger.info(`[${state.name}] ENDED TURN AFTER DRAWN`);
-
       endTurn(io, room.id, game);
       return;
     }
@@ -102,17 +93,12 @@ export const startAiTurn = async (
       if (!currTurnData) return;
 
       if (currTurnData.turn.currentPlayerId !== state.id) {
-        logger.info(`[${state.name}]: out of turn.`);
         return;
       }
 
       const nextMove = aiService.getChainMove(currTurnData);
 
       if (!nextMove) {
-        logger.info(
-          `[${state.name}] ENDED IN MIRROR / STAIR LOOP`
-        );
-
         endTurn(io, room.id, currTurnData.game);
         canPlay = false;
       } else {

@@ -13,7 +13,7 @@ import {
   AppTitle,
 } from "@/components";
 import {
-  CreateRoom,
+  CreateRoomForm,
   RoomList,
   UserNameInput,
 } from "./components";
@@ -25,10 +25,7 @@ export const HomePage = () => {
 
   const navigate = useNavigate();
 
-  const isListView = view === "list";
-  const buttonText = isListView
-    ? "room.create"
-    : "common.return";
+  const isList = view === "list";
 
   return (
     <MainLayout>
@@ -40,13 +37,14 @@ export const HomePage = () => {
       />
 
       <DeactivatableBox disabled={nameEditable}>
-        {isListView ? <RoomList /> : <CreateRoom />}
+        {isList ? <RoomList /> : <CreateRoomForm />}
       </DeactivatableBox>
 
+      {/* HomeBar */}
       <Group gap="sm" w="100%">
         <AppButton
           expand
-          text={buttonText}
+          text={isList ? "room.create" : "common.return"}
           onClick={toggleView}
           disabled={nameEditable}
         />
