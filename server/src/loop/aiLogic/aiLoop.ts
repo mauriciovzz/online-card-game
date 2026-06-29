@@ -4,15 +4,31 @@ import {
   endTurn,
   endStack,
   drawCard,
+  callUno,
 } from "../gameActions";
 import { getTurnData } from "@/utils/guards";
 
 import { AppServer } from "@/types";
+import { Game, PlayerState, Room } from "@shared/types";
 
 const sleep = (ms: number) =>
   new Promise((resolve) => setTimeout(resolve, ms));
 
 // ---------
+
+const aiUnoCall = (
+  io: AppServer,
+  state: PlayerState,
+  turnData: {
+    room: Room;
+    game: Game;
+    state: PlayerState;
+  }
+) => {
+  if (state.cards.length === 1 && Math.random() <= 0.7) {
+    callUno(io, turnData);
+  }
+};
 
 export const startAiTurn = async (
   io: AppServer,
@@ -34,6 +50,8 @@ export const startAiTurn = async (
 
     if (!stackMove) {
       endStack(io, turnData);
+
+      await sleep(1200);
       return;
     }
 
@@ -42,6 +60,9 @@ export const startAiTurn = async (
       chosenColor: stackMove.chosenColor,
     });
 
+    aiUnoCall(io, state, turnData);
+
+    await sleep(1200);
     return;
   }
 
@@ -63,6 +84,8 @@ export const startAiTurn = async (
     // Still can't play
     if (!move) {
       endTurn(io, room.id, game);
+
+      await sleep(1200);
       return;
     }
   }
@@ -73,6 +96,8 @@ export const startAiTurn = async (
     cardId: move.card.id,
     chosenColor: move.chosenColor,
   });
+
+  aiUnoCall(io, state, turnData);
 
   await sleep(1200);
 
@@ -107,7 +132,11 @@ export const startAiTurn = async (
         playCard(io, currTurnData, {
           cardId: nextMove.id,
         });
+
+        aiUnoCall(io, state, turnData);
       }
     }
   }
+
+  await sleep(1200);
 };

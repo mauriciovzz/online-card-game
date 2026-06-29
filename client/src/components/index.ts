@@ -2,6 +2,7 @@
 import { AppBox } from "./boxes/AppBox";
 import { DeactivatableBox } from "./boxes/DeactivatableBox";
 import { InfoBox } from "./boxes/InfoBox";
+import { SeatBox } from "./boxes/SeatBox";
 
 // buttons
 import { AppActionIcon } from "./buttons/AppActionIcon";
@@ -30,6 +31,7 @@ export {
   AppBox,
   DeactivatableBox,
   InfoBox,
+  SeatBox,
 
   // buttons
   AppActionIcon,

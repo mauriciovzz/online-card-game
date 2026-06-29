@@ -32,7 +32,7 @@ import {
   Pile,
   TurnIndicator,
   ColorPicker,
-  PlayersCards,
+  GameSeats,
 } from "./components";
 
 import moveHelper from "@shared/utils/moveHelper";
@@ -52,7 +52,8 @@ export const Game = () => {
 
   const [penCard, setPenCard] = useState<Card | null>(null);
 
-  const { room } = useRoom();
+  const { room, clientColor } = useRoom();
+
   const {
     game,
     items,
@@ -248,7 +249,7 @@ export const Game = () => {
               p="sm"
               pos="relative"
             >
-              <PlayersCards
+              <GameSeats
                 data={{
                   room,
                   game,
@@ -269,7 +270,7 @@ export const Game = () => {
                   cards={items.cards}
                   container={container}
                 />
-              </PlayersCards>
+              </GameSeats>
             </AppBox>
           </DragDropProvider>
 
@@ -280,6 +281,7 @@ export const Game = () => {
               canCallUno={items.cards.length === 1 && !uno}
               stack={room.rules.stack}
               funcs={funcs}
+              clientColor={clientColor}
             />
 
             {penCard && (

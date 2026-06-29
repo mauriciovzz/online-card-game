@@ -7,6 +7,7 @@ interface RoomContextTypes {
 
   room: Room;
   isAdmin: boolean;
+  clientColor: string;
 
   leaveRoom: () => void;
   stopGame: () => void;

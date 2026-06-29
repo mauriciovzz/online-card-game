@@ -54,6 +54,7 @@ export const es = {
     },
     settings: "Ajustes",
     leave: "Salir",
+    scores: "Puntuaciones",
   },
 
   rules: {

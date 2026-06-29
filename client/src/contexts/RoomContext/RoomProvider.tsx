@@ -7,7 +7,10 @@ import {
 } from "react";
 import { useNavigate, useParams } from "react-router";
 
-import { RESPONSE_METADATA } from "@/constants";
+import {
+  GAME_COLORS,
+  RESPONSE_METADATA,
+} from "@/constants";
 import { SpinnerLayout } from "@/layouts";
 import { useSocket } from "@/contexts/SocketContext";
 import {
@@ -50,6 +53,16 @@ export const RoomProvider = ({
     () => socket?.id === room?.adminId,
     [socket, room]
   );
+
+  const clientColor = useMemo(() => {
+    const client = room?.players.find(
+      (p) => p.id === socket?.id
+    );
+
+    if (!client) return "black";
+
+    return GAME_COLORS[client.pos - 1].hex;
+  }, [socket, room]);
 
   const handleNewData = useCallback((newData: Room) => {
     setRoom(newData);
@@ -184,6 +197,7 @@ export const RoomProvider = ({
 
         room,
         isAdmin,
+        clientColor,
 
         leaveRoom,
         stopGame,

@@ -150,9 +150,16 @@ const endGame = (
   io: AppServer,
   room: Room,
   winner?: PlayerState,
+  losers?: PlayerState[],
   playerThatLeft?: string
 ) => {
   gameService.cleanUp(room.id);
+
+  if (winner && losers) {
+    roomService.updateScore(room, winner.id, losers);
+  }
+
+  room.currWinner = winner ? winner.id : null;
 
   const winnerInfo = !winner
     ? undefined
@@ -162,6 +169,7 @@ const endGame = (
         pos: winner.pos,
       };
 
+  emitRoomData(io, room);
   emitGameEnded(io, room.id, winnerInfo, playerThatLeft);
 
   if (!isRoomFull(room)) {
@@ -210,7 +218,7 @@ const handleExit = (io: AppServer, socket: AppSocket) => {
     const winner = game.players.find(filter);
     if (!winner) return;
 
-    endGame(io, room, winner, player.name);
+    endGame(io, room, winner, undefined, player.name);
     return;
   }
 

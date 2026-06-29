@@ -13,7 +13,11 @@ import {
   InfoBox,
   SelectedRules,
 } from "@/components";
-import { RoomSeats, RoomUpdateForm } from "./components";
+import {
+  RoomUpdateForm,
+  ScoreBoard,
+  LobbySeats,
+} from "./components";
 
 import type { LobbyView } from "@/types";
 
@@ -55,9 +59,14 @@ export const Lobby = () => {
           />
         </Group>
 
-        <AppBox>
+        <AppBox pos="relative">
           {view === "main" ? (
-            <RoomSeats room={room} />
+            <LobbySeats room={room}>
+              <ScoreBoard
+                players={room.players}
+                winnerId={room.currWinner}
+              />
+            </LobbySeats>
           ) : (
             <RoomUpdateForm
               room={room}

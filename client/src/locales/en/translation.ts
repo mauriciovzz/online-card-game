@@ -54,6 +54,7 @@ export const en = {
     },
     settings: "Settings",
     leave: "Leave room",
+    score: "Scores",
   },
 
   rules: {

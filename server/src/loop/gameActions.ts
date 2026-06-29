@@ -6,6 +6,8 @@ import {
   emitPlayerHand,
   emitTurn,
   emitEffect,
+  emitUnoCall,
+  emitCutInfo,
 } from "@/utils/emiterHelper";
 
 import {
@@ -17,7 +19,7 @@ import {
   PlayedCard,
 } from "@shared/types";
 
-import { AppServer } from "@/types";
+import { AppServer, AppSocket } from "@/types";
 import { startTurn, endGame } from "./gameLoop";
 
 export const drawCard = (
@@ -80,6 +82,52 @@ export const endStack = (
   endTurn(io, room.id, game);
 };
 
+const aiCut = (
+  io: AppServer,
+  room: Room,
+  game: Game,
+  targetId: string,
+  cutter: PlayerState
+) => {
+  const target = game.players.find(
+    (p) => p.id === targetId
+  );
+
+  if (!target) return;
+  if (target.calledUno) return;
+  if (target.cards.length !== 1) return;
+  if (Math.random() > 0.7) return;
+
+  const data = {
+    room,
+    game,
+    cutted: target,
+    cutter,
+  };
+
+  callCut(io, data);
+};
+
+const scheduleAiCuts = (
+  io: AppServer,
+  room: Room,
+  game: Game,
+  targetId: string
+) => {
+  const aiPlayers = game.players.filter(
+    (p) => p.type === "ai" && p.id !== targetId
+  );
+
+  for (const ai of aiPlayers) {
+    const random = Math.floor(Math.random() * 10) + 1;
+    const delay = 5000 + random * 1000;
+
+    setTimeout(() => {
+      aiCut(io, room, game, targetId, ai);
+    }, delay);
+  }
+};
+
 export const playCard = (
   io: AppServer,
   turnData: {
@@ -116,8 +164,14 @@ export const playCard = (
   emitGameData(io, room.id, gameService.getState(game));
 
   if (state.cards.length === 0) {
-    endGame(io, room, state);
+    const losers = [...game.players];
+
+    endGame(io, room, state, losers);
     return;
+  }
+
+  if (state.cards.length === 1 && !state.calledUno) {
+    scheduleAiCuts(io, room, game, state.id);
   }
 
   // handle reverse card with 2 players
@@ -145,4 +199,58 @@ export const playCard = (
   if (!canContinueTurn) {
     endTurn(io, room.id, game);
   }
+};
+
+export const callUno = (
+  io: AppServer,
+  turnData: {
+    room: Room;
+    game: Game;
+    state: PlayerState;
+  },
+  socket?: AppSocket
+) => {
+  const { room, game, state } = turnData;
+
+  state.calledUno = true;
+
+  const gameState = gameService.getState(game);
+  emitGameData(io, room.id, gameState);
+
+  const notificationData = {
+    name: state.name,
+    pos: state.pos,
+  };
+
+  emitUnoCall(socket ?? io, room.id, notificationData);
+};
+
+export const callCut = (
+  io: AppServer,
+  turnData: {
+    room: Room;
+    game: Game;
+    cutter: PlayerState;
+    cutted: PlayerState;
+  },
+  socket?: AppSocket
+) => {
+  const { room, game, cutter, cutted } = turnData;
+
+  const updatedHand = deckHelper.draw(cutted, 2, game);
+  emitPlayerHand(io, cutted.id, updatedHand);
+
+  const gameState = gameService.getState(game);
+  emitGameData(io, room.id, gameState);
+
+  const cutInfo = {
+    cuttedId: cutted.id,
+    cuttedName: cutted.name,
+    cuttedPos: cutted.pos,
+
+    cutterName: cutter.name,
+    cutterPos: cutter.pos,
+  };
+
+  emitCutInfo(socket ?? io, room.id, cutInfo);
 };

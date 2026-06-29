@@ -1,4 +1,5 @@
 import { RoomUpdateForm } from "./RoomUpdateForm";
-import { RoomSeats } from "./RoomSeats";
+import { ScoreBoard } from "./ScoreBoard";
+import { LobbySeats } from "./LobbySeats";
 
-export { RoomUpdateForm, RoomSeats };
+export { LobbySeats, RoomUpdateForm, ScoreBoard };

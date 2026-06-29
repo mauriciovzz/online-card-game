@@ -7,6 +7,7 @@ interface Props {
   type?: "button" | "reset" | "submit";
   text: string;
   expand?: boolean;
+  color?: string;
   disabled?: boolean;
   onClick?: () => void;
 }
@@ -15,6 +16,7 @@ export const AppButton = ({
   type,
   text,
   expand,
+  color,
   disabled,
   onClick,
 }: Props) => {
@@ -24,7 +26,8 @@ export const AppButton = ({
   return (
     <Button
       type={type ?? "button"}
-      variant="default"
+      variant={color ? "outline" : "default"}
+      color={color ?? undefined}
       size={isMobile ? "md" : "sm"}
       flex={expand ? 1 : "none"}
       bdrs="md"

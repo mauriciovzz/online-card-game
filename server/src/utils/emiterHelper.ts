@@ -81,19 +81,19 @@ export const emitTurn = (
 };
 
 export const emitUnoCall = (
-  socket: AppSocket,
+  s: AppServer | AppSocket,
   roomId: string,
   data: NotificationInfo
 ) => {
-  socket.to(roomId).emit("game:unoCalled", data);
+  s.to(roomId).emit("game:unoCalled", data);
 };
 
 export const emitCutInfo = (
-  socket: AppSocket,
+  s: AppServer | AppSocket,
   roomId: string,
   data: CutInfo
 ) => {
-  socket.to(roomId).emit("game:gotCut", data);
+  s.to(roomId).emit("game:gotCut", data);
 };
 
 export const emitGameEnded = (

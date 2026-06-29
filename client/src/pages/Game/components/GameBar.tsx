@@ -26,10 +26,18 @@ interface Props {
     endStack: () => void;
     callUno: () => void;
   };
+  clientColor: string;
 }
 
 export const GameBar = (props: Props) => {
-  const { myTurn, turn, canCallUno, stack, funcs } = props;
+  const {
+    myTurn,
+    turn,
+    canCallUno,
+    stack,
+    funcs,
+    clientColor,
+  } = props;
 
   const { drawCard, endTurn, callUno, endStack } = funcs;
   const { cardDraw, cardPut } = turn;
@@ -45,6 +53,7 @@ export const GameBar = (props: Props) => {
         <AppButton
           expand
           text="game.dontStack"
+          color={clientColor}
           onClick={endStack}
         />
       ) : (

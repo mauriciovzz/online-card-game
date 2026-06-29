@@ -56,6 +56,9 @@ export interface Player {
   pos: PlayerPos;
   name: string;
   joinedAt: number;
+
+  wins: number;
+  points: number;
 }
 
 export interface HandState {
@@ -98,6 +101,7 @@ export interface Room extends RoomInfo {
 
   seats: RoomSeat[];
   players: Player[];
+  currWinner: string | null;
 }
 
 export interface CreateRoomProps extends RoomInfo {

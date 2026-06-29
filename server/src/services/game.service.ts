@@ -53,9 +53,15 @@ const createGame = (room: Room) => {
       calledUno: false,
     }));
 
+  const firstPlayer = room.currWinner ?? room.adminId;
+
+  const currPlayerIndex = room.players.findIndex(
+    (p) => p.id === firstPlayer
+  );
+
   const game: Game = {
     players,
-    currPlayerIndex: 0,
+    currPlayerIndex,
 
     deck,
     pile,

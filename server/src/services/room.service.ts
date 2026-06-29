@@ -8,6 +8,7 @@ import {
   RoomInfo,
   Player,
   RoomSeat,
+  PlayerState,
 } from "@shared/types";
 import {
   getSeatPlayer,
@@ -69,6 +70,9 @@ const create = (
         ...meta,
         type: "ai",
         joinedAt,
+
+        wins: 0,
+        points: 0,
       });
     }
 
@@ -98,9 +102,13 @@ const create = (
         pos: 1,
         type: "human",
         joinedAt,
+
+        wins: 0,
+        points: 0,
       },
       ...aiPlayers,
     ],
+    currWinner: null,
   });
 
   return id;
@@ -132,12 +140,55 @@ const updateSeat = (
       ...meta,
       type: "ai",
       joinedAt: new Date().getTime(),
+      wins: 0,
+      points: 0,
     });
   }
 
   room.seats.splice(index, 1, { pos, type });
 
   updateRoomState(room);
+};
+
+const updateScore = (
+  room: Room,
+  winnerId: string,
+  losers: PlayerState[]
+) => {
+  const player = room.players.find(
+    (p) => p.id === winnerId
+  );
+
+  if (player) {
+    const score = losers.reduce((total, player) => {
+      const handScore = player.cards.reduce(
+        (score, card) => {
+          switch (card.type) {
+            case "NUMBER":
+              return score + card.number;
+
+            case "SKIP":
+            case "REVERSE":
+            case "DRAW_TWO":
+              return score + 20;
+
+            case "DRAW_FOUR":
+            case "WILD_CARD":
+              return score + 50;
+
+            default:
+              return score;
+          }
+        },
+        0
+      );
+
+      return total + handScore;
+    }, 0);
+
+    player.wins += 1;
+    player.points += score;
+  }
 };
 
 const getAvailable = () => {
@@ -163,6 +214,8 @@ const join = (room: Room, playerId: string) => {
     name: users.get(playerId) ?? "",
     pos: avalilableSeat.pos,
     joinedAt: new Date().getTime(),
+    wins: 0,
+    points: 0,
   });
 
   updateRoomState(room);
@@ -187,6 +240,10 @@ const leave = (room: Room, playerId: string) => {
     updateRoomState(room);
   }
 
+  if (room.currWinner === playerId) {
+    room.currWinner = null;
+  }
+
   return true;
 };
 
@@ -194,6 +251,7 @@ export default {
   create,
   update,
   updateSeat,
+  updateScore,
   getAvailable,
   join,
   leave,

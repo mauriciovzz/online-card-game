@@ -140,7 +140,4 @@ const draw = (
   return updatedHand;
 };
 
-export default {
-  createDeck,
-  draw,
-};
+export default { createDeck, draw };

@@ -1,20 +1,14 @@
 import { gameService } from "@/services";
 import { turnGuard, gameGuard } from "@/utils/guards";
+import { notOk, ok } from "@/utils/emiterHelper";
 import {
-  emitCutInfo,
-  emitGameData,
-  emitPlayerHand,
-  emitUnoCall,
-  notOk,
-  ok,
-} from "@/utils/emiterHelper";
-import {
+  callCut,
+  callUno,
   drawCard,
   endStack,
   endTurn,
   playCard,
 } from "@/loop/gameActions";
-import deckHelper from "@/utils/deckHelper";
 
 import { CARD_COLORS } from "@shared/constants/cardVariables";
 import moveHelper from "@shared/utils/moveHelper";
@@ -178,30 +172,23 @@ export const gameSocket = (
     const gameData = gameGuard(socket, callback);
     if (!gameData) return;
 
-    const { room, game, state } = gameData;
-
-    if (state.cards.length !== 1) {
+    if (gameData.state.cards.length !== 1) {
       notOk(callback, ERROR_CODES.INVALID_UNO_CALL);
       return;
     }
 
-    if (state.calledUno) {
+    if (gameData.state.calledUno) {
       notOk(callback, ERROR_CODES.UNO_ALREADY_CALLED);
       return;
     }
 
-    state.calledUno = true;
-
-    const gameState = gameService.getState(game);
-    emitGameData(io, room.id, gameState);
-
     const notificationData = {
-      name: state.name,
-      pos: state.pos,
+      name: gameData.state.name,
+      pos: gameData.state.pos,
     };
 
     ok(callback, notificationData);
-    emitUnoCall(socket, room.id, notificationData);
+    callUno(io, gameData, socket);
   });
 
   socket.on("game:cutCall", ({ playerId }, callback) => {
@@ -224,22 +211,9 @@ export const gameSocket = (
       return;
     }
 
-    const updatedHand = deckHelper.draw(cutted, 2, game);
-    emitPlayerHand(io, cutted.id, updatedHand);
-
-    const gameState = gameService.getState(game);
-    emitGameData(io, room.id, gameState);
-
     ok(callback, { name: cutted.name, pos: cutted.pos });
 
-    const cutInfo = {
-      cuttedId: cutted.id,
-      cuttedName: cutted.name,
-      cuttedPos: cutted.pos,
-      cutterName: state.name,
-      cutterPos: state.pos,
-    };
-
-    emitCutInfo(socket, room.id, cutInfo);
+    const data = { room, game, cutted, cutter: state };
+    callCut(io, data, socket);
   });
 };
