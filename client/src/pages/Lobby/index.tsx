@@ -1,17 +1,16 @@
 import { useCallback, useState } from "react";
 import { Group, Stack } from "@mantine/core";
-import { IconSettings } from "@tabler/icons-react";
 
 import { useRoom } from "@/contexts/RoomContext";
 import { useChat } from "@/contexts/ChatContext";
 import {
-  AppActionIcon,
   AppBox,
   AppButton,
   AppTitle,
   ChatButton,
   InfoBox,
   SelectedRules,
+  SettingsButton,
 } from "@/components";
 import {
   RoomUpdateForm,
@@ -22,8 +21,7 @@ import {
 import type { LobbyView } from "@/types";
 
 export const Lobby = () => {
-  const { room, startGame, isAdmin, openSettings } =
-    useRoom();
+  const { room, startGame, isAdmin } = useRoom();
   const { openChat, closeChat } = useChat();
 
   const [view, setView] = useState<LobbyView>("main");
@@ -103,12 +101,7 @@ export const Lobby = () => {
           onClick={toggleChat}
         />
 
-        <AppActionIcon
-          expand={!isAdmin}
-          onClick={openSettings}
-        >
-          <IconSettings size={20} stroke={2} />
-        </AppActionIcon>
+        <SettingsButton />
       </Group>
     </>
   );

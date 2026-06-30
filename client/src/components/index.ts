@@ -8,7 +8,9 @@ import { SeatBox } from "./boxes/SeatBox";
 import { AppActionIcon } from "./buttons/AppActionIcon";
 import { AppButton } from "./buttons/AppButton";
 import { ChatButton } from "./buttons/ChatButton";
+import { HelpButton } from "./buttons/HelpButton";
 import { LangToggler } from "./buttons/LangToggler";
+import { SettingsButton } from "./buttons/SettingsButton";
 import { ThemeToggler } from "./buttons/ThemeToggler";
 
 // chat
@@ -18,11 +20,16 @@ import { Chat } from "./chat";
 import { FormInput } from "./forms/FormInput";
 import { RoomFormBase } from "./forms/RoomFormBase";
 
+// labels
+import { AppTitle } from "./labels/AppTitle";
+import { LabelWithPopover } from "./labels/LabelWithPopover";
+import { Label } from "./labels/Label";
+
+// modals
+import { HelpModal } from "./modals/HelpModal";
+import { RoomSettingsModal } from "./modals/RoomSettingsModal";
+
 // ui
-import { AppTitle } from "./ui/AppTitle";
-import { LabelWithPopover } from "./ui/LabelWithPopover";
-import { Label } from "./ui/Label";
-import { RoomSettingsModal } from "./ui/RoomSettingsModal";
 import { SelectedRules } from "./ui/SelectedRules";
 import { Spinner } from "./ui/Spinner";
 
@@ -37,7 +44,9 @@ export {
   AppActionIcon,
   AppButton,
   ChatButton,
+  HelpButton,
   LangToggler,
+  SettingsButton,
   ThemeToggler,
 
   // chat
@@ -47,11 +56,16 @@ export {
   FormInput,
   RoomFormBase,
 
-  // ui
+  // labels
   AppTitle,
   LabelWithPopover,
   Label,
+
+  // modals
+  HelpModal,
   RoomSettingsModal,
+
+  // ui
   SelectedRules,
   Spinner,
 };

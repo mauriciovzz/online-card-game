@@ -2,7 +2,7 @@ import { Route, Routes, Navigate } from "react-router";
 import { Notifications } from "@mantine/notifications";
 
 import { useIsMobile } from "./hooks/useIsMobile";
-import { HomePage, Room, GameTest } from "@/pages";
+import { HomePage, Room } from "@/pages";
 import { RoomContextLayout } from "./layouts";
 
 export const App = () => {
@@ -20,11 +20,10 @@ export const App = () => {
 
       <Routes>
         <Route path="/" element={<HomePage />} />
+
         <Route element={<RoomContextLayout />}>
           <Route path="/room/:roomId" element={<Room />} />
         </Route>
-
-        <Route path="/game-test" element={<GameTest />} />
 
         <Route
           path="/*"

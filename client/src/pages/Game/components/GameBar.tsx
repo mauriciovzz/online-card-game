@@ -2,15 +2,14 @@ import { Group } from "@mantine/core";
 import {
   IconNumber1,
   IconPlayerSkipForwardFilled,
-  IconSettings,
 } from "@tabler/icons-react";
 
-import { useRoom } from "@/contexts/RoomContext";
 import { useChat } from "@/contexts/ChatContext";
 import {
   AppActionIcon,
   AppButton,
   ChatButton,
+  SettingsButton,
 } from "@/components";
 
 import type { Turn } from "@shared/types";
@@ -42,7 +41,6 @@ export const GameBar = (props: Props) => {
   const { drawCard, endTurn, callUno, endStack } = funcs;
   const { cardDraw, cardPut } = turn;
 
-  const { openSettings } = useRoom();
   const { openChat } = useChat();
 
   const canStack = myTurn && turn.effect !== null && stack;
@@ -85,9 +83,7 @@ export const GameBar = (props: Props) => {
 
       <ChatButton onClick={() => openChat()} />
 
-      <AppActionIcon onClick={openSettings}>
-        <IconSettings size={20} stroke={2} />
-      </AppActionIcon>
+      <SettingsButton />
     </Group>
   );
 };

@@ -1,29 +1,28 @@
 import { useState } from "react";
 import { Group } from "@mantine/core";
 import { useToggle } from "@mantine/hooks";
-import { IconQuestionMark } from "@tabler/icons-react";
 
 import { MainLayout } from "@/layouts";
 import {
   ThemeToggler,
   AppButton,
   LangToggler,
-  AppActionIcon,
   DeactivatableBox,
   AppTitle,
+  HelpModal,
+  HelpButton,
 } from "@/components";
 import {
   CreateRoomForm,
   RoomList,
   UserNameInput,
 } from "./components";
-import { useNavigate } from "react-router";
 
 export const HomePage = () => {
   const [view, toggleView] = useToggle(["list", "create"]);
   const [nameEditable, setNameEditable] = useState(false);
 
-  const navigate = useNavigate();
+  const [helpOpened, setHelpOpened] = useState(false);
 
   const isList = view === "list";
 
@@ -49,16 +48,17 @@ export const HomePage = () => {
           disabled={nameEditable}
         />
 
-        <AppActionIcon
-          onClick={() => void navigate("/game-test")}
-        >
-          <IconQuestionMark size={20} stroke={2} />
-        </AppActionIcon>
+        <HelpButton onClick={() => setHelpOpened(true)} />
 
         <LangToggler />
 
         <ThemeToggler />
       </Group>
+
+      <HelpModal
+        opened={helpOpened}
+        onClose={() => setHelpOpened(false)}
+      />
     </MainLayout>
   );
 };
