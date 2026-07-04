@@ -40,14 +40,14 @@ export const RoomSettingsModal = () => {
       >
         <Stack gap="sm">
           <Group gap="sm">
-            <LangToggler expand />
-
-            <ThemeToggler expand />
-
             <HelpButton
               expand
               onClick={() => setHelpOpened(true)}
             />
+
+            <LangToggler expand />
+
+            <ThemeToggler expand />
           </Group>
 
           {isAdmin && roomView === "game" && (

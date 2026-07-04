@@ -119,8 +119,8 @@ const scheduleAiCuts = (
   );
 
   for (const ai of aiPlayers) {
-    const random = Math.floor(Math.random() * 10) + 1;
-    const delay = 5000 + random * 1000;
+    const random = Math.floor(Math.random() * 7) + 1;
+    const delay = 3000 + random * 1000;
 
     setTimeout(() => {
       aiCut(io, room, game, targetId, ai);

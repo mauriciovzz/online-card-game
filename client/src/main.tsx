@@ -9,6 +9,7 @@ import "./i18n";
 
 import "@mantine/core/styles.css";
 import "@mantine/notifications/styles.css";
+import "@mantine/carousel/styles.css";
 
 import { CardsProvider } from "./contexts/CardsContext";
 import { SocketProvider } from "@/contexts/SocketContext";
