@@ -1,4 +1,4 @@
-import aiService from "./ai.service";
+import botService from "./bot.service";
 import {
   playCard,
   endTurn,
@@ -16,7 +16,7 @@ const sleep = (ms: number) =>
 
 // ---------
 
-const aiUnoCall = (
+const botUnoCall = (
   io: AppServer,
   state: PlayerState,
   turnData: {
@@ -30,7 +30,7 @@ const aiUnoCall = (
   }
 };
 
-export const startAiTurn = async (
+export const startBotTurn = async (
   io: AppServer,
   roomId: string
 ) => {
@@ -44,7 +44,7 @@ export const startAiTurn = async (
   // STACK RESPONSE
 
   if (game.currEffect) {
-    const stackMove = aiService.getMove(game, state);
+    const stackMove = botService.getMove(game, state);
 
     await sleep(1200);
 
@@ -60,7 +60,7 @@ export const startAiTurn = async (
       chosenColor: stackMove.chosenColor,
     });
 
-    aiUnoCall(io, state, turnData);
+    botUnoCall(io, state, turnData);
 
     await sleep(1200);
     return;
@@ -68,7 +68,7 @@ export const startAiTurn = async (
 
   // NORMAL PLAY
 
-  let move = aiService.getMove(game, state);
+  let move = botService.getMove(game, state);
 
   // DRAW
 
@@ -79,7 +79,7 @@ export const startAiTurn = async (
 
     await sleep(1200);
 
-    move = aiService.getMove(game, state);
+    move = botService.getMove(game, state);
 
     // Still can't play
     if (!move) {
@@ -97,7 +97,7 @@ export const startAiTurn = async (
     chosenColor: move.chosenColor,
   });
 
-  aiUnoCall(io, state, turnData);
+  botUnoCall(io, state, turnData);
 
   await sleep(1200);
 
@@ -121,7 +121,8 @@ export const startAiTurn = async (
         return;
       }
 
-      const nextMove = aiService.getChainMove(currTurnData);
+      const nextMove =
+        botService.getChainMove(currTurnData);
 
       if (!nextMove) {
         endTurn(io, room.id, currTurnData.game);
@@ -133,7 +134,7 @@ export const startAiTurn = async (
           cardId: nextMove.id,
         });
 
-        aiUnoCall(io, state, turnData);
+        botUnoCall(io, state, turnData);
       }
     }
   }

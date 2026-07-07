@@ -18,9 +18,9 @@ export const PLAYER_TYPES: {
     icon: IconMan,
   },
   {
-    key: "ai",
-    name: "room.seats.ai",
-    description: "room.seats.aiDescription",
+    key: "bot",
+    name: "room.seats.bot",
+    description: "room.seats.botDescription",
     icon: IconRobot,
   },
 ];

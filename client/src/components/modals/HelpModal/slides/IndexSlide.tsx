@@ -137,7 +137,7 @@ export const IndexSlide = ({ embla }: Props) => {
 
       <Divider />
 
-      <Stack gap={12}>
+      <Stack gap={12} style={{ userSelect: "none" }}>
         <Stack gap={0}>
           <Text ta="center" size="sm">
             {t("help.index.devBy")}

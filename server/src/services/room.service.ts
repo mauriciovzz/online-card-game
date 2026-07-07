@@ -15,25 +15,25 @@ import {
   updateRoomState,
 } from "@/utils/seatsHelper";
 
-const AI_PLAYER_METADATA = {
+const BOTS_METADATA = {
   1: {
-    id: "AI-RED",
-    name: "ROBOT-1",
+    id: "BOT-1",
+    name: "BOT-1",
     pos: 1,
   },
   2: {
-    id: "AI-BLUE",
-    name: "ROBOT-2",
+    id: "BOT-2",
+    name: "BOT-2",
     pos: 2,
   },
   3: {
-    id: "AI-YELLOW",
-    name: "ROBOT-3",
+    id: "BOT-3",
+    name: "BOT-3",
     pos: 3,
   },
   4: {
-    id: "AI-GREEN",
-    name: "ROBOT-4",
+    id: "BOT-4",
+    name: "BOT-4",
     pos: 4,
   },
 } as const;
@@ -55,7 +55,7 @@ const create = (
   const joinedAt = new Date().getTime();
 
   const otherSeats: RoomSeat[] = [];
-  const aiPlayers: Player[] = [];
+  const bots: Player[] = [];
 
   for (let i = 2; i < 5; i++) {
     const seat = payload.seats.find(
@@ -63,12 +63,12 @@ const create = (
     );
     if (!seat) break;
 
-    if (seat.type === "ai") {
-      const meta = AI_PLAYER_METADATA[i as 2 | 3 | 4];
+    if (seat.type === "bot") {
+      const meta = BOTS_METADATA[i as 2 | 3 | 4];
 
-      aiPlayers.push({
+      bots.push({
         ...meta,
-        type: "ai",
+        type: "bot",
         joinedAt,
 
         wins: 0,
@@ -80,8 +80,7 @@ const create = (
   }
 
   const state =
-    aiPlayers.length ===
-    otherSeats.filter((s) => s.type).length
+    bots.length === otherSeats.filter((s) => s.type).length
       ? "FULL"
       : "WAITING";
 
@@ -106,7 +105,7 @@ const create = (
         wins: 0,
         points: 0,
       },
-      ...aiPlayers,
+      ...bots,
     ],
     currWinner: null,
   });
@@ -126,19 +125,19 @@ const updateSeat = (
 ) => {
   const index = room.seats.findIndex((s) => s.pos === pos);
 
-  if (room.seats[index].type === "ai" && !type) {
-    const aiPlayer = getSeatPlayer(room, pos);
-    if (!aiPlayer) return;
+  if (room.seats[index].type === "bot" && !type) {
+    const bot = getSeatPlayer(room, pos);
+    if (!bot) return;
 
-    leave(room, aiPlayer.id);
+    leave(room, bot.id);
   }
 
-  if (type === "ai") {
-    const meta = AI_PLAYER_METADATA[pos as 1 | 2 | 3 | 4];
+  if (type === "bot") {
+    const meta = BOTS_METADATA[pos as 1 | 2 | 3 | 4];
 
     room.players.push({
       ...meta,
-      type: "ai",
+      type: "bot",
       joinedAt: new Date().getTime(),
       wins: 0,
       points: 0,

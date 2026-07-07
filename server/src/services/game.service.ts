@@ -9,6 +9,7 @@ import {
   GameState,
   Player,
   HandState,
+  Turn,
 } from "@shared/types";
 
 const getNextPlayerIndex = (game: Game) => {
@@ -92,13 +93,28 @@ const createTurn = (
 
     currentPlayerId,
 
-    cardPut: false,
-    cardDraw: false,
+    actions: {
+      draw: true,
+      play: true,
+      end: false,
+    },
   };
 
   turns.set(roomId, turn);
 
   return turn;
+};
+
+const afterDraw = (turn: Turn) => {
+  turn.actions.draw = false;
+  turn.actions.play = true;
+  turn.actions.end = true;
+};
+
+const afterPlay = (turn: Turn) => {
+  turn.actions.draw = false;
+  turn.actions.play = false;
+  turn.actions.end = true;
 };
 
 const getState = (game: Game): GameState => ({
@@ -217,6 +233,10 @@ const leave = (game: Game, playerId: string) => {
 export default {
   createGame,
   createTurn,
+
+  afterDraw,
+  afterPlay,
+
   getHand,
   getState,
   autoDraw,

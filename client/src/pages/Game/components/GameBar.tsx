@@ -39,7 +39,7 @@ export const GameBar = (props: Props) => {
   } = props;
 
   const { drawCard, endTurn, callUno, endStack } = funcs;
-  const { cardDraw, cardPut } = turn;
+  const { draw, end } = turn.actions;
 
   const { openChat } = useChat();
 
@@ -60,10 +60,10 @@ export const GameBar = (props: Props) => {
             expand
             text="game.draw"
             onClick={drawCard}
-            disabled={!myTurn || cardDraw || cardPut}
+            disabled={!myTurn || !draw}
           />
           <AppActionIcon
-            disabled={!myTurn || (!cardDraw && !cardPut)}
+            disabled={!myTurn || !end}
             onClick={endTurn}
           >
             <IconPlayerSkipForwardFilled

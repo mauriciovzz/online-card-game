@@ -5,7 +5,7 @@ interface Props {
 }
 
 export const SlideList = ({ items }: Props) => (
-  <List size="sm">
+  <List size="sm" style={{ userSelect: "none" }}>
     {items.map((item) => (
       <List.Item key={item}>{item}</List.Item>
     ))}

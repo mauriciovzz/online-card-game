@@ -105,31 +105,37 @@ export const Game = () => {
       if (targetId === "pile" && myTurn) {
         if (!card || penCard) return;
 
-        const canPlayAgain =
-          room.rules.stair || room.rules.mirror;
-
-        let isValid = false;
+        const { stair, mirror } = room.rules;
+        const canChain = stair || mirror;
 
         const topCard = items.pile[items.pile.length - 1];
 
-        if (items.cards.length === 1) {
-          isValid = card.type === "NUMBER";
-        } else if (turn?.effect) {
+        const isLastCard = items.cards.length === 1;
+
+        const hasPlayed = !turn?.actions.play;
+        const isChainMove = hasPlayed && canChain;
+
+        const validateMove = () =>
+          isChainMove
+            ? moveHelper.checkChainMove(
+                topCard,
+                card,
+                room.rules
+              )
+            : moveHelper.checkMove(topCard, card);
+
+        let isValid = false;
+
+        if (turn?.effect) {
           isValid = turn.effect === card.type;
+        } else if (isLastCard) {
+          const isNumericCard = card.type === "NUMBER";
+          isValid = isNumericCard && validateMove();
         } else {
-          if (turn?.cardPut && canPlayAgain) {
-            isValid = moveHelper.checkChainMove(
-              topCard,
-              card,
-              room.rules
-            );
-          } else {
-            isValid = moveHelper.checkMove(topCard, card);
-          }
+          isValid = validateMove();
         }
 
         setValidMove(isValid);
-
         return;
       }
 
@@ -147,8 +153,8 @@ export const Game = () => {
       room.rules,
       items.pile,
       items.cards.length,
+      turn?.actions.play,
       turn?.effect,
-      turn?.cardPut,
     ]
   );
 

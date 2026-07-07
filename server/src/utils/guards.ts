@@ -21,6 +21,8 @@ import {
   isSeatOccupied,
 } from "./seatsHelper";
 
+const BOT_NAMES = ["BOT-1", "BOT-2", "BOT-3", "BOT-4"];
+
 export const checkUserName = <T>(
   newName: string,
   callback: SocketCallback<T>
@@ -35,7 +37,10 @@ export const checkUserName = <T>(
     return false;
   }
 
-  const isTaken = [...users.values()].includes(newName);
+  const isTaken = [
+    ...users.values(),
+    ...BOT_NAMES,
+  ].includes(newName);
 
   if (isTaken) {
     notOk(callback, ERROR_CODES.NAME_TAKEN);

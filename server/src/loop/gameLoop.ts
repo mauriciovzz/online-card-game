@@ -24,7 +24,7 @@ import {
   Player,
 } from "@shared/types";
 import { AppServer, AppSocket } from "@/types";
-import { startAiTurn } from "./aiLogic/aiLoop";
+import { startBotTurn } from "./botLogic/BotLoop";
 import { endTurn } from "./gameActions";
 import { isRoomFull } from "@/utils/seatsHelper";
 
@@ -51,7 +51,7 @@ const timeout = (
         : undefined
     );
   } else {
-    const hadToDraw = !turn.cardPut && !turn.cardDraw;
+    const hadToDraw = turn.actions.draw;
 
     if (hadToDraw) {
       const updatedHand = gameService.autoDraw(game);
@@ -79,7 +79,6 @@ const applyPendingEffect = (
 
   if (currEffect !== "SKIP" && updatedHand) {
     emitPlayerHand(io, affectedPlayer.id, updatedHand);
-
     emitGameData(io, room.id, gameService.getState(game));
   }
 
@@ -110,7 +109,9 @@ const startTurn = (io: AppServer, roomId: string) => {
         (c) => c.type === currEffect
       );
 
-      if (!canPlay) {
+      const hasOneCard = affectedPlayer.cards.length === 1;
+
+      if (!canPlay || hasOneCard) {
         applyPendingEffect(io, room, game);
       }
     } else {
@@ -132,8 +133,8 @@ const startTurn = (io: AppServer, roomId: string) => {
 
   const currentPlayer = game.players[currPlayerIndex];
 
-  if (currentPlayer.type === "ai") {
-    void startAiTurn(io, room.id);
+  if (currentPlayer.type === "bot") {
+    void startBotTurn(io, room.id);
     return;
   }
 

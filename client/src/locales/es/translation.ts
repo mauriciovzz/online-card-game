@@ -2,7 +2,7 @@ export const es = {
   common: {
     return: "Regresar",
     save: "Guardar Cambios",
-    lang: "EN",
+    lang: "ES",
     you: "Tú",
   },
 
@@ -34,8 +34,8 @@ export const es = {
 
       human: "Humano",
       humanDescription: "El asiento es para humanos",
-      ai: "IA",
-      aiDescription: "El asiento es para una IA",
+      bot: "Bot",
+      botDescription: "El asiento es para un bot",
     },
     create: "Crear Sala",
     join: "Unirse a una sala",

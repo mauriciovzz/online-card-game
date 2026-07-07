@@ -48,7 +48,7 @@ export interface PlayedCard {
 /* PLAYERS */
 export type PlayerPos = 1 | 2 | 3 | 4;
 
-export type PlayerType = "human"  | "ai";
+export type PlayerType = "human"  | "bot";
 
 export interface Player {
   id: string;
@@ -143,8 +143,11 @@ export interface Turn {
 
   currentPlayerId: string;
 
-  cardPut: boolean;
-  cardDraw: boolean;
+  actions: {
+    draw: boolean;
+    play: boolean;
+    end: boolean;
+  }
 }
 
 /* CHAT */

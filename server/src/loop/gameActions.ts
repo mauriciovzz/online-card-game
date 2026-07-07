@@ -33,7 +33,7 @@ export const drawCard = (
 ) => {
   const { room, game, turn, state } = turnData;
 
-  turn.cardDraw = true;
+  gameService.afterDraw(turn);
   emitTurn(io, room.id, turn);
 
   const updatedHand = deckHelper.draw(state, 1, game);
@@ -82,7 +82,7 @@ export const endStack = (
   endTurn(io, room.id, game);
 };
 
-const aiCut = (
+const botCut = (
   io: AppServer,
   room: Room,
   game: Game,
@@ -108,22 +108,22 @@ const aiCut = (
   callCut(io, data);
 };
 
-const scheduleAiCuts = (
+const scheduleBotCuts = (
   io: AppServer,
   room: Room,
   game: Game,
   targetId: string
 ) => {
-  const aiPlayers = game.players.filter(
-    (p) => p.type === "ai" && p.id !== targetId
+  const bots = game.players.filter(
+    (p) => p.type === "bot" && p.id !== targetId
   );
 
-  for (const ai of aiPlayers) {
+  for (const bot of bots) {
     const random = Math.floor(Math.random() * 7) + 1;
     const delay = 3000 + random * 1000;
 
     setTimeout(() => {
-      aiCut(io, room, game, targetId, ai);
+      botCut(io, room, game, targetId, bot);
     }, delay);
   }
 };
@@ -156,13 +156,11 @@ export const playCard = (
 
   game.pile.push(card);
   game.topCard = card;
+
   gameService.applyEffect(game, card.type);
-
-  turn.cardPut = true;
-
-  emitTurn(io, room.id, turn);
   emitGameData(io, room.id, gameService.getState(game));
 
+  // win
   if (state.cards.length === 0) {
     const losers = [...game.players];
 
@@ -170,15 +168,16 @@ export const playCard = (
     return;
   }
 
+  // schedule cut calls
   if (state.cards.length === 1 && !state.calledUno) {
-    scheduleAiCuts(io, room, game, state.id);
+    scheduleBotCuts(io, room, game, state.id);
   }
 
   // handle reverse card with 2 players
-  const twoPlayers = room.players.length === 2;
-  const reverseCard = card.type === "REVERSE";
-
-  if (twoPlayers && reverseCard) {
+  if (
+    room.players.length === 2 &&
+    card.type === "REVERSE"
+  ) {
     gameService.advanceTurn(game);
 
     const player = game.players[game.currPlayerIndex];
@@ -190,15 +189,17 @@ export const playCard = (
 
   // handle chain rules
   const { mirror, stair } = room.rules;
+  const canChain = mirror || stair;
 
-  const hasChainRule = mirror || stair;
   const playedNumberCard = card.type === "NUMBER";
 
-  const canContinueTurn = hasChainRule && playedNumberCard;
-
-  if (!canContinueTurn) {
-    endTurn(io, room.id, game);
+  if (canChain && playedNumberCard) {
+    gameService.afterPlay(turn);
+    emitTurn(io, room.id, turn);
+    return;
   }
+
+  endTurn(io, room.id, game);
 };
 
 export const callUno = (

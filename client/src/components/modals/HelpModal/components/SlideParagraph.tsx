@@ -10,6 +10,7 @@ export const SlideParagraph = ({ text }: Props) => (
     ta="justify"
     textWrap="pretty"
     inline={true}
+    style={{ userSelect: "none" }}
   >
     {text}
   </Text>

@@ -28,10 +28,10 @@ export const AppActionIcon = ({
       h={size}
       w={expand ? "100%" : size}
       flex={expand ? 1 : "none"}
-      bdrs="md"
-      disabled={disabled}
-      onClick={onClick}
       p={isMobile ? 11 : 7}
+      bdrs="md"
+      onClick={onClick}
+      disabled={disabled}
     >
       {children}
     </ActionIcon>

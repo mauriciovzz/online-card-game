@@ -70,9 +70,9 @@ export const gameSocket = (
     }
 
     const { rules } = room;
-    const canPlayAgain = rules.stair || rules.mirror;
+    const canChain = rules.stair || rules.mirror;
 
-    // stack on
+    // stack response
     if (game.currEffect) {
       const isValid = game.currEffect === type;
 
@@ -83,7 +83,7 @@ export const gameSocket = (
     }
 
     // stair on / mirror on
-    else if (turn.cardPut && canPlayAgain) {
+    else if (canChain && !turn.actions.play) {
       const isValid = moveHelper.checkChainMove(
         game.topCard,
         card,
@@ -96,9 +96,9 @@ export const gameSocket = (
       }
     }
 
-    // first move
+    // normal first play
     else {
-      if (turn.cardPut) {
+      if (!turn.actions.play) {
         notOk(callback, ERROR_CODES.ALREADY_PLAYED);
         return;
       }
@@ -123,18 +123,14 @@ export const gameSocket = (
     if (!turnData) return;
 
     const { game, turn } = turnData;
+    const { draw } = turn.actions;
 
     if (game.currEffect) {
       notOk(callback, ERROR_CODES.EFFECT_ON);
       return;
     }
 
-    if (turn.cardPut) {
-      notOk(callback, ERROR_CODES.ALREADY_PLAYED);
-      return;
-    }
-
-    if (turn.cardDraw) {
+    if (!draw) {
       notOk(callback, ERROR_CODES.ALREADY_DRAW);
       return;
     }
@@ -149,9 +145,7 @@ export const gameSocket = (
 
     const { room, game, turn } = turnData;
 
-    const notPlayed = !turn.cardPut && !turn.cardDraw;
-
-    if (notPlayed) {
+    if (!turn.actions.end) {
       notOk(callback, ERROR_CODES.TURN_INCOMPLETE);
       return;
     }
