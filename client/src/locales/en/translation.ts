@@ -4,6 +4,9 @@ export const en = {
     save: "Save Changes",
     lang: "EN",
     you: "You",
+    rotate: "Rotate your device",
+    rotateDesc:
+      "This game is designed to be played in portrait mode on smaller screens",
   },
 
   user: {
@@ -54,7 +57,7 @@ export const en = {
     },
     settings: "Settings",
     leave: "Leave room",
-    score: "Scores",
+    scores: "Scores",
   },
 
   rules: {
@@ -254,6 +257,31 @@ export const en = {
         "Leave the room",
       ],
       host: "If you are the room host during a game, you can also return everyone to the lobby.",
+    },
+    install: {
+      heading: "Install the App",
+      android: {
+        heading: "Android (Chrome)",
+        steps: [
+          "Open the game in Google Chrome.",
+          "Tap the ⋮ (three dots) menu in the top-right corner.",
+          'Select "Install app" or "Add to Home screen".',
+          'Tap "Install" to confirm.',
+          "The game will be added to your home screen and can be launched like any other app.",
+        ],
+        tips: "On some Android devices, Chrome may automatically display an Install banner when the app is available.",
+      },
+      ios: {
+        heading: "iPhone & iPad (Safari)",
+        steps: [
+          "Open the game in Safari.",
+          "Tap the Share button (the square with an upward arrow).",
+          'Scroll down and tap "Add to Home Screen".',
+          "Optionally, edit the app name.",
+          'Tap "Add". The game will appear on your home screen and can be opened like a native app.',
+        ],
+        tips: "Installing the app on iOS only works in Safari.",
+      },
     },
   },
 

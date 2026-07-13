@@ -1,35 +1,21 @@
 import { Route, Routes, Navigate } from "react-router";
-import { Notifications } from "@mantine/notifications";
 
-import { useIsMobile } from "./hooks/useIsMobile";
+import { MainLayout, RoomContextLayout } from "./layouts";
 import { HomePage, Room } from "@/pages";
-import { RoomContextLayout } from "./layouts";
 
-export const App = () => {
-  const isMobile = useIsMobile();
+export const App = () => (
+  <Routes>
+    <Route path="/" element={<MainLayout />}>
+      <Route index element={<HomePage />} />
 
-  return (
-    <>
-      <Notifications
-        position="top-center"
-        containerWidth={isMobile ? "100%" : 335}
-        notificationMaxHeight={44.19}
-        pauseResetOnHover="notification"
-        styles={{ notification: { shadow: "none" } }}
+      <Route element={<RoomContextLayout />}>
+        <Route path="/room/:roomId" element={<Room />} />
+      </Route>
+
+      <Route
+        path="/*"
+        element={<Navigate to="/" replace />}
       />
-
-      <Routes>
-        <Route path="/" element={<HomePage />} />
-
-        <Route element={<RoomContextLayout />}>
-          <Route path="/room/:roomId" element={<Room />} />
-        </Route>
-
-        <Route
-          path="/*"
-          element={<Navigate to="/" replace />}
-        />
-      </Routes>
-    </>
-  );
-};
+    </Route>
+  </Routes>
+);

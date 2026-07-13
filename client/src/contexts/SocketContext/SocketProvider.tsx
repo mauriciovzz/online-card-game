@@ -7,8 +7,10 @@ import {
 } from "react";
 import { io, Socket } from "socket.io-client";
 
+import { MainLayout } from "@/layouts";
 import { SocketContext } from "./SocketContext";
-import { SpinnerLayout } from "@/layouts";
+import { useCardsMap } from "../CardsContext";
+import { Spinner } from "@/components";
 
 import type {
   Room,
@@ -16,7 +18,6 @@ import type {
   UserName,
   SuccessResponse,
 } from "@shared/types";
-import { useCardsMap } from "../CardsContext";
 
 const SOCKET_URL = import.meta.env.VITE_SOCKET_URL;
 
@@ -83,7 +84,11 @@ export const SocketProvider = ({ children }: Props) => {
     !areRoomsReady ||
     rooms === null
   ) {
-    return <SpinnerLayout />;
+    return (
+      <MainLayout>
+        <Spinner />
+      </MainLayout>
+    );
   }
 
   return (

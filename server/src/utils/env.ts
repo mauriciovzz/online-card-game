@@ -12,4 +12,5 @@ export const env = {
   HOST: required("HOST"),
   SERVER_PORT: required("SERVER_PORT"),
   CLIENT_PORT: required("CLIENT_PORT"),
+  CLIENT_BUILD_PORT: required("CLIENT_BUILD_PORT"),
 };

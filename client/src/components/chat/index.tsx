@@ -6,21 +6,17 @@ import {
   Divider,
   Flex,
   Text,
+  Paper,
 } from "@mantine/core";
 import { useForm } from "@mantine/form";
 
 import { useChat } from "@/contexts/ChatContext";
-import {
-  useIsDark,
-  useIsMobile,
-  useThemeColor,
-} from "@/hooks";
+import { useIsMobile, useThemeColor } from "@/hooks";
 import {
   useReadObserver,
   useScroll,
   useScrollHeight,
 } from "./chatHooks";
-import { AppBox } from "@/components";
 import {
   MessageBubble,
   Scroll,
@@ -29,15 +25,18 @@ import {
 
 type MsgsRef = Map<string, HTMLDivElement>;
 
-export const Chat = () => {
+interface Props {
+  layoutHeight: number;
+}
+
+export const Chat = ({ layoutHeight }: Props) => {
   const { t } = useTranslation();
 
   const isMobile = useIsMobile();
   const themeColor = useThemeColor();
-  const isDark = useIsDark();
 
   const { top, outerHeight, innerHeight } = useScrollHeight(
-    { isMobile }
+    { layoutHeight, isMobile }
   );
 
   const {
@@ -113,16 +112,19 @@ export const Chat = () => {
   });
 
   return (
-    <AppBox
+    <Paper
       w="100%"
+      maw={335}
       h={outerHeight}
-      bg={isDark ? "dark.7" : "white"}
+      withBorder
+      bdrs="md"
       style={{
         top,
         visibility: chatOpened ? "visible" : "hidden",
         position: "absolute",
         pointerEvents: chatOpened ? "auto" : "none",
-        zIndex: 1000,
+        zIndex: 700,
+        contentBox: "border-box",
       }}
     >
       <Stack w="100%" gap={5} p="sm">
@@ -203,6 +205,6 @@ export const Chat = () => {
           />
         </form>
       </Stack>
-    </AppBox>
+    </Paper>
   );
 };

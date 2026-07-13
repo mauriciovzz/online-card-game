@@ -1,7 +1,8 @@
-import { Flex, Stack, Text } from "@mantine/core";
+import { Text } from "@mantine/core";
 import { useTranslation } from "react-i18next";
 
 import { useIsDark, useThemeColor } from "@/hooks";
+import { AppBox } from "./AppBox";
 
 const DisabledOverlay = ({
   isDark,
@@ -11,12 +12,9 @@ const DisabledOverlay = ({
   const { t } = useTranslation();
 
   return (
-    <Flex
-      w="100%"
-      h="100%"
-      align="center"
-      justify="center"
+    <AppBox
       pos="absolute"
+      align={undefined}
       style={(theme) => ({
         inset: 0,
         backgroundColor: isDark
@@ -26,6 +24,7 @@ const DisabledOverlay = ({
       })}
     >
       <Text
+        mt="sm"
         fw={700}
         style={(theme) => ({
           userSelect: "none",
@@ -36,7 +35,7 @@ const DisabledOverlay = ({
       >
         {t("user.name.finishUpdate")}
       </Text>
-    </Flex>
+    </AppBox>
   );
 };
 
@@ -53,11 +52,7 @@ export const DeactivatableBox = ({
   const themeColor = useThemeColor();
 
   return (
-    <Stack
-      w="100%"
-      h="100%"
-      gap={0}
-      bdrs="md"
+    <AppBox
       pos="relative"
       style={(theme) => {
         const borderColor = disabled
@@ -67,14 +62,14 @@ export const DeactivatableBox = ({
           : themeColor;
 
         return {
-          border: `1px solid ${borderColor}`,
           overflow: "hidden",
+          border: `1px solid ${borderColor}`,
         };
       }}
     >
       {children}
 
       {disabled && <DisabledOverlay isDark={isDark} />}
-    </Stack>
+    </AppBox>
   );
 };

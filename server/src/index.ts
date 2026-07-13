@@ -17,7 +17,9 @@ const io: AppServer = new Server(httpServer, {
   cors: {
     origin: [
       "http://localhost:5173",
+      "http://localhost:4173",
       `${env.HOST}:${env.CLIENT_PORT}`,
+      `${env.HOST}:${env.CLIENT_BUILD_PORT}`,
     ],
   },
 });

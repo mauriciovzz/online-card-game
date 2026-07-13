@@ -7,6 +7,8 @@ import {
   Group,
   UnstyledButton,
   Text,
+  Stack,
+  ScrollArea,
 } from "@mantine/core";
 import { useHover } from "@mantine/hooks";
 
@@ -117,12 +119,16 @@ export const RoomList = () => {
       {t("room.empty")}
     </Flex>
   ) : (
-    rooms.map((room) => (
-      <RoomButton
-        key={room.id}
-        room={room}
-        onClick={() => joinRoom(room.id)}
-      />
-    ))
+    <ScrollArea w="100%" h="100%">
+      <Stack w="100%" h="100%" gap={0}>
+        {rooms.map((room) => (
+          <RoomButton
+            key={room.id}
+            room={room}
+            onClick={() => joinRoom(room.id)}
+          />
+        ))}
+      </Stack>
+    </ScrollArea>
   );
 };

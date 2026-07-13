@@ -4,6 +4,9 @@ export const es = {
     save: "Guardar Cambios",
     lang: "ES",
     you: "Tú",
+    rotate: "Gira tu dispositivo",
+    rotateDesc:
+      "Este juego está diseñado para jugarse en modo vertical en pantallas pequeñas",
   },
 
   user: {
@@ -259,6 +262,31 @@ export const es = {
         "Salir de la sala",
       ],
       host: "Si eres el anfitrión de la sala durante una partida, también puedes regresar a todos a la sala de espera.",
+    },
+    install: {
+      heading: "Instalar la Aplicación",
+      android: {
+        heading: "Android (Chrome)",
+        steps: [
+          "Abre el juego en Google Chrome.",
+          "Toca el menú ⋮ (tres puntos) en la esquina superior derecha.",
+          'Selecciona "Instalar aplicación" o "Agregar a la pantalla principal".',
+          'Pulsa "Instalar" para confirmar.',
+          "El juego se añadirá a tu pantalla de inicio y podrás abrirlo como cualquier otra aplicación.",
+        ],
+        tips: "En algunos dispositivos Android, Chrome mostrará automáticamente un aviso para instalar la aplicación cuando esté disponible.",
+      },
+      ios: {
+        heading: "iPhone y iPad (Safari)",
+        steps: [
+          "Abre el juego en Safari.",
+          "Toca el botón Compartir (el cuadrado con una flecha hacia arriba).",
+          'Desplázate hacia abajo y selecciona "Agregar a pantalla de inicio".',
+          "Si lo deseas, cambia el nombre de la aplicación.",
+          'Pulsa "Agregar". El juego aparecerá en tu pantalla de inicio y podrás abrirlo como una aplicación nativa.',
+        ],
+        tips: "En iPhone y iPad solo es posible instalar aplicaciones web desde Safari.",
+      },
     },
   },
 

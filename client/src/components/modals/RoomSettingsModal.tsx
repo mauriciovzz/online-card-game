@@ -33,6 +33,7 @@ export const RoomSettingsModal = () => {
         title={t("room.settings")}
         size={175}
         centered
+        zIndex={800}
         overlayProps={{
           backgroundOpacity: 0.55,
           blur: 3,

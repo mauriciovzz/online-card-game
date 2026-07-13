@@ -1,9 +1,13 @@
 import { useState } from "react";
-import { ActionIcon, Box, Group } from "@mantine/core";
+import {
+  ActionIcon,
+  Box,
+  Flex,
+  Group,
+} from "@mantine/core";
 import { IconPlus, IconMinus } from "@tabler/icons-react";
 
 import { useThemeColor } from "@/hooks";
-import { AppBox } from "@/components";
 import type { PlayerType } from "@shared/types";
 import { PLAYER_TYPES } from "@/constants";
 
@@ -24,11 +28,14 @@ export const AddSeatCard = ({
 
   return (
     <Box w="100%" pos="relative">
-      <AppBox
+      <Flex
+        w="100%"
         h={height}
-        p={4}
+        justify="center"
+        align="center"
+        bd={`1px solid ${themeColor}`}
         bdrs="8px"
-        borderColor={themeColor}
+        p={4}
         pos="relative"
         style={{ userSelect: "none" }}
       >
@@ -47,6 +54,7 @@ export const AddSeatCard = ({
           <Group gap={4} w="100%">
             {PLAYER_TYPES.map(({ key, icon: Icon }) => (
               <ActionIcon
+                key={key}
                 flex={1}
                 variant="subtle"
                 onClick={() => onSelect(key)}
@@ -56,7 +64,7 @@ export const AddSeatCard = ({
             ))}
           </Group>
         )}
-      </AppBox>
+      </Flex>
 
       {opened && (
         <ActionIcon

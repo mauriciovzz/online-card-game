@@ -19,10 +19,11 @@ export const AppBox = forwardRef<HTMLDivElement, Props>(
         h="100%"
         justify="center"
         align="center"
-        bd={`1px solid ${border}`}
         bdrs="md"
+        gap={0}
         style={{
           overflow: "hidden",
+          border: `1px solid ${border}`,
         }}
         {...props}
       >

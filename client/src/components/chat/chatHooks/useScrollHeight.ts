@@ -1,46 +1,34 @@
-import { useEffect, useState } from "react";
-
 const SIZES = {
   header: 44.19,
-  gap: 10,
-  inputMobile: 42,
-  inputDesktop: 36.8,
+  gap: 12,
+  buttonMobile: 42,
+  buttonDesktop: 36,
   outerPadding: 32,
   innerPadding: 24,
 };
 
 interface Params {
+  layoutHeight: number;
   isMobile: boolean;
 }
 
-export const useScrollHeight = ({ isMobile }: Params) => {
-  const [vh, setVh] = useState(window.innerHeight);
-
-  useEffect(() => {
-    const onResize = () => {
-      setVh(window.innerHeight);
-    };
-    window.addEventListener("resize", onResize);
-    return () => {
-      window.removeEventListener("resize", onResize);
-    };
-  }, []);
-
+export const useScrollHeight = ({
+  layoutHeight,
+  isMobile,
+}: Params) => {
   const gap = SIZES.gap;
-  const top = SIZES.header + gap + 2;
+  const top = SIZES.header + gap;
 
-  const bottom =
-    gap +
-    (isMobile ? SIZES.inputMobile : SIZES.inputDesktop);
+  const buttonSize = isMobile
+    ? SIZES.buttonMobile
+    : SIZES.buttonDesktop;
 
-  const outerHeight =
-    vh - top - bottom - SIZES.outerPadding - 1;
+  const bottom = gap + buttonSize;
+
+  const outerHeight = layoutHeight - top - bottom;
 
   const innerHeight =
-    outerHeight -
-    (isMobile ? SIZES.inputMobile : SIZES.inputDesktop) -
-    5 -
-    SIZES.innerPadding;
+    outerHeight - buttonSize - 5 - SIZES.innerPadding;
 
   return { top, outerHeight, innerHeight };
 };

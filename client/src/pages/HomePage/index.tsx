@@ -2,7 +2,6 @@ import { useState } from "react";
 import { Group } from "@mantine/core";
 import { useToggle } from "@mantine/hooks";
 
-import { MainLayout } from "@/layouts";
 import {
   ThemeToggler,
   AppButton,
@@ -27,8 +26,8 @@ export const HomePage = () => {
   const isList = view === "list";
 
   return (
-    <MainLayout>
-      <AppTitle text="Uno Online" />
+    <>
+      <AppTitle text="Uno online" />
 
       <UserNameInput
         isEditable={nameEditable}
@@ -59,6 +58,6 @@ export const HomePage = () => {
         opened={helpOpened}
         onClose={() => setHelpOpened(false)}
       />
-    </MainLayout>
+    </>
   );
 };

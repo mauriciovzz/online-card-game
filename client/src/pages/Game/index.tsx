@@ -19,12 +19,12 @@ import { move } from "@dnd-kit/helpers";
 
 import { useRoom } from "@/contexts/RoomContext";
 import { useGame, useTurn } from "./hooks";
-import { SpinnerLayout } from "@/layouts";
 import {
   AppBox,
   AppTitle,
   InfoBox,
   SelectedRules,
+  Spinner,
 } from "@/components";
 import {
   GameBar,
@@ -50,6 +50,7 @@ export const Game = () => {
   const [container, setContainer] = useState<Cont>(null);
   const [validMove, setValidMove] = useState<IsValid>(null);
 
+  const [picker, setPicker] = useState(false);
   const [penCard, setPenCard] = useState<Card | null>(null);
 
   const { room, clientColor } = useRoom();
@@ -71,11 +72,13 @@ export const Game = () => {
 
     setValidMove(null);
 
+    if (picker) setPicker(false);
+
     if (penCard) {
       rollbackCard();
       setPenCard(null);
     }
-  }, [myTurn, penCard, rollbackCard]);
+  }, [myTurn, penCard, picker, rollbackCard]);
 
   const currentPlayerName = useMemo(
     () =>
@@ -189,6 +192,7 @@ export const Game = () => {
       if (isWild) {
         pendingCardRef.current = card;
         setPenCard(card);
+        setPicker(true);
 
         return;
       }
@@ -226,7 +230,7 @@ export const Game = () => {
       />
 
       {!game || !turn || width === 0 ? (
-        <SpinnerLayout />
+        <Spinner />
       ) : (
         <>
           <AppTitle text={room.name} />
@@ -290,7 +294,7 @@ export const Game = () => {
               clientColor={clientColor}
             />
 
-            {penCard && (
+            {picker && (
               <ColorPicker
                 height={height}
                 pick={pickColor}

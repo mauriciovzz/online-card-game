@@ -23,6 +23,7 @@ import {
   LobbyPageSlide,
   GamePageSlide,
   GameButtonsSlide,
+  InstallSlide,
 } from "./slides";
 import { SettingsSlide } from "./slides/SettingsSlide";
 
@@ -62,6 +63,7 @@ export const HelpModal = ({ opened, onClose }: Props) => {
       title={t("help.title")}
       size={isMobile ? "100%" : 340}
       centered
+      zIndex={900}
       overlayProps={{
         backgroundOpacity: 0.55,
         blur: 3,
@@ -131,6 +133,10 @@ export const HelpModal = ({ opened, onClose }: Props) => {
 
           <Slide>
             <SettingsSlide />
+          </Slide>
+
+          <Slide>
+            <InstallSlide />
           </Slide>
         </Carousel>
       </Paper>

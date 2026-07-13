@@ -25,7 +25,7 @@ export const useCreateRoom = () => {
     mode: "controlled",
     initialValues: {
       name: "",
-      turnDuration: TURN_DURATIONS[0].value,
+      turnDuration: TURN_DURATIONS[1].value,
       seats: [
         { pos: 2, type: undefined },
         { pos: 3, type: undefined },

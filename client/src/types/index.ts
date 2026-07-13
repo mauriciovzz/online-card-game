@@ -1,5 +1,11 @@
 import type { Card } from "@shared/types";
 
+/* CONTEXT */
+
+export interface MainLayoutContextType {
+  layoutHeight: number;
+}
+
 /* CARDS */
 
 export type SvgCardsMap = Record<string, string>;

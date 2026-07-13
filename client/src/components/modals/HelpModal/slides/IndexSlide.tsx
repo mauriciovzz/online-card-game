@@ -78,6 +78,11 @@ const SLIDES = [
     text: "help.settings.heading",
     page: 9,
   },
+  {
+    key: "installApp",
+    text: "help.install.heading",
+    page: 10,
+  },
 ];
 
 const IconButton = ({

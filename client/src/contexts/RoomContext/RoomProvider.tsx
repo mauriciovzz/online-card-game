@@ -11,13 +11,13 @@ import {
   GAME_COLORS,
   RESPONSE_METADATA,
 } from "@/constants";
-import { SpinnerLayout } from "@/layouts";
 import { useSocket } from "@/contexts/SocketContext";
+import { RoomContext } from "./RoomContext";
 import {
   useNotification,
   useRoomErrorHandler,
 } from "@/hooks";
-import { RoomContext } from "./RoomContext";
+import { Spinner } from "@/components";
 
 import type {
   EmptyResponse,
@@ -25,6 +25,7 @@ import type {
   SocketRes,
   WinnerInfo,
 } from "@shared/types";
+
 type RoomView = "lobby" | "game";
 
 export const RoomProvider = ({
@@ -187,7 +188,7 @@ export const RoomProvider = ({
   }, [socket, navigate, leaveRoom]);
 
   if (!room || !isReady) {
-    return <SpinnerLayout />;
+    return <Spinner />;
   }
 
   return (

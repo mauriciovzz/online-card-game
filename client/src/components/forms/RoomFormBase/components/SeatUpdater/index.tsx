@@ -18,7 +18,7 @@ import {
 import { t } from "i18next";
 
 import { GAME_COLORS, PLAYER_TYPES } from "@/constants";
-import { AppBox, LabelWithPopover } from "@/components";
+import { LabelWithPopover } from "@/components";
 import { AddSeatCard } from "../AddSeatCard";
 import { CornerButton } from "../CornerButton";
 
@@ -42,12 +42,18 @@ const SeatCard = ({
   name?: string;
 }) => {
   return (
-    <AppBox
+    <Flex
+      w="100%"
       h={height}
-      p={4}
+      justify="center"
+      align="center"
+      bd={`1px solid ${color}`}
       bdrs="8px"
-      borderColor={color}
-      style={{ userSelect: "none" }}
+      p={4}
+      style={{
+        userSelect: "none",
+        overflow: "hidden",
+      }}
     >
       <Group h="100%" w="100%" gap={4}>
         <Flex
@@ -82,7 +88,7 @@ const SeatCard = ({
           )}
         </Flex>
       </Group>
-    </AppBox>
+    </Flex>
   );
 };
 
