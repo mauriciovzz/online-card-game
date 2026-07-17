@@ -23,8 +23,6 @@ if (process.env.CLIENT_URL) {
   allowedOrigins.push(process.env.CLIENT_URL);
 }
 
-console.log(allowedOrigins);
-
 const io: AppServer = new Server(httpServer, {
   cors: {
     origin: allowedOrigins,

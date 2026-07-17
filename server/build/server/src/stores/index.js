@@ -1,0 +1,11 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.turns = exports.timers = exports.games = exports.rooms = exports.users = void 0;
+const users_store_1 = require("./users.store");
+Object.defineProperty(exports, "users", { enumerable: true, get: function () { return users_store_1.users; } });
+const rooms_store_1 = require("./rooms.store");
+Object.defineProperty(exports, "rooms", { enumerable: true, get: function () { return rooms_store_1.rooms; } });
+const games_store_1 = require("./games.store");
+Object.defineProperty(exports, "games", { enumerable: true, get: function () { return games_store_1.games; } });
+Object.defineProperty(exports, "timers", { enumerable: true, get: function () { return games_store_1.timers; } });
+Object.defineProperty(exports, "turns", { enumerable: true, get: function () { return games_store_1.turns; } });
