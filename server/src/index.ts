@@ -5,22 +5,29 @@ import cors from "cors";
 
 import { registerSocketHandlers } from "./sockets";
 
-import { env } from "./utils/env";
 import { AppServer } from "./types";
 
 const app = express();
-app.use(cors);
+app.use(cors());
 
 const httpServer = createServer(app);
 
+const allowedOrigins = [
+  "http://localhost:5173",
+  "http://192.168.100.73/5173",
+  "http://localhost:4173",
+  "http://192.168.100.73/4173",
+];
+
+if (process.env.CLIENT_URL) {
+  allowedOrigins.push(process.env.CLIENT_URL);
+}
+
+console.log(allowedOrigins);
+
 const io: AppServer = new Server(httpServer, {
   cors: {
-    origin: [
-      `http://localhost:${env.CLIENT_PORT}`,
-      `http://localhost:${env.CLIENT_BUILD_PORT}`,
-      `${env.HOST}:${env.CLIENT_PORT}`,
-      `${env.HOST}:${env.CLIENT_BUILD_PORT}`,
-    ],
+    origin: allowedOrigins,
   },
 });
 
@@ -28,6 +35,8 @@ io.on("connection", (socket) => {
   registerSocketHandlers(io, socket);
 });
 
-httpServer.listen(env.SERVER_PORT, () => {
-  console.log("Server running on port", env.SERVER_PORT);
+const PORT = process.env.PORT ?? 3000;
+
+httpServer.listen(PORT, () => {
+  console.log(`Server running on port ${PORT.toString()}`);
 });
