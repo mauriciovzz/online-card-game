@@ -5,7 +5,7 @@ import {
   CreateRoomProps,
   RoomInfo,
   EmptyResponse,
-  WinnerInfo,
+  FinishedGameInfo,
   RoomSeat,
   PlayerPos,
 } from "@shared/types";
@@ -55,6 +55,10 @@ export interface RoomClientEvents {
     callback: SocketCallback<EmptyResponse>
   ) => void;
 
+  "room:resetScores": (
+    callback: SocketCallback<EmptyResponse>
+  ) => void;
+
   "room:startGame": (
     callback: SocketCallback<EmptyResponse>
   ) => void;
@@ -73,7 +77,7 @@ export interface RoomServerEvents {
 
   "room:gameStarted": (data: EmptyResponse) => void;
 
-  "room:gameEnded": (data: WinnerInfo) => void;
+  "room:gameEnded": (data: FinishedGameInfo) => void;
 
   "room:kickedOut": (data: EmptyResponse) => void;
 

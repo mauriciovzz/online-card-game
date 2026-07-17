@@ -6,6 +6,7 @@ import { Hand } from "./Hand";
 import { Pile } from "./Pile";
 import { SortableCard } from "./SortableCard";
 import { TurnIndicator } from "./TurnIndicator";
+import { WinnerOverlay } from "./WinnerOverlay";
 
 export {
   CardItem,
@@ -16,4 +17,5 @@ export {
   Pile,
   SortableCard,
   TurnIndicator,
+  WinnerOverlay,
 };

@@ -33,6 +33,7 @@ import {
   TurnIndicator,
   ColorPicker,
   GameSeats,
+  WinnerOverlay,
 } from "./components";
 
 import moveHelper from "@shared/utils/moveHelper";
@@ -53,7 +54,13 @@ export const Game = () => {
   const [picker, setPicker] = useState(false);
   const [penCard, setPenCard] = useState<Card | null>(null);
 
-  const { room, clientColor } = useRoom();
+  const {
+    room,
+    clientColor,
+    winner,
+    clientId,
+    clearWinner,
+  } = useRoom();
 
   const {
     game,
@@ -68,11 +75,15 @@ export const Game = () => {
   const { turn, myTurn } = useTurn();
 
   useEffect(() => {
+    if (picker) {
+      setPicker(false);
+    }
+  }, [turn?.startTime]);
+
+  useEffect(() => {
     if (myTurn) return;
 
     setValidMove(null);
-
-    if (picker) setPicker(false);
 
     if (penCard) {
       rollbackCard();
@@ -301,6 +312,14 @@ export const Game = () => {
               />
             )}
           </Box>
+
+          {winner && (
+            <WinnerOverlay
+              winner={winner}
+              clientId={clientId}
+              onFinished={clearWinner}
+            />
+          )}
         </>
       )}
     </>

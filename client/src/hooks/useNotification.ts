@@ -116,27 +116,6 @@ export const useNotification = () => {
     });
   };
 
-  const winnerNoti = (
-    clientWon: boolean,
-    { name, pos }: NotificationInfo,
-    playerThatLeft?: string
-  ) => {
-    if (playerThatLeft) {
-      showNoti({
-        msg: "game.playerQuit",
-        props: { name: playerThatLeft },
-        color: getPlayerColor(1),
-      });
-      return;
-    }
-
-    showNoti({
-      msg: clientWon ? "game.clientWon" : "game.someoneWon",
-      props: { name },
-      color: getPlayerColor(pos),
-    });
-  };
-
   return {
     successNoti,
     errorNoti,
@@ -146,6 +125,5 @@ export const useNotification = () => {
     unoNoti,
     timeoutNoti,
     quitNoti,
-    winnerNoti,
   };
 };

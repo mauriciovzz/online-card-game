@@ -133,7 +133,7 @@ const updateSeat = (
   }
 
   if (type === "bot") {
-    const meta = BOTS_METADATA[pos as 1 | 2 | 3 | 4];
+    const meta = BOTS_METADATA[pos];
 
     room.players.push({
       ...meta,
@@ -187,6 +187,19 @@ const updateScore = (
 
     player.wins += 1;
     player.points += score;
+
+    return score;
+  }
+
+  return 0;
+};
+
+const resetScores = (room: Room) => {
+  room.currWinner = null;
+
+  for (const player of room.players) {
+    player.wins = 0;
+    player.points = 0;
   }
 };
 
@@ -251,6 +264,7 @@ export default {
   update,
   updateSeat,
   updateScore,
+  resetScores,
   getAvailable,
   join,
   leave,

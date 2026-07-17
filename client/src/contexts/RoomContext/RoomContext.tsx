@@ -1,6 +1,6 @@
 import { createContext, useContext } from "react";
 
-import type { Room } from "@shared/types";
+import type { NotificationInfo, Room } from "@shared/types";
 
 interface RoomContextTypes {
   roomView: "lobby" | "game";
@@ -8,6 +8,10 @@ interface RoomContextTypes {
   room: Room;
   isAdmin: boolean;
   clientColor: string;
+
+  winner: NotificationInfo | null;
+  clientId: string | undefined;
+  clearWinner: () => void;
 
   leaveRoom: () => void;
   stopGame: () => void;

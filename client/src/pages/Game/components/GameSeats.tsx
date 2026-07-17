@@ -216,7 +216,7 @@ const GameSeat = memo(
                 size={14}
                 w={16}
                 mr={5}
-                bdrs="sm"
+                radius="sm"
                 onClick={cut}
                 disabled={disableCut}
               >

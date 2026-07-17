@@ -63,6 +63,7 @@ export const Lobby = () => {
               <ScoreBoard
                 players={room.players}
                 winnerId={room.currWinner}
+                isAdmin={isAdmin}
               />
             </LobbySeats>
           ) : (

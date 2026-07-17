@@ -1,8 +1,5 @@
 import { Group } from "@mantine/core";
-import {
-  IconNumber1,
-  IconPlayerSkipForwardFilled,
-} from "@tabler/icons-react";
+import { IconNumber1 } from "@tabler/icons-react";
 
 import { useChat } from "@/contexts/ChatContext";
 import {
@@ -28,51 +25,54 @@ interface Props {
   clientColor: string;
 }
 
-export const GameBar = (props: Props) => {
-  const {
-    myTurn,
-    turn,
-    canCallUno,
-    stack,
-    funcs,
-    clientColor,
-  } = props;
-
+export const GameBar = ({
+  myTurn,
+  turn,
+  canCallUno,
+  stack,
+  funcs,
+  clientColor,
+}: Props) => {
   const { drawCard, endTurn, callUno, endStack } = funcs;
-  const { draw, end } = turn.actions;
+  const { draw } = turn.actions;
 
   const { openChat } = useChat();
 
   const canStack = myTurn && turn.effect !== null && stack;
 
+  const action = !myTurn
+    ? {
+        text: "game.draw",
+        onClick: drawCard,
+        disabled: true,
+        color: undefined,
+      }
+    : canStack
+      ? {
+          text: "game.dontStack",
+          onClick: endStack,
+          disabled: false,
+          color: clientColor,
+        }
+      : draw
+        ? {
+            text: "game.draw",
+            onClick: drawCard,
+          }
+        : {
+            text: "game.continue",
+            onClick: endTurn,
+          };
+
   return (
     <Group gap="sm">
-      {canStack ? (
-        <AppButton
-          expand
-          text="game.dontStack"
-          color={clientColor}
-          onClick={endStack}
-        />
-      ) : (
-        <>
-          <AppButton
-            expand
-            text="game.draw"
-            onClick={drawCard}
-            disabled={!myTurn || !draw}
-          />
-          <AppActionIcon
-            disabled={!myTurn || !end}
-            onClick={endTurn}
-          >
-            <IconPlayerSkipForwardFilled
-              size={20}
-              stroke={2}
-            />
-          </AppActionIcon>
-        </>
-      )}
+      <AppButton
+        expand
+        text={action.text}
+        onClick={action.onClick}
+        disabled={action.disabled}
+        color={action.color}
+      />
 
       <AppActionIcon
         disabled={!canCallUno}
@@ -81,7 +81,7 @@ export const GameBar = (props: Props) => {
         <IconNumber1 size={20} stroke={2} />
       </AppActionIcon>
 
-      <ChatButton onClick={() => openChat()} />
+      <ChatButton onClick={openChat} />
 
       <SettingsButton />
     </Group>

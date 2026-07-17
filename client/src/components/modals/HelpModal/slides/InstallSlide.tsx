@@ -19,6 +19,7 @@ export const InstallSlide = () => {
       <SegmentedControl
         size="sm"
         fullWidth
+        transitionDuration={0}
         value={value}
         onChange={setValue}
         data={[

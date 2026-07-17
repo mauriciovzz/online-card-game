@@ -156,8 +156,14 @@ const endGame = (
 ) => {
   gameService.cleanUp(room.id);
 
+  let score = undefined;
+
   if (winner && losers) {
-    roomService.updateScore(room, winner.id, losers);
+    score = roomService.updateScore(
+      room,
+      winner.id,
+      losers
+    );
   }
 
   room.currWinner = winner ? winner.id : null;
@@ -168,6 +174,7 @@ const endGame = (
         id: winner.id,
         name: winner.name,
         pos: winner.pos,
+        score,
       };
 
   emitRoomData(io, room);
@@ -227,8 +234,8 @@ const handleExit = (io: AppServer, socket: AppSocket) => {
 
   const gamestate = gameService.getState(game);
 
-  emitPlayerQuit(socket, room.id, player.name, gamestate);
   emitRoomData(io, room);
+  emitPlayerQuit(socket, room.id, player.name, gamestate);
 
   if (wasPlaying) {
     startTurn(io, roomId);

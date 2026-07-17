@@ -1,4 +1,4 @@
-import { Divider, Stack, Text } from "@mantine/core";
+import { Stack, Text } from "@mantine/core";
 import type { UseFormReturnType } from "@mantine/form";
 import { useTranslation } from "react-i18next";
 
@@ -6,7 +6,7 @@ import { TURN_DURATIONS } from "@/constants";
 import { Label, FormInput } from "@/components";
 import { FormRuleSelector } from "./components/FormRuleSelector";
 import { FormSegmentedControl } from "./components/FormSegmentedControl";
-import { FormSeatSelector } from "./components/FormSeatSelector";
+import { FormSeatSelector } from "./components/Seats/FormSeatSelector";
 
 import type {
   CreateRoomProps,
@@ -14,7 +14,7 @@ import type {
   RoomInfo,
 } from "@shared/types";
 import type { ReactNode } from "react";
-import { SeatUpdater } from "./components/SeatUpdater";
+import { SeatUpdater } from "./components/Seats/SeatUpdater";
 
 type RoomFormValues = CreateRoomProps | RoomInfo;
 
@@ -81,18 +81,12 @@ export const RoomFormBase = <T extends RoomFormValues>({
               }
             />
           )}
+
+          {room && <SeatUpdater room={room} />}
         </Stack>
 
         {submitButtom}
       </form>
-
-      {room && (
-        <>
-          <Divider />
-
-          <SeatUpdater room={room} />
-        </>
-      )}
     </Stack>
   );
 };

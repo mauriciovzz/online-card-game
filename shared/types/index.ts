@@ -203,6 +203,7 @@ export interface NotificationInfo {
   id?: string;
   name: string;
   pos: PlayerPos;
+  score?: number;
 }
 
 export interface CutInfo {
@@ -213,7 +214,7 @@ export interface CutInfo {
   cutterPos: number;
 }
 
-export interface WinnerInfo {
+export interface FinishedGameInfo {
   winner?: NotificationInfo;
   playerThatLeft?: string;
 }

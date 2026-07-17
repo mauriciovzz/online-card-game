@@ -7,7 +7,7 @@ import { IndexSlide } from "./IndexSlide";
 import { LobbyPageSlide } from "./LobbyPageSlide";
 import { PointsSlide } from "./PointsSlide";
 import { UnoBasicsSlide } from "./UnoBasicsSlide";
-import { InstallSlide } from "./InstallSlive";
+import { InstallSlide } from "./InstallSlide";
 
 export {
   CardsSlide,

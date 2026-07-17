@@ -1,4 +1,5 @@
 import type { Card } from "@shared/types";
+import type { IconProps } from "@tabler/icons-react";
 
 /* CONTEXT */
 
@@ -37,3 +38,11 @@ export type BoardPosition =
 /* GAME */
 
 export type Items = Record<string, Card[]>;
+
+/* SEATS */
+
+export interface Action {
+  icon?: React.FC<IconProps>;
+  corner?: boolean;
+  onClick: () => void;
+}

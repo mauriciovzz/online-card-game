@@ -21,9 +21,10 @@ import { Spinner } from "@/components";
 
 import type {
   EmptyResponse,
+  NotificationInfo,
   Room,
   SocketRes,
-  WinnerInfo,
+  FinishedGameInfo,
 } from "@shared/types";
 
 type RoomView = "lobby" | "game";
@@ -46,7 +47,10 @@ export const RoomProvider = ({
 
   const [stgOpened, setStgOpened] = useState(false);
 
-  const { successNoti, errorNoti, winnerNoti } =
+  const [winner, setWinner] =
+    useState<NotificationInfo | null>(null);
+
+  const { successNoti, errorNoti, quitNoti } =
     useNotification();
   const handleError = useRoomErrorHandler();
 
@@ -73,11 +77,17 @@ export const RoomProvider = ({
     setRoomView("game");
   }, []);
 
-  const handleGameEndend = useCallback(
-    ({ winner, playerThatLeft }: WinnerInfo) => {
-      if (winner) {
-        const clientWon = winner.id === socket?.id;
-        winnerNoti(clientWon, winner, playerThatLeft);
+  const handleGameEnded = useCallback(
+    (result: FinishedGameInfo) => {
+      setStgOpened(false);
+
+      if (result.winner) {
+        setWinner(result.winner);
+        return;
+      }
+
+      if (result.playerThatLeft) {
+        quitNoti(result.playerThatLeft);
       } else {
         errorNoti("room.notification.cancelled");
       }
@@ -85,8 +95,13 @@ export const RoomProvider = ({
       setStgOpened(false);
       setRoomView("lobby");
     },
-    [errorNoti, socket?.id, winnerNoti]
+    [errorNoti, quitNoti]
   );
+
+  const clearWinner = useCallback(() => {
+    setWinner(null);
+    setRoomView("lobby");
+  }, []);
 
   const handleKickedOut = useCallback(() => {
     errorNoti(RESPONSE_METADATA.KICKED_OUT);
@@ -111,13 +126,13 @@ export const RoomProvider = ({
 
     socket.on("room:currentData", handleNewData);
     socket.on("room:gameStarted", handleGameStarted);
-    socket.on("room:gameEnded", handleGameEndend);
+    socket.on("room:gameEnded", handleGameEnded);
     socket.on("room:kickedOut", handleKickedOut);
     socket.on("room:error", handleError);
     return () => {
       socket.off("room:currentData", handleNewData);
       socket.off("room:gameStarted", handleGameStarted);
-      socket.off("room:gameEnded", handleGameEndend);
+      socket.off("room:gameEnded", handleGameEnded);
       socket.off("room:kickedOut", handleKickedOut);
       socket.off("room:error", handleError);
     };
@@ -126,7 +141,7 @@ export const RoomProvider = ({
     roomId,
     handleNewData,
     handleGameStarted,
-    handleGameEndend,
+    handleGameEnded,
     handleKickedOut,
     handleError,
   ]);
@@ -187,7 +202,7 @@ export const RoomProvider = ({
     };
   }, [socket, navigate, leaveRoom]);
 
-  if (!room || !isReady) {
+  if (!room || !isReady || !socket) {
     return <Spinner />;
   }
 
@@ -199,6 +214,10 @@ export const RoomProvider = ({
         room,
         isAdmin,
         clientColor,
+
+        winner,
+        clientId: socket.id,
+        clearWinner,
 
         leaveRoom,
         stopGame,

@@ -161,6 +161,19 @@ export const roomSocket = (
     ok(callback, null);
   });
 
+  socket.on("room:resetScores", (callback) => {
+    const room = getRoom({ socket, callback });
+    if (!room) return;
+
+    const isAdmin = isPlayerAdmin(socket, room, callback);
+    if (!isAdmin) return;
+
+    roomService.resetScores(room);
+
+    ok(callback, null);
+    syncRoom(io, room, roomService.getAvailable());
+  });
+
   socket.on("room:startGame", (callback) => {
     const room = getRoom({ socket, callback });
     if (!room) return;

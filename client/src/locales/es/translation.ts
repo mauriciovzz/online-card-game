@@ -1,6 +1,6 @@
 export const es = {
   common: {
-    return: "Regresar",
+    return: "Volver",
     save: "Guardar Cambios",
     lang: "ES",
     you: "Tú",
@@ -45,7 +45,7 @@ export const es = {
     new: "Nueva Sala",
     start: "Iniciar",
     edit: "Editar",
-    update: "Actualizar Sala",
+    update: "Editar Sala",
     empty: "No hay salas disponibles",
     notification: {
       left: "Sala abandonada",
@@ -54,6 +54,7 @@ export const es = {
       userKickedOut: "Jugador expulsado",
       kickedOut: "Expulsado de la sala",
       cancelled: "Partida cancelada",
+      scoreReset: "Puntuaciones reestablecidas",
     },
     settings: "Ajustes",
     leave: "Salir",
@@ -88,8 +89,11 @@ export const es = {
     turn: "Turno",
     myTurn: "Tu turno",
     draw: "cargar",
+    continue: "continuar",
     clientWon: "Ganaste la partida!",
     someoneWon: "{{name}} gano la partida!",
+    points: "puntos",
+    returningLobby: "Regresando a la sala de espera en...",
     dontStack: "No responder",
     cut: "{{cutter}} corto a {{cutted}}!",
     cutter: "Cortaste a {{name}}!",

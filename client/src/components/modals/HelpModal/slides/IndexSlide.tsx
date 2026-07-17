@@ -152,7 +152,10 @@ export const IndexSlide = ({ embla }: Props) => {
           </Text>
         </Stack>
 
-        <Group justify="center">
+        <Group
+          justify="center"
+          style={{ userSelect: "none" }}
+        >
           {LINKS.map(({ key, icon, url }) => (
             <IconButton key={key} icon={icon} url={url} />
           ))}

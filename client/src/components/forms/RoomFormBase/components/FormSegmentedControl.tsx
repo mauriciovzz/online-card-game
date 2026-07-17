@@ -25,6 +25,8 @@ export const FormSegmentedControl = <T,>({
       <SegmentedControl
         size={isMobile ? "md" : "sm"}
         data={data}
+        autoContrast
+        transitionDuration={0}
         key={form.key(formKey)}
         {...form.getInputProps(formKey)}
       />

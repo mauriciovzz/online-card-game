@@ -6,28 +6,37 @@ import {
   Box,
   Divider,
   Text,
+  ActionIcon,
 } from "@mantine/core";
 import {
   IconStar,
   IconTrophy,
   IconCrown,
+  IconRotateClockwise,
 } from "@tabler/icons-react";
 
 import { Label } from "@/components";
 
 import type { Player } from "@shared/types";
+import { useResetScores } from "./useResetScores";
 
 const BOARD_PADDING = 12 + 12 + 26;
 
 interface Props {
   players: Player[];
   winnerId: string | null;
+  isAdmin: boolean;
 }
 
 export const ScoreBoard = ({
   players,
   winnerId,
+  isAdmin,
 }: Props) => {
+  const { resetScores } = useResetScores();
+
+  const hasScores = players.some((p) => p.wins > 0);
+
   return (
     <Flex
       h="100%"
@@ -37,7 +46,20 @@ export const ScoreBoard = ({
       justify="center"
     >
       <Stack gap={0} style={{ userSelect: "none" }}>
-        <Label text={"room.scores"} />
+        <Group gap={0} justify="space-between">
+          <Label text={"room.scores"} />
+
+          {isAdmin && (
+            <ActionIcon
+              size="xs"
+              variant="transparent"
+              disabled={!hasScores}
+              onClick={resetScores}
+            >
+              <IconRotateClockwise />
+            </ActionIcon>
+          )}
+        </Group>
 
         <Paper
           w={184 - 5}
@@ -115,7 +137,7 @@ export const ScoreBoard = ({
                       </Text>
                     </Group>
 
-                    {index !== 4 && <Divider />}
+                    {index !== 3 && <Divider />}
                   </Stack>
                 );
               })}
