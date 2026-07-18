@@ -21,7 +21,8 @@ import {
 import type { LobbyView } from "@/types";
 
 export const Lobby = () => {
-  const { room, startGame, isAdmin } = useRoom();
+  const { room, startGame, isAdmin, resetScores } =
+    useRoom();
   const { openChat, closeChat } = useChat();
 
   const [view, setView] = useState<LobbyView>("main");
@@ -64,6 +65,7 @@ export const Lobby = () => {
                 players={room.players}
                 winnerId={room.currWinner}
                 isAdmin={isAdmin}
+                resetScores={resetScores}
               />
             </LobbySeats>
           ) : (

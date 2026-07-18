@@ -50,7 +50,7 @@ export const RoomProvider = ({
   const [winner, setWinner] =
     useState<NotificationInfo | null>(null);
 
-  const { successNoti, errorNoti, quitNoti } =
+  const { successNoti, errorNoti, quitNoti, resetNoti } =
     useNotification();
   const handleError = useRoomErrorHandler();
 
@@ -72,6 +72,14 @@ export const RoomProvider = ({
   const handleNewData = useCallback((newData: Room) => {
     setRoom(newData);
   }, []);
+
+  const handleScoresReset = useCallback(
+    (room: Room) => {
+      resetNoti(RESPONSE_METADATA.SCORES_RESET);
+      setRoom(room);
+    },
+    [resetNoti]
+  );
 
   const handleGameStarted = useCallback(() => {
     setRoomView("game");
@@ -125,12 +133,14 @@ export const RoomProvider = ({
     );
 
     socket.on("room:currentData", handleNewData);
+    socket.on("room:scoresReset", handleScoresReset);
     socket.on("room:gameStarted", handleGameStarted);
     socket.on("room:gameEnded", handleGameEnded);
     socket.on("room:kickedOut", handleKickedOut);
     socket.on("room:error", handleError);
     return () => {
       socket.off("room:currentData", handleNewData);
+      socket.on("room:scoresReset", handleScoresReset);
       socket.off("room:gameStarted", handleGameStarted);
       socket.off("room:gameEnded", handleGameEnded);
       socket.off("room:kickedOut", handleKickedOut);
@@ -144,6 +154,7 @@ export const RoomProvider = ({
     handleGameEnded,
     handleKickedOut,
     handleError,
+    handleScoresReset,
   ]);
 
   const startGame = useCallback(() => {
@@ -185,6 +196,19 @@ export const RoomProvider = ({
     setStgOpened(false);
   }, []);
 
+  const resetScores = useCallback(() => {
+    socket?.emit(
+      "room:resetScores",
+      (res: SocketRes<Room>) => {
+        if (res.success) {
+          handleScoresReset(res.data);
+        } else {
+          handleError(res.error);
+        }
+      }
+    );
+  }, [socket, handleScoresReset, handleError]);
+
   // handle browser return
   useEffect(() => {
     window.history.pushState(
@@ -213,15 +237,16 @@ export const RoomProvider = ({
 
         room,
         isAdmin,
+        resetScores,
         clientColor,
 
         winner,
         clientId: socket.id,
         clearWinner,
 
-        leaveRoom,
-        stopGame,
         startGame,
+        stopGame,
+        leaveRoom,
 
         settingsOpened: stgOpened,
         openSettings,

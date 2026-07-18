@@ -56,7 +56,7 @@ export interface RoomClientEvents {
   ) => void;
 
   "room:resetScores": (
-    callback: SocketCallback<EmptyResponse>
+    callback: SocketCallback<Room>
   ) => void;
 
   "room:startGame": (
@@ -74,6 +74,8 @@ export interface RoomServerEvents {
   "room:availableRooms": (data: AvailableRooms) => void;
 
   "room:currentData": (newData: Room) => void;
+
+  "room:scoresReset": (newData: Room) => void;
 
   "room:gameStarted": (data: EmptyResponse) => void;
 

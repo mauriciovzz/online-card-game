@@ -54,7 +54,7 @@ export const es = {
       userKickedOut: "Jugador expulsado",
       kickedOut: "Expulsado de la sala",
       cancelled: "Partida cancelada",
-      scoreReset: "Puntuaciones reestablecidas",
+      scoresReset: "Puntuaciones reestablecidas",
     },
     settings: "Ajustes",
     leave: "Salir",

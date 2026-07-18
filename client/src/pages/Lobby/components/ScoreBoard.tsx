@@ -18,7 +18,6 @@ import {
 import { Label } from "@/components";
 
 import type { Player } from "@shared/types";
-import { useResetScores } from "./useResetScores";
 
 const BOARD_PADDING = 12 + 12 + 26;
 
@@ -26,15 +25,15 @@ interface Props {
   players: Player[];
   winnerId: string | null;
   isAdmin: boolean;
+  resetScores: () => void;
 }
 
 export const ScoreBoard = ({
   players,
   winnerId,
   isAdmin,
+  resetScores,
 }: Props) => {
-  const { resetScores } = useResetScores();
-
   const hasScores = players.some((p) => p.wins > 0);
 
   return (

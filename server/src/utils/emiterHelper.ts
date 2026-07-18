@@ -54,6 +54,13 @@ export const syncRoom = (
   broadcastRoomList(io, rooms);
 };
 
+export const emitScoreReset = (
+  socket: AppSocket,
+  room: Room
+) => {
+  socket.to(room.id).emit("room:scoresReset", room);
+};
+
 // ---
 
 export const emitGameData = (

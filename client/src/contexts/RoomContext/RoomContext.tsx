@@ -7,6 +7,7 @@ interface RoomContextTypes {
 
   room: Room;
   isAdmin: boolean;
+  resetScores: () => void;
   clientColor: string;
 
   winner: NotificationInfo | null;

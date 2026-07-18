@@ -18,6 +18,7 @@ import {
   notOk,
   broadcastRoomList,
   syncRoom,
+  emitScoreReset,
 } from "@/utils/emiterHelper";
 
 import { ERROR_CODES } from "@shared/constants";
@@ -170,8 +171,8 @@ export const roomSocket = (
 
     roomService.resetScores(room);
 
-    ok(callback, null);
-    syncRoom(io, room, roomService.getAvailable());
+    ok(callback, room);
+    emitScoreReset(socket, room);
   });
 
   socket.on("room:startGame", (callback) => {

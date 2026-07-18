@@ -116,6 +116,13 @@ export const useNotification = () => {
     });
   };
 
+  const resetNoti = (msg: string) => {
+    showNoti({
+      msg,
+      color: "black",
+    });
+  };
+
   return {
     successNoti,
     errorNoti,
@@ -125,5 +132,6 @@ export const useNotification = () => {
     unoNoti,
     timeoutNoti,
     quitNoti,
+    resetNoti,
   };
 };
