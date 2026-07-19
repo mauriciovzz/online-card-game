@@ -133,7 +133,6 @@ const GameSeat = memo(
             size="sm"
             fw={700}
             ta="center"
-            inline={true}
             ml={5}
             truncate="end"
           >
