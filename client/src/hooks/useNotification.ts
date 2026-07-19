@@ -1,25 +1,16 @@
 import type { ReactNode } from "react";
 import { notifications } from "@mantine/notifications";
 import { useTranslation } from "react-i18next";
-import type {
-  CutInfo,
-  EffectInfo,
-  NotificationInfo,
-} from "@shared/types";
+import type { CutInfo, EffectInfo, NotificationInfo } from "@shared/types";
 import { GAME_COLORS } from "@/constants";
 
-const getPlayerColor = (pos: number) =>
-  GAME_COLORS[pos - 1].hex;
+const getPlayerColor = (pos: number) => GAME_COLORS[pos - 1].hex;
 
 const notificationProps: {
   message: ReactNode;
   withBorder: boolean;
   autoClose: number;
-} = {
-  message: undefined,
-  withBorder: true,
-  autoClose: 2000,
-};
+} = { message: undefined, withBorder: true, autoClose: 2000 };
 
 export const useNotification = () => {
   const { t } = useTranslation();
@@ -34,12 +25,7 @@ export const useNotification = () => {
     props?: Record<string, unknown>;
   }) => {
     notifications.clean();
-
-    notifications.show({
-      title: t(msg, props),
-      color,
-      ...notificationProps,
-    });
+    notifications.show({ title: t(msg, props), color, ...notificationProps });
   };
 
   const successNoti = (msg: string) => {
@@ -80,18 +66,12 @@ export const useNotification = () => {
 
     showNoti({
       msg: "game.cut",
-      props: {
-        cutter: data.cutterName,
-        cutted: data.cuttedName,
-      },
+      props: { cutter: data.cutterName, cutted: data.cuttedName },
       color: getPlayerColor(data.cuttedPos),
     });
   };
 
-  const unoNoti = (
-    iCalled: boolean,
-    { name, pos }: NotificationInfo
-  ) => {
+  const unoNoti = (iCalled: boolean, { name, pos }: NotificationInfo) => {
     showNoti({
       msg: iCalled ? "game.calledUno" : "game.unoCalled",
       props: { name },
@@ -100,27 +80,16 @@ export const useNotification = () => {
   };
 
   const timeoutNoti = (hadToDraw: boolean) => {
-    showNoti({
-      msg: hadToDraw
-        ? "game.timeoutWithCard"
-        : "game.timeout",
-      color: "black",
-    });
+    const msg = hadToDraw ? "game.timeoutWithCard" : "game.timeout";
+    showNoti({ msg, color: "black" });
   };
 
   const quitNoti = (name: string) => {
-    showNoti({
-      msg: "game.playerQuit",
-      props: { name },
-      color: "black",
-    });
+    showNoti({ msg: "game.playerQuit", props: { name }, color: "black" });
   };
 
   const resetNoti = (msg: string) => {
-    showNoti({
-      msg,
-      color: "black",
-    });
+    showNoti({ msg, color: "black" });
   };
 
   return {

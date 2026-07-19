@@ -9,11 +9,7 @@ interface Props {
   onClick: () => void;
 }
 
-export const ScrollDownButton = ({
-  isMobile,
-  unread,
-  onClick,
-}: Props) => {
+export const ScrollDownButton = ({ isMobile, unread, onClick }: Props) => {
   return (
     <Indicator
       inline
@@ -26,7 +22,11 @@ export const ScrollDownButton = ({
       bottom={0}
       right={isMobile ? 0 : 8}
     >
-      <AppActionIcon onClick={() => onClick()}>
+      <AppActionIcon
+        onClick={() => {
+          onClick();
+        }}
+      >
         <IconChevronDown size={20} stroke={2} />
       </AppActionIcon>
     </Indicator>

@@ -65,8 +65,7 @@ export const en = {
     title: "Rules",
     mirror: {
       title: "Mirror",
-      description:
-        "Play cards with same number and color twice.",
+      description: "Play cards with same number and color twice.",
       longDescription:
         "After playing a number card, you may play the same card again, only if their colors are the same (for example, yellow 4 → yellow 4).",
     },
@@ -78,8 +77,7 @@ export const en = {
     },
     stack: {
       title: "Stack",
-      description:
-        "Action card's effects (+2, +4, 🚫) combine.",
+      description: "Action card's effects (+2, +4, 🚫) combine.",
       longDescription:
         "Draw and Skip cards can be stacked. Instead of taking the penalty, a player may respond with another compatible card, passing the accumulated penalty to the next player.",
     },
@@ -107,17 +105,13 @@ export const en = {
     drawEffect: "Draw {{cards}} cards!",
   },
 
-  chat: {
-    start: "Chat start",
-    newMessages: "New Messages",
-  },
+  chat: { start: "Chat start", newMessages: "New Messages" },
 
   help: {
     title: "Help",
     index: {
       devBy: "Developed by Mauricio Velázquez",
-      tools:
-        "with React, TypeScript, Mantine and Socket.IO",
+      tools: "with React, TypeScript, Mantine and Socket.IO",
     },
     basics: {
       title: "Uno Basics",
@@ -158,8 +152,7 @@ export const en = {
     },
     points: {
       heading: "Points",
-      roundEnd:
-        "The round ends when a player has no cards left.",
+      roundEnd: "The round ends when a player has no cards left.",
       pointsInst:
         "The winner receives points equal to the value of all cards remaining in the other player's hands:",
       pointValues: [
@@ -184,15 +177,10 @@ export const en = {
         "A unique username is generated automatically when you open the game. Select the edit button to change it.",
       roomsTitle: "Available Rooms",
       roomsDesc: "Each room displays:",
-      roomsCriteria: [
-        "Room name",
-        "Enabled house rules",
-        "Available seats",
-      ],
+      roomsCriteria: ["Room name", "Enabled house rules", "Available seats"],
       roomsAction: "Select a room to join it.",
       seatsTitle: "Seat Indicators",
-      seatsDesc:
-        "Each square represents one possible player.",
+      seatsDesc: "Each square represents one possible player.",
       seatsCriteria: [
         "Gray: Seat disabled",
         "Colored outline: Seat available",
@@ -201,8 +189,7 @@ export const en = {
     },
     lobby: {
       heading: "Lobby Page",
-      description:
-        "The Lobby is where players wait before a game begins.",
+      description: "The Lobby is where players wait before a game begins.",
       InfoTitle: "Room Information",
       infoDesc:
         "The lobby displays the room's turn duration and enabled house rules.",
@@ -290,13 +277,8 @@ export const en = {
   },
 
   errors: {
-    common: {
-      empty: "Can't be empty",
-    },
-    name: {
-      taken: "Name already in use",
-      maxLength: "Max length is 10",
-    },
+    common: { empty: "Can't be empty" },
+    name: { taken: "Name already in use", maxLength: "Max length is 10" },
     room: {
       maxLength: "Max length is 15",
       gameStarted: "The game has already started",
@@ -309,8 +291,6 @@ export const en = {
       notInRoom: "You are not in this room",
       serverError: "Server error",
     },
-    game: {
-      notYourTurn: "Not your turn",
-    },
+    game: { notYourTurn: "Not your turn" },
   },
 } as const;

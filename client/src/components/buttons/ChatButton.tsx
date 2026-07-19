@@ -1,8 +1,5 @@
 import { Indicator } from "@mantine/core";
-import {
-  IconMessageCircle,
-  IconX,
-} from "@tabler/icons-react";
+import { IconMessageCircle, IconX } from "@tabler/icons-react";
 
 import { useChat } from "@/contexts/ChatContext";
 import { AppActionIcon } from "./AppActionIcon";
@@ -24,10 +21,7 @@ export const ChatButton = ({ expand, onClick }: Props) => {
       color="red"
       flex={expand ? 1 : "none"}
     >
-      <AppActionIcon
-        expand={expand}
-        onClick={chatOpened ? closeChat : onClick}
-      >
+      <AppActionIcon expand={expand} onClick={chatOpened ? closeChat : onClick}>
         {chatOpened ? (
           <IconX size={20} stroke={2} />
         ) : (

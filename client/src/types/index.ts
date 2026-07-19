@@ -32,8 +32,7 @@ export interface ReadUpdate {
 export type LobbyView = "main" | "edit";
 export type HomeView = "list" | "create";
 
-export type BoardPosition =
-  "top" | "bottom" | "left" | "right";
+export type BoardPosition = "top" | "bottom" | "left" | "right";
 
 /* GAME */
 

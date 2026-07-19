@@ -8,20 +8,13 @@ import {
   Flex,
   Image,
 } from "@mantine/core";
-import {
-  IconCardsFilled,
-  IconScissors,
-} from "@tabler/icons-react";
+import { IconCardsFilled, IconScissors } from "@tabler/icons-react";
 
 import { GAME_COLORS } from "@/constants";
 import { useSocket } from "@/contexts/SocketContext";
 import { useThemeColor } from "@/hooks";
 
-import type {
-  Room,
-  GameState,
-  PlayerId,
-} from "@shared/types";
+import type { Room, GameState, PlayerId } from "@shared/types";
 import { SeatBox } from "@/components";
 
 const BOARD_PADDING = 38;
@@ -35,29 +28,18 @@ const LAYOUT = {
 
 type BoardPosition = "top" | "bottom" | "left" | "right";
 
-const layout: BoardPosition[] = [
-  "bottom",
-  "left",
-  "top",
-  "right",
-];
+const layout: BoardPosition[] = ["bottom", "left", "top", "right"];
 
 const BOARD_POSITIONS = {
   bottom: { bottom: 12 },
-  left: {
-    left: -98,
-    transform: "rotate(-90deg)",
-  },
+  left: { left: -98, transform: "rotate(-90deg)" },
   top: { top: 12 },
-  right: {
-    right: -98,
-    transform: "rotate(90deg)",
-  },
+  right: { right: -98, transform: "rotate(90deg)" },
 } satisfies Record<BoardPosition, React.CSSProperties>;
 
 const getBoardPosition = (
   clientPos: number,
-  seatPos: number
+  seatPos: number,
 ): BoardPosition => {
   return layout[(seatPos - clientPos + 4) % 4];
 };
@@ -73,9 +55,7 @@ const OponnentHand = memo(
       const spaceLeft = totalCardWidth - width;
 
       const spacing =
-        totalCardWidth <= width
-          ? 0
-          : spaceLeft / spacesBetweenCards;
+        totalCardWidth <= width ? 0 : spaceLeft / spacesBetweenCards;
 
       return spacing;
     }, [width, cards]);
@@ -83,37 +63,21 @@ const OponnentHand = memo(
     const handWidth =
       cards === 0
         ? 0
-        : LAYOUT.cardWidth +
-          (cards - 1) * (LAYOUT.cardWidth - spacing);
+        : LAYOUT.cardWidth + (cards - 1) * (LAYOUT.cardWidth - spacing);
 
-    const positionedCards = Array.from(
-      { length: cards },
-      (_, index) => ({
-        left: index * (LAYOUT.cardWidth - spacing),
-      })
-    );
+    const positionedCards = Array.from({ length: cards }, (_, index) => ({
+      left: index * (LAYOUT.cardWidth - spacing),
+    }));
 
     return (
       <Flex
         w="100%"
         justify="center"
         pos="absolute"
-        style={{
-          top: 15,
-          zIndex: -10,
-        }}
+        style={{ top: 15, zIndex: -10 }}
       >
-        <Flex
-          w={width}
-          h={LAYOUT.cardHeight}
-          justify="center"
-          align="center"
-        >
-          <Flex
-            pos="relative"
-            w={handWidth}
-            h={LAYOUT.cardHeight}
-          >
+        <Flex w={width} h={LAYOUT.cardHeight} justify="center" align="center">
+          <Flex pos="relative" w={handWidth} h={LAYOUT.cardHeight}>
             {positionedCards.map(({ left }, index) => {
               return (
                 <Image
@@ -131,7 +95,7 @@ const OponnentHand = memo(
         </Flex>
       </Flex>
     );
-  }
+  },
 );
 
 const GameSeat = memo(
@@ -161,11 +125,7 @@ const GameSeat = memo(
         w={249}
         h={26}
         pos="absolute"
-        style={{
-          zIndex: 10,
-          userSelect: "none",
-          ...BOARD_POSITIONS[pos],
-        }}
+        style={{ zIndex: 10, userSelect: "none", ...BOARD_POSITIONS[pos] }}
       >
         <SeatBox borderColor={color}>
           <Text
@@ -206,10 +166,7 @@ const GameSeat = memo(
 
           {isOponnent && (
             <>
-              <Divider
-                orientation="vertical"
-                color={color}
-              />
+              <Divider orientation="vertical" color={color} />
 
               <ActionIcon
                 variant="transparent"
@@ -226,61 +183,43 @@ const GameSeat = memo(
           )}
         </SeatBox>
 
-        {isOponnent && (
-          <OponnentHand name={name} cards={cards} />
-        )}
+        {isOponnent && <OponnentHand name={name} cards={cards} />}
       </Flex>
     );
-  }
+  },
 );
 
 interface Props {
-  data: {
-    room: Room;
-    game: GameState;
-    currentPlayerId: string;
-  };
+  data: { room: Room; game: GameState; currentPlayerId: string };
   cutCall: (data: PlayerId) => void;
   children: ReactNode;
 }
 
-export const GameSeats = ({
-  data,
-  cutCall,
-  children,
-}: Props) => {
+export const GameSeats = ({ data, cutCall, children }: Props) => {
   const themeColor = useThemeColor();
-  const { socket } = useSocket();
+  const { socketId } = useSocket();
   const { room, game, currentPlayerId } = data;
 
   const client = useMemo(
-    () =>
-      room.players.find(
-        (player) => player.id === socket?.id
-      ),
-    [room.players, socket?.id]
+    () => room.players.find((player) => player.id === socketId),
+    [room.players, socketId],
   );
 
   const playerByPos = useMemo(
     () =>
       Object.fromEntries(
         room.seats.map((s) => {
-          const player = room.players.find(
-            (p) => p.pos === s.pos
-          );
+          const player = room.players.find((p) => p.pos === s.pos);
 
           return [s.pos, player];
-        })
+        }),
       ),
-    [room.players, room.seats]
+    [room.players, room.seats],
   );
 
   const statesById = useMemo(
-    () =>
-      Object.fromEntries(
-        game.players.map((p) => [p.id, p])
-      ),
-    [game.players]
+    () => Object.fromEntries(game.players.map((p) => [p.id, p])),
+    [game.players],
   );
 
   if (!client) return null;
@@ -293,20 +232,15 @@ export const GameSeats = ({
 
         const player = playerByPos[seat.pos];
 
-        if (
-          seat.type === undefined ||
-          player === undefined
-        ) {
+        if (seat.type === undefined || player === undefined) {
           return <SeatBox key={hex} pos={pos} />;
         }
 
-        const borderColor =
-          player.id === currentPlayerId ? hex : themeColor;
+        const borderColor = player.id === currentPlayerId ? hex : themeColor;
 
         const state = statesById[player.id];
 
-        const canBeCut =
-          state.numCards !== 1 || state.calledUno;
+        const canBeCut = state.numCards !== 1 || state.calledUno;
 
         return (
           <GameSeat
@@ -317,19 +251,15 @@ export const GameSeats = ({
             cards={state.numCards}
             calledUno={state.calledUno}
             isOponnent={player.id !== client.id}
-            cut={() => cutCall({ playerId: player.id })}
+            cut={() => {
+              cutCall({ playerId: player.id });
+            }}
             disableCut={canBeCut}
           />
         );
       })}
 
-      <Stack
-        h="100%"
-        w="100%"
-        p={BOARD_PADDING}
-        gap={0}
-        pos="relative"
-      >
+      <Stack h="100%" w="100%" p={BOARD_PADDING} gap={0} pos="relative">
         {children}
       </Stack>
     </>

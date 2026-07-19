@@ -1,10 +1,7 @@
 import { ActionIcon, Flex } from "@mantine/core";
 import { IconMinus } from "@tabler/icons-react";
 
-import {
-  SEAT_HEIGHT,
-  SEAT_WIDTH,
-} from "../constants/seatSize";
+import { SEAT_HEIGHT, SEAT_WIDTH } from "../constants/seatSize";
 import { useIsDark } from "@/hooks";
 
 import type { PlayerPos } from "@shared/types";
@@ -39,24 +36,10 @@ const CircleButtom = ({
 };
 
 const SEAT_POSITIONS = {
-  1: {
-    gridColumn: 2,
-    gridRow: 2,
-  },
-  2: {
-    gridColumn: 1,
-    gridRow: "1 / span 2",
-    alignSelf: "center",
-  },
-  3: {
-    gridColumn: 2,
-    gridRow: 1,
-  },
-  4: {
-    gridColumn: 3,
-    gridRow: "1 / span 2",
-    alignSelf: "center",
-  },
+  1: { gridColumn: 2, gridRow: 2 },
+  2: { gridColumn: 1, gridRow: "1 / span 2", alignSelf: "center" },
+  3: { gridColumn: 2, gridRow: 1 },
+  4: { gridColumn: 3, gridRow: "1 / span 2", alignSelf: "center" },
 } as const;
 
 interface Props {
@@ -67,12 +50,7 @@ interface Props {
   children: React.ReactNode;
 }
 
-export const SeatFrame = ({
-  pos,
-  color,
-  action,
-  children,
-}: Props) => {
+export const SeatFrame = ({ pos, color, action, children }: Props) => {
   const isDark = useIsDark();
   const themeBackground = isDark ? "dark.8" : "gray.1";
 
@@ -87,16 +65,11 @@ export const SeatFrame = ({
       bdrs="8px"
       p={4}
       pos="relative"
-      style={{
-        userSelect: "none",
-        ...SEAT_POSITIONS[pos],
-      }}
+      style={{ userSelect: "none", ...SEAT_POSITIONS[pos] }}
     >
       {children}
 
-      {action && color && (
-        <CircleButtom color={color} action={action} />
-      )}
+      {action && color && <CircleButtom color={color} action={action} />}
     </Flex>
   );
 };

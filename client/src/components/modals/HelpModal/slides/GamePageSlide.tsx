@@ -20,9 +20,7 @@ export const GamePageSlide = () => {
         <SlideParagraph text={t("help.game.seatsDesc")} />
         <SlideList
           items={
-            t("help.game.seatsCriteria", {
-              returnObjects: true,
-            }) as string[]
+            t("help.game.seatsCriteria", { returnObjects: true }) as string[]
           }
         />
         <SlideParagraph text={t("help.game.turn")} />
@@ -33,9 +31,7 @@ export const GamePageSlide = () => {
         <SlideParagraph text={t("help.game.pileDesc")} />
         <SlideList
           items={
-            t("help.game.pileCriteria", {
-              returnObjects: true,
-            }) as string[]
+            t("help.game.pileCriteria", { returnObjects: true }) as string[]
           }
         />
       </Stack>

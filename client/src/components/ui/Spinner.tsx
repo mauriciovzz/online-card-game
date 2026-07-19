@@ -1,8 +1,4 @@
-import {
-  Flex,
-  Loader,
-  useMantineTheme,
-} from "@mantine/core";
+import { Flex, Loader, useMantineTheme } from "@mantine/core";
 
 import { useIsDark } from "@/hooks";
 

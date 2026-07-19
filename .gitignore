@@ -15,6 +15,7 @@ client/dist
 client/dist-ssr
 client/.env
 client/*.local
+client/stats.html
 
 # Editor directories and files
 client/.vscode/*

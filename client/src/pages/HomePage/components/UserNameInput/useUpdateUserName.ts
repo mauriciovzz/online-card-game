@@ -8,19 +8,15 @@ import type { SocketRes, UserName } from "@shared/types";
 
 export const useUpdateUserName = (onUpdate: () => void) => {
   const { t } = useTranslation();
-  const { socket, userName, setUserName } = useSocket();
+  const { socketRef, userName, setUserName } = useSocket();
 
   const form = useForm<UserName>({
-    initialValues: {
-      name: userName,
-    },
+    initialValues: { name: userName },
 
     validate: {
       name: (value) => {
-        if (value.length < 1)
-          return t("errors.common.empty");
-        if (value.length > 10)
-          return t("errors.name.maxLength");
+        if (value.length < 1) return t("errors.common.empty");
+        if (value.length > 10) return t("errors.name.maxLength");
         return null;
       },
     },
@@ -29,7 +25,7 @@ export const useUpdateUserName = (onUpdate: () => void) => {
   const updateUserName = ({ name }: UserName) => {
     if (userName.trim() === name.trim()) return;
 
-    socket?.emit(
+    socketRef.current?.emit(
       "user:updateName",
       { newName: name },
       (res: SocketRes<UserName>) => {
@@ -42,7 +38,7 @@ export const useUpdateUserName = (onUpdate: () => void) => {
 
           form.setFieldError("name", t(meta.message));
         }
-      }
+      },
     );
   };
 

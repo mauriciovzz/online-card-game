@@ -3,9 +3,7 @@ import { Flex, type FlexProps } from "@mantine/core";
 
 import { useThemeColor } from "@/hooks";
 
-type Props = FlexProps & {
-  borderColor?: string;
-};
+type Props = FlexProps & { borderColor?: string };
 
 export const AppBox = forwardRef<HTMLDivElement, Props>(
   ({ children, borderColor, ...props }, ref) => {
@@ -21,14 +19,11 @@ export const AppBox = forwardRef<HTMLDivElement, Props>(
         align="center"
         bdrs="md"
         gap={0}
-        style={{
-          overflow: "hidden",
-          border: `1px solid ${border}`,
-        }}
+        style={{ overflow: "hidden", border: `1px solid ${border}` }}
         {...props}
       >
         {children}
       </Flex>
     );
-  }
+  },
 );

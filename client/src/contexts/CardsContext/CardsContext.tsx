@@ -7,16 +7,14 @@ interface CardsContextTypes {
   cardsLoading: boolean;
 }
 
-export const CardsContext = createContext<
-  CardsContextTypes | undefined
->(undefined);
+export const CardsContext = createContext<CardsContextTypes | undefined>(
+  undefined,
+);
 
 export const useCardsMap = () => {
   const context = useContext(CardsContext);
   if (!context) {
-    throw new Error(
-      "useCardsMap must be used within a CardsProvider"
-    );
+    throw new Error("useCardsMap must be used within a CardsProvider");
   }
   return context;
 };

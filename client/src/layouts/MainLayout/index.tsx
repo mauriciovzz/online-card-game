@@ -2,10 +2,7 @@ import type { ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 import { Outlet } from "react-router";
 import { Group, Paper, Stack, Text } from "@mantine/core";
-import {
-  useElementSize,
-  useViewportSize,
-} from "@mantine/hooks";
+import { useElementSize, useViewportSize } from "@mantine/hooks";
 import { Notifications } from "@mantine/notifications";
 
 import classes from "./MainLayout.module.css";
@@ -60,17 +57,14 @@ interface Props {
 export const MainLayout = ({ children }: Props) => {
   const { ref, height } = useElementSize();
 
-  const { width: windowW, height: windowH } =
-    useViewportSize();
+  const { width: windowW, height: windowH } = useViewportSize();
 
   const isLandscape = windowW > windowH;
   const isScreenTooSmall = windowW < 335 || windowH < 620;
 
   const shouldRotate = isLandscape && isScreenTooSmall;
 
-  const context = {
-    layoutHeight: height,
-  } satisfies MainLayoutContextType;
+  const context = { layoutHeight: height } satisfies MainLayoutContextType;
 
   return (
     <Stack
@@ -81,9 +75,7 @@ export const MainLayout = ({ children }: Props) => {
       align="center"
       py={24}
       pos="relative"
-      style={{
-        touchAction: "none",
-      }}
+      style={{ touchAction: "none" }}
     >
       <Stack
         ref={ref}
@@ -102,13 +94,7 @@ export const MainLayout = ({ children }: Props) => {
               pauseResetOnHover="notification"
               withinPortal={false}
               style={{ width: "100%", maxWidth: 335 }}
-              styles={{
-                root: {
-                  position: "absolute",
-                  top: 0,
-                  height: 44.19,
-                },
-              }}
+              styles={{ root: { position: "absolute", top: 0, height: 44.19 } }}
             />
             <Outlet context={context} />
           </>

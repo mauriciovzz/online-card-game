@@ -29,6 +29,7 @@ export const SocketProvider = ({ children }: Props) => {
   const { cardsLoading } = useCardsMap();
 
   const socketRef = useRef<Socket | null>(null);
+  const [socketId, setSocketId] = useState<string | undefined>(undefined);
 
   const [userName, setUserName] = useState("");
   const [isNameReady, setIsNameReady] = useState(false);
@@ -36,20 +37,14 @@ export const SocketProvider = ({ children }: Props) => {
   const [rooms, setRooms] = useState<Room[] | null>(null);
   const [areRoomsReady, setAreRoomsReady] = useState(false);
 
-  const handleConnected = useCallback(
-    ({ name }: UserName) => {
-      setUserName(name);
-      setIsNameReady(true);
-    },
-    []
-  );
+  const handleConnected = useCallback(({ name }: UserName) => {
+    setUserName(name);
+    setIsNameReady(true);
+  }, []);
 
-  const handleAvailable = useCallback(
-    ({ availableRooms }: AvailableRooms) => {
-      setRooms(availableRooms);
-    },
-    []
-  );
+  const handleAvailable = useCallback(({ availableRooms }: AvailableRooms) => {
+    setRooms(availableRooms);
+  }, []);
 
   const fetchRooms = useCallback(() => {
     socketRef.current?.emit(
@@ -57,7 +52,7 @@ export const SocketProvider = ({ children }: Props) => {
       (res: SuccessResponse<AvailableRooms>) => {
         setRooms(res.data.availableRooms);
         setAreRoomsReady(true);
-      }
+      },
     );
   }, []);
 
@@ -65,6 +60,14 @@ export const SocketProvider = ({ children }: Props) => {
     const socket = io(SOCKET_URL);
 
     socketRef.current = socket;
+
+    socket.on("connect", () => {
+      setSocketId(socket.id);
+    });
+
+    socket.on("disconnect", () => {
+      setSocketId(undefined);
+    });
 
     socket.on("user:connected", handleConnected);
     socket.on("room:availableRooms", handleAvailable);
@@ -74,16 +77,14 @@ export const SocketProvider = ({ children }: Props) => {
     return () => {
       socket.off("user:connected", handleConnected);
       socket.off("room:availableRooms", handleAvailable);
+
       socket.disconnect();
+      socketRef.current = null;
+      setSocketId(undefined);
     };
   }, [handleAvailable, handleConnected, fetchRooms]);
 
-  if (
-    cardsLoading ||
-    !isNameReady ||
-    !areRoomsReady ||
-    rooms === null
-  ) {
+  if (cardsLoading || !isNameReady || !areRoomsReady || rooms === null) {
     return (
       <MainLayout>
         <Spinner />
@@ -94,9 +95,12 @@ export const SocketProvider = ({ children }: Props) => {
   return (
     <SocketContext.Provider
       value={{
-        socket: socketRef.current,
+        socketRef,
+        socketId,
+
         userName,
         setUserName,
+
         rooms,
         fetchRooms,
       }}

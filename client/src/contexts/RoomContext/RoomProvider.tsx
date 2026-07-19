@@ -7,16 +7,10 @@ import {
 } from "react";
 import { useNavigate, useParams } from "react-router";
 
-import {
-  GAME_COLORS,
-  RESPONSE_METADATA,
-} from "@/constants";
+import { GAME_COLORS, RESPONSE_METADATA } from "@/constants";
 import { useSocket } from "@/contexts/SocketContext";
 import { RoomContext } from "./RoomContext";
-import {
-  useNotification,
-  useRoomErrorHandler,
-} from "@/hooks";
+import { useNotification, useRoomErrorHandler } from "@/hooks";
 import { Spinner } from "@/components";
 
 import type {
@@ -29,45 +23,36 @@ import type {
 
 type RoomView = "lobby" | "game";
 
-export const RoomProvider = ({
-  children,
-}: {
-  children: ReactNode;
-}) => {
+export const RoomProvider = ({ children }: { children: ReactNode }) => {
   const { roomId } = useParams();
   const navigate = useNavigate();
 
-  const { socket } = useSocket();
+  const { socketRef, socketId } = useSocket();
 
-  const [roomView, setRoomView] =
-    useState<RoomView>("lobby");
+  const [roomView, setRoomView] = useState<RoomView>("lobby");
 
   const [room, setRoom] = useState<Room | null>(null);
   const [isReady, setIsReady] = useState(false);
 
   const [stgOpened, setStgOpened] = useState(false);
 
-  const [winner, setWinner] =
-    useState<NotificationInfo | null>(null);
+  const [winner, setWinner] = useState<NotificationInfo | null>(null);
 
-  const { successNoti, errorNoti, quitNoti, resetNoti } =
-    useNotification();
+  const { successNoti, errorNoti, quitNoti, resetNoti } = useNotification();
   const handleError = useRoomErrorHandler();
 
   const isAdmin = useMemo(
-    () => socket?.id === room?.adminId,
-    [socket, room]
+    () => socketId === room?.adminId,
+    [socketId, room?.adminId],
   );
 
   const clientColor = useMemo(() => {
-    const client = room?.players.find(
-      (p) => p.id === socket?.id
-    );
+    const client = room?.players.find((p) => p.id === socketId);
 
     if (!client) return "black";
 
     return GAME_COLORS[client.pos - 1].hex;
-  }, [socket, room]);
+  }, [room?.players, socketId]);
 
   const handleNewData = useCallback((newData: Room) => {
     setRoom(newData);
@@ -78,7 +63,7 @@ export const RoomProvider = ({
       resetNoti(RESPONSE_METADATA.SCORES_RESET);
       setRoom(room);
     },
-    [resetNoti]
+    [resetNoti],
   );
 
   const handleGameStarted = useCallback(() => {
@@ -103,7 +88,7 @@ export const RoomProvider = ({
       setStgOpened(false);
       setRoomView("lobby");
     },
-    [errorNoti, quitNoti]
+    [errorNoti, quitNoti],
   );
 
   const clearWinner = useCallback(() => {
@@ -117,20 +102,18 @@ export const RoomProvider = ({
   }, [errorNoti, navigate]);
 
   useEffect(() => {
-    if (!socket) return;
+    if (!socketRef.current) return;
 
-    socket.emit(
-      "room:getData",
-      { roomId },
-      (res: SocketRes<Room>) => {
-        if (res.success) {
-          setRoom(res.data);
-          setIsReady(true);
-        } else {
-          handleError(res.error);
-        }
+    const socket = socketRef.current;
+
+    socket.emit("room:getData", { roomId }, (res: SocketRes<Room>) => {
+      if (res.success) {
+        setRoom(res.data);
+        setIsReady(true);
+      } else {
+        handleError(res.error);
       }
-    );
+    });
 
     socket.on("room:currentData", handleNewData);
     socket.on("room:scoresReset", handleScoresReset);
@@ -147,7 +130,7 @@ export const RoomProvider = ({
       socket.off("room:error", handleError);
     };
   }, [
-    socket,
+    socketRef,
     roomId,
     handleNewData,
     handleGameStarted,
@@ -158,7 +141,7 @@ export const RoomProvider = ({
   ]);
 
   const startGame = useCallback(() => {
-    socket?.emit(
+    socketRef.current?.emit(
       "room:startGame",
       (res: SocketRes<EmptyResponse>) => {
         if (res.success) {
@@ -166,27 +149,27 @@ export const RoomProvider = ({
         } else {
           handleError(res.error);
         }
-      }
+      },
     );
-  }, [socket, handleGameStarted, handleError]);
+  }, [socketRef, handleGameStarted, handleError]);
 
   const leaveRoom = useCallback(() => {
     successNoti("room.notification.left");
 
-    socket?.emit("room:leave");
+    socketRef.current?.emit("room:leave");
     void navigate("/", { replace: true });
-  }, [socket, successNoti, navigate]);
+  }, [socketRef, successNoti, navigate]);
 
   const stopGame = useCallback(() => {
-    socket?.emit(
+    socketRef.current?.emit(
       "room:stopGame",
       (res: SocketRes<EmptyResponse>) => {
         if (!res.success) {
           handleError(res.error);
         }
-      }
+      },
     );
-  }, [handleError, socket]);
+  }, [handleError, socketRef]);
 
   const openSettings = useCallback(() => {
     setStgOpened(true);
@@ -197,25 +180,18 @@ export const RoomProvider = ({
   }, []);
 
   const resetScores = useCallback(() => {
-    socket?.emit(
-      "room:resetScores",
-      (res: SocketRes<Room>) => {
-        if (res.success) {
-          handleScoresReset(res.data);
-        } else {
-          handleError(res.error);
-        }
+    socketRef.current?.emit("room:resetScores", (res: SocketRes<Room>) => {
+      if (res.success) {
+        handleScoresReset(res.data);
+      } else {
+        handleError(res.error);
       }
-    );
-  }, [socket, handleScoresReset, handleError]);
+    });
+  }, [socketRef, handleScoresReset, handleError]);
 
   // handle browser return
   useEffect(() => {
-    window.history.pushState(
-      null,
-      "",
-      window.location.href
-    );
+    window.history.pushState(null, "", window.location.href);
   }, []);
 
   useEffect(() => {
@@ -224,9 +200,9 @@ export const RoomProvider = ({
     return () => {
       window.removeEventListener("popstate", leaveRoom);
     };
-  }, [socket, navigate, leaveRoom]);
+  }, [navigate, leaveRoom]);
 
-  if (!room || !isReady || !socket) {
+  if (!room || !isReady || !socketId) {
     return <Spinner />;
   }
 
@@ -241,7 +217,6 @@ export const RoomProvider = ({
         clientColor,
 
         winner,
-        clientId: socket.id,
         clearWinner,
 
         startGame,

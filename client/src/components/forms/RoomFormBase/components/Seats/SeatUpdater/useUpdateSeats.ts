@@ -1,20 +1,10 @@
-import {
-  useCallback,
-  type Dispatch,
-  type SetStateAction,
-} from "react";
+import { useCallback, type Dispatch, type SetStateAction } from "react";
 import { useTranslation } from "react-i18next";
 
 import { ERROR_CODES } from "@shared/constants";
-import {
-  ERROR_METADATA,
-  RESPONSE_METADATA,
-} from "@/constants";
+import { ERROR_METADATA, RESPONSE_METADATA } from "@/constants";
 import { useSocket } from "@/contexts/SocketContext";
-import {
-  useNotification,
-  useRoomErrorHandler,
-} from "@/hooks";
+import { useNotification, useRoomErrorHandler } from "@/hooks";
 
 import type {
   SocketRes,
@@ -24,18 +14,18 @@ import type {
 } from "@shared/types";
 
 export const useUpdateSeats = (
-  setSeatError: Dispatch<SetStateAction<string>>
+  setSeatError: Dispatch<SetStateAction<string>>,
 ) => {
   const { t } = useTranslation();
 
-  const { socket } = useSocket();
+  const { socketRef } = useSocket();
 
   const handleError = useRoomErrorHandler();
   const { successNoti } = useNotification();
 
   const openSeat = useCallback(
     (newData: RoomSeat) => {
-      socket?.emit(
+      socketRef.current?.emit(
         "room:openSeat",
         newData,
         (res: SocketRes<EmptyResponse>) => {
@@ -54,15 +44,15 @@ export const useUpdateSeats = (
                 return;
             }
           }
-        }
+        },
       );
     },
-    [socket, handleError, setSeatError, t]
+    [socketRef, handleError, setSeatError, t],
   );
 
   const closeSeat = useCallback(
     (pos: PlayerPos) => {
-      socket?.emit(
+      socketRef.current?.emit(
         "room:closeSeat",
         { pos },
         (res: SocketRes<EmptyResponse>) => {
@@ -81,15 +71,15 @@ export const useUpdateSeats = (
                 return;
             }
           }
-        }
+        },
       );
     },
-    [socket, handleError, setSeatError, t]
+    [socketRef, handleError, setSeatError, t],
   );
 
   const kickPlayerOut = useCallback(
     (pos: PlayerPos) => {
-      socket?.emit(
+      socketRef.current?.emit(
         "room:kickPlayer",
         { pos },
         (res: SocketRes<EmptyResponse>) => {
@@ -98,10 +88,10 @@ export const useUpdateSeats = (
           } else {
             handleError(res.error);
           }
-        }
+        },
       );
     },
-    [socket, successNoti, handleError]
+    [socketRef, successNoti, handleError],
   );
 
   return { openSeat, closeSeat, kickPlayerOut };

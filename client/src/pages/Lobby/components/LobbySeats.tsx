@@ -9,16 +9,11 @@ import { SeatBox } from "@/components";
 
 type BoardPosition = "top" | "bottom" | "left" | "right";
 
-const layout: BoardPosition[] = [
-  "bottom",
-  "left",
-  "top",
-  "right",
-];
+const layout: BoardPosition[] = ["bottom", "left", "top", "right"];
 
 const getBoardPosition = (
   clientPos: number,
-  seatPos: number
+  seatPos: number,
 ): BoardPosition => {
   return layout[(seatPos - clientPos + 4) % 4];
 };
@@ -42,28 +37,23 @@ interface Props {
 }
 
 export const LobbySeats = ({ room, children }: Props) => {
-  const { socket } = useSocket();
+  const { socketId } = useSocket();
 
   const client = useMemo(
-    () =>
-      room.players.find(
-        (player) => player.id === socket?.id
-      ),
-    [room.players, socket?.id]
+    () => room.players.find((player) => player.id === socketId),
+    [room.players, socketId],
   );
 
   const playerByPos = useMemo(
     () =>
       Object.fromEntries(
         room.seats.map((s) => {
-          const player = room.players.find(
-            (p) => p.pos === s.pos
-          );
+          const player = room.players.find((p) => p.pos === s.pos);
 
           return [s.pos, player];
-        })
+        }),
       ),
-    [room.players, room.seats]
+    [room.players, room.seats],
   );
 
   if (!client) return null;
@@ -83,13 +73,7 @@ export const LobbySeats = ({ room, children }: Props) => {
         return (
           <SeatCard key={hex} borderColor={hex} pos={pos}>
             {player ? (
-              <Text
-                size="sm"
-                fw={700}
-                c={hex}
-                ta="center"
-                inline={true}
-              >
+              <Text size="sm" fw={700} c={hex} ta="center" inline={true}>
                 {player.name}
               </Text>
             ) : (
@@ -99,13 +83,7 @@ export const LobbySeats = ({ room, children }: Props) => {
         );
       })}
 
-      <Flex
-        h="100%"
-        w="100%"
-        p={BOARD_PADDING}
-        gap={0}
-        pos="relative"
-      >
+      <Flex h="100%" w="100%" p={BOARD_PADDING} gap={0} pos="relative">
         {children}
       </Flex>
     </>

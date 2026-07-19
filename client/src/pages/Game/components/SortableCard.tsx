@@ -29,11 +29,7 @@ export const SortableCard = ({
     index,
     data: { card },
     disabled: locked,
-    modifiers: [
-      RestrictToElement.configure({
-        element: container,
-      }),
-    ],
+    modifiers: [RestrictToElement.configure({ element: container })],
   });
 
   return (
@@ -43,11 +39,7 @@ export const SortableCard = ({
       w={CARD.width}
       pos="absolute"
       style={{
-        cursor: locked
-          ? undefined
-          : isDragging
-            ? "grabbing"
-            : "grab",
+        cursor: locked ? undefined : isDragging ? "grabbing" : "grab",
         touchAction: "none",
         zIndex: index,
         ...styles,

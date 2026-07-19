@@ -17,27 +17,13 @@ interface Props {
   container: HTMLDivElement | null;
 }
 
-export const Pile = ({
-  width,
-  pile,
-  validMove,
-  game,
-  container,
-}: Props) => {
+export const Pile = ({ width, pile, validMove, game, container }: Props) => {
   const { cardsMap } = useCardsMap();
 
-  const { ref } = useDroppable({
-    id: "pile",
-  });
+  const { ref } = useDroppable({ id: "pile" });
 
   return (
-    <Flex
-      w={width}
-      h={width}
-      align="center"
-      justify="center"
-      pos="relative"
-    >
+    <Flex w={width} h={width} align="center" justify="center" pos="relative">
       <CardPile ref={ref} validMove={validMove}>
         <Flex w={CARD.width} h={CARD.height}>
           {pile.map((card, index) => (

@@ -24,9 +24,7 @@ export const FormInput = <T,>({
 
   const isMobile = useIsMobile();
 
-  const handleKeyDown = (
-    e: React.KeyboardEvent<HTMLInputElement>
-  ) => {
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key !== "Enter") return;
 
     if (blurOnEnter) {
@@ -49,12 +47,7 @@ export const FormInput = <T,>({
       onKeyDown={handleKeyDown}
       styles={
         readOnly
-          ? {
-              input: {
-                userSelect: "none",
-                pointerEvents: "none",
-              },
-            }
+          ? { input: { userSelect: "none", pointerEvents: "none" } }
           : undefined
       }
     />

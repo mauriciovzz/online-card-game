@@ -11,11 +11,7 @@ import {
   HelpModal,
   HelpButton,
 } from "@/components";
-import {
-  CreateRoomForm,
-  RoomList,
-  UserNameInput,
-} from "./components";
+import { CreateRoomForm, RoomList, UserNameInput } from "./components";
 
 export const HomePage = () => {
   const [view, toggleView] = useToggle(["list", "create"]);
@@ -47,7 +43,11 @@ export const HomePage = () => {
           disabled={nameEditable}
         />
 
-        <HelpButton onClick={() => setHelpOpened(true)} />
+        <HelpButton
+          onClick={() => {
+            setHelpOpened(true);
+          }}
+        />
 
         <LangToggler />
 
@@ -56,7 +56,9 @@ export const HomePage = () => {
 
       <HelpModal
         opened={helpOpened}
-        onClose={() => setHelpOpened(false)}
+        onClose={() => {
+          setHelpOpened(false);
+        }}
       />
     </>
   );

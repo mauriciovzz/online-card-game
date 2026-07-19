@@ -1,33 +1,17 @@
-import {
-  useCallback,
-  useRef,
-  type Dispatch,
-  type SetStateAction,
-} from "react";
+import { useCallback, useRef, type Dispatch, type SetStateAction } from "react";
 import { flushSync } from "react-dom";
 import { Group, Stack } from "@mantine/core";
-import {
-  IconEdit,
-  IconX,
-  IconSend2,
-} from "@tabler/icons-react";
+import { IconEdit, IconX, IconSend2 } from "@tabler/icons-react";
 
 import { useUpdateUserName } from "./useUpdateUserName";
-import {
-  AppActionIcon,
-  FormInput,
-  Label,
-} from "@/components";
+import { AppActionIcon, FormInput, Label } from "@/components";
 
 interface Props {
   isEditable: boolean;
   setIsEditable: Dispatch<SetStateAction<boolean>>;
 }
 
-export const UserNameInput = ({
-  isEditable,
-  setIsEditable,
-}: Props) => {
+export const UserNameInput = ({ isEditable, setIsEditable }: Props) => {
   const inputRef = useRef<HTMLInputElement | null>(null);
 
   const onUpdate = useCallback(() => {
@@ -35,8 +19,7 @@ export const UserNameInput = ({
     inputRef.current?.blur();
   }, [setIsEditable]);
 
-  const { userName, form, updateUserName } =
-    useUpdateUserName(onUpdate);
+  const { userName, form, updateUserName } = useUpdateUserName(onUpdate);
 
   const startEditing = () => {
     flushSync(() => {
@@ -55,10 +38,7 @@ export const UserNameInput = ({
     <form onSubmit={form.onSubmit(updateUserName)}>
       <Group gap="sm" w="100%">
         <Stack gap={0} flex={1}>
-          <Label
-            text={"user.name.label"}
-            error={form.errors.name}
-          />
+          <Label text={"user.name.label"} error={form.errors.name} />
           <FormInput
             ref={inputRef}
             form={form}

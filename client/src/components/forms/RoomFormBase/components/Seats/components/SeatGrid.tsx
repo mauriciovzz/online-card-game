@@ -1,10 +1,6 @@
 import { Box } from "@mantine/core";
 
-import {
-  SEAT_GAP,
-  SEAT_HEIGHT,
-  SEAT_WIDTH,
-} from "../constants/seatSize";
+import { SEAT_GAP, SEAT_HEIGHT, SEAT_WIDTH } from "../constants/seatSize";
 
 const GRID_STYLE: React.CSSProperties = {
   display: "grid",
@@ -16,11 +12,7 @@ const GRID_STYLE: React.CSSProperties = {
   alignItems: "center",
 };
 
-export function SeatGrid({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export function SeatGrid({ children }: { children: React.ReactNode }) {
   return (
     <Box w={309} h={74} style={GRID_STYLE}>
       {children}

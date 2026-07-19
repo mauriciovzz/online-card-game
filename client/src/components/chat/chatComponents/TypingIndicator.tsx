@@ -8,10 +8,7 @@ interface Props {
   themeColor: string;
 }
 
-export const TypingIndicator = ({
-  typers,
-  themeColor,
-}: Props) => {
+export const TypingIndicator = ({ typers, themeColor }: Props) => {
   const { room } = useRoom();
 
   return (

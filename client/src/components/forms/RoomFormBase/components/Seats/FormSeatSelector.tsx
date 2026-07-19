@@ -1,25 +1,13 @@
-import {
-  Stack,
-  SegmentedControl,
-  Center,
-} from "@mantine/core";
+import { Stack, SegmentedControl, Center } from "@mantine/core";
 import type { UseFormReturnType } from "@mantine/form";
 import { useTranslation } from "react-i18next";
 
 import { GAME_COLORS, PLAYER_TYPES } from "@/constants";
 import { SEAT_HEIGHT } from "./constants/seatSize";
 import { LabelWithPopover } from "@/components";
-import {
-  SeatCreator,
-  SeatGrid,
-  PlayerContent,
-  SeatFrame,
-} from "./components";
+import { SeatCreator, SeatGrid, PlayerContent, SeatFrame } from "./components";
 
-import type {
-  CreateRoomProps,
-  PlayerType,
-} from "@shared/types";
+import type { CreateRoomProps, PlayerType } from "@shared/types";
 
 const SeatSegmentedControl = ({
   color,
@@ -41,13 +29,8 @@ const SeatSegmentedControl = ({
       transitionDuration={0}
       styles={{
         root: { SEAT_HEIGHT },
-        control: {
-          height: SEAT_HEIGHT - 10,
-        },
-        label: {
-          height: SEAT_HEIGHT - 10,
-          padding: 0,
-        },
+        control: { height: SEAT_HEIGHT - 10 },
+        label: { height: SEAT_HEIGHT - 10, padding: 0 },
       }}
       data={PLAYER_TYPES.map(({ key, icon: Icon }) => ({
         value: key,
@@ -84,10 +67,7 @@ export const FormSeatSelector = ({ form }: Props) => {
 
       <SeatGrid>
         <SeatFrame pos={1} color={GAME_COLORS[0].hex}>
-          <PlayerContent
-            text={t("common.you")}
-            color={GAME_COLORS[0].hex}
-          />
+          <PlayerContent text={t("common.you")} color={GAME_COLORS[0].hex} />
         </SeatFrame>
 
         {form.values.seats.map(({ pos, type }) => {
@@ -101,15 +81,12 @@ export const FormSeatSelector = ({ form }: Props) => {
                 pos={pos}
                 color={color}
                 action={{
-                  onClick: () =>
-                    form.setFieldValue(path, undefined),
+                  onClick: () => {
+                    form.setFieldValue(path, undefined);
+                  },
                 }}
               >
-                <SeatSegmentedControl
-                  color={color}
-                  form={form}
-                  path={path}
-                />
+                <SeatSegmentedControl color={color} form={form} path={path} />
               </SeatFrame>
             );
           }
@@ -120,9 +97,9 @@ export const FormSeatSelector = ({ form }: Props) => {
               pos={pos}
               color={color}
               autoHuman
-              onSelect={(type: PlayerType) =>
-                form.setFieldValue(path, type)
-              }
+              onSelect={(type: PlayerType) => {
+                form.setFieldValue(path, type);
+              }}
             />
           );
         })}

@@ -12,10 +12,7 @@ export const App = () => (
         <Route path="/room/:roomId" element={<Room />} />
       </Route>
 
-      <Route
-        path="/*"
-        element={<Navigate to="/" replace />}
-      />
+      <Route path="/*" element={<Navigate to="/" replace />} />
     </Route>
   </Routes>
 );

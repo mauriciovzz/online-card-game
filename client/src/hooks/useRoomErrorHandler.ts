@@ -22,7 +22,7 @@ export const useRoomErrorHandler = () => {
         void navigate(meta.redirect, { replace: true });
       }
     },
-    [errorNoti, navigate]
+    [errorNoti, navigate],
   );
 
   return handleError;

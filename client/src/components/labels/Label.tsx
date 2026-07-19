@@ -1,9 +1,5 @@
 import { useTranslation } from "react-i18next";
-import {
-  Group,
-  Text,
-  type MantineSize,
-} from "@mantine/core";
+import { Group, Text, type MantineSize } from "@mantine/core";
 import type { ReactNode } from "react";
 
 interface Props {

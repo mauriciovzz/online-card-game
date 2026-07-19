@@ -16,12 +16,7 @@ export const InfoBox = memo(({ text, info }: Props) => {
     <Stack flex={1} gap={0} style={{ userSelect: "none" }}>
       {text && <Label text={text} />}
       <Paper h={size} withBorder bdrs="md">
-        <Flex
-          h="100%"
-          w="100%"
-          justify="center"
-          align="center"
-        >
+        <Flex h="100%" w="100%" justify="center" align="center">
           {info}
         </Flex>
       </Paper>

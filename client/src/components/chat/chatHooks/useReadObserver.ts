@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, type RefObject } from "react";
 
 import type { Message } from "@shared/types";
 
@@ -7,8 +7,8 @@ interface Params {
   vpRef: React.RefObject<HTMLDivElement | null>;
   messages: Message[];
   messageRefs: React.RefObject<Map<string, HTMLDivElement>>;
-  lastReadTS: number;
-  myId?: string;
+  lastReadRef: RefObject<number>;
+  socketId: string | undefined;
   emitRead: (timestamp: number) => void;
 }
 
@@ -17,8 +17,8 @@ export const useReadObserver = ({
   vpRef,
   messages,
   messageRefs,
-  lastReadTS,
-  myId,
+  lastReadRef,
+  socketId,
   emitRead,
 }: Params) => {
   const messageMap = useMemo(() => {
@@ -36,7 +36,7 @@ export const useReadObserver = ({
 
     const observer = new IntersectionObserver(
       (entries) => {
-        let maxSeen = lastReadTS;
+        let maxSeen = lastReadRef.current;
 
         entries.forEach((entry) => {
           if (!entry.isIntersecting) return;
@@ -45,28 +45,25 @@ export const useReadObserver = ({
           if (!id) return;
 
           const msg = messageMap.get(id);
-          if (!msg || msg.senderId === myId) return;
+          if (!msg || msg.senderId === socketId) return;
 
           if (msg.createdAt > maxSeen) {
             maxSeen = msg.createdAt;
           }
         });
 
-        if (maxSeen > lastReadTS) {
+        if (maxSeen > lastReadRef.current) {
           emitRead(maxSeen);
         }
       },
-      {
-        root,
-        threshold: 0.5,
-      }
+      { root, threshold: 0.5 },
     );
 
     messageRefs.current.forEach((el, id) => {
       const msg = messageMap.get(id);
       if (!msg) return;
 
-      if (msg.createdAt > lastReadTS) {
+      if (msg.createdAt > lastReadRef.current) {
         observer.observe(el);
       }
     });
@@ -77,11 +74,11 @@ export const useReadObserver = ({
   }, [
     chatOpened,
     emitRead,
-    lastReadTS,
     messages,
     messageRefs,
     messageMap,
-    myId,
+    socketId,
     vpRef,
+    lastReadRef,
   ]);
 };

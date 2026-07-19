@@ -1,3 +1,20 @@
-# Ignore artifacts:
-build
-coverage
+# Build outputs
+build/
+dist/
+
+# Dependencies
+node_modules/
+package-lock.json
+
+# Environment variables
+.env
+.env.*
+
+# Static assets and media
+public/
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.svg
+*.ico

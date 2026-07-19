@@ -41,12 +41,7 @@ export const GameBar = ({
   const canStack = myTurn && turn.effect !== null && stack;
 
   const action = !myTurn
-    ? {
-        text: "game.draw",
-        onClick: drawCard,
-        disabled: true,
-        color: undefined,
-      }
+    ? { text: "game.draw", onClick: drawCard, disabled: true, color: undefined }
     : canStack
       ? {
           text: "game.dontStack",
@@ -55,14 +50,8 @@ export const GameBar = ({
           color: clientColor,
         }
       : draw
-        ? {
-            text: "game.draw",
-            onClick: drawCard,
-          }
-        : {
-            text: "game.continue",
-            onClick: endTurn,
-          };
+        ? { text: "game.draw", onClick: drawCard }
+        : { text: "game.continue", onClick: endTurn };
 
   return (
     <Group gap="sm">
@@ -74,10 +63,7 @@ export const GameBar = ({
         color={action.color}
       />
 
-      <AppActionIcon
-        disabled={!canCallUno}
-        onClick={callUno}
-      >
+      <AppActionIcon disabled={!canCallUno} onClick={callUno}>
         <IconNumber1 size={20} stroke={2} />
       </AppActionIcon>
 

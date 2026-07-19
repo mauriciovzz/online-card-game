@@ -1,9 +1,5 @@
 import { Stack } from "@mantine/core";
-import {
-  SlideTitle,
-  SlideParagraph,
-  SlideSubTitle,
-} from "../components";
+import { SlideTitle, SlideParagraph, SlideSubTitle } from "../components";
 
 import { GAME_RULES } from "@/constants";
 import { useTranslation } from "react-i18next";

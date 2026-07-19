@@ -1,9 +1,5 @@
 import type { PlayerType } from "@shared/types";
-import {
-  IconMan,
-  IconRobot,
-  type TablerIcon,
-} from "@tabler/icons-react";
+import { IconMan, IconRobot, type TablerIcon } from "@tabler/icons-react";
 
 export const PLAYER_TYPES: {
   key: PlayerType;

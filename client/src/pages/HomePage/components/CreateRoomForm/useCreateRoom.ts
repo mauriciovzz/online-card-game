@@ -3,23 +3,16 @@ import { useNavigate } from "react-router";
 import { useTranslation } from "react-i18next";
 import { useForm } from "@mantine/form";
 
-import {
-  ERROR_METADATA,
-  TURN_DURATIONS,
-} from "@/constants";
+import { ERROR_METADATA, TURN_DURATIONS } from "@/constants";
 import { useSocket } from "@/contexts/SocketContext";
 
-import type {
-  CreateRoomProps,
-  SocketRes,
-  RoomId,
-} from "@shared/types";
+import type { CreateRoomProps, SocketRes, RoomId } from "@shared/types";
 import { ERROR_CODES } from "@shared/constants";
 
 export const useCreateRoom = () => {
   const navigate = useNavigate();
   const { t } = useTranslation();
-  const { socket } = useSocket();
+  const { socketRef } = useSocket();
 
   const form = useForm<CreateRoomProps>({
     mode: "controlled",
@@ -31,11 +24,7 @@ export const useCreateRoom = () => {
         { pos: 3, type: undefined },
         { pos: 4, type: undefined },
       ],
-      rules: {
-        mirror: false,
-        stair: false,
-        stack: false,
-      },
+      rules: { mirror: false, stair: false, stack: false },
     },
     validate: {
       name: (value) => {
@@ -43,16 +32,14 @@ export const useCreateRoom = () => {
 
         if (!trimmed) return t("errors.common.empty");
 
-        if (trimmed.length > 15)
-          return t("errors.room.maxLength");
+        if (trimmed.length > 15) return t("errors.room.maxLength");
 
         return null;
       },
       seats: (value) => {
         const members = value.filter((s) => s.type).length;
 
-        if (members === 0)
-          return t("errors.room.notEnoughtSeats");
+        if (members === 0) return t("errors.room.notEnoughtSeats");
 
         return null;
       },
@@ -61,7 +48,7 @@ export const useCreateRoom = () => {
 
   const createRoom = useCallback(
     (newData: CreateRoomProps) => {
-      socket?.emit(
+      socketRef.current?.emit(
         "room:create",
         newData,
         (res: SocketRes<RoomId>) => {
@@ -77,18 +64,15 @@ export const useCreateRoom = () => {
                 return;
               }
               case ERROR_CODES.NOT_ENOUGH_SEATS: {
-                form.setFieldError(
-                  "seats",
-                  t(meta.message)
-                );
+                form.setFieldError("seats", t(meta.message));
                 return;
               }
             }
           }
-        }
+        },
       );
     },
-    [socket, navigate, form, t]
+    [socketRef, navigate, form, t],
   );
 
   return { form, createRoom };

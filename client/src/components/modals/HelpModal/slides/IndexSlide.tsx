@@ -1,11 +1,4 @@
-import {
-  ActionIcon,
-  Button,
-  Divider,
-  Group,
-  Stack,
-  Text,
-} from "@mantine/core";
+import { ActionIcon, Button, Divider, Group, Stack, Text } from "@mantine/core";
 import {
   IconBrandGithub,
   IconBrandLinkedin,
@@ -22,76 +15,25 @@ const IndexButton = ({
   text: string;
   onClick: () => void;
 }) => (
-  <Button
-    flex={1}
-    variant="subtle"
-    size="compact-sm"
-    onClick={onClick}
-  >
+  <Button flex={1} variant="subtle" size="compact-sm" onClick={onClick}>
     {text}
   </Button>
 );
 
 const SLIDES = [
-  {
-    key: "unoBasics",
-    text: "help.basics.title",
-    page: 1,
-  },
-  {
-    key: "cards",
-    text: "help.cards.heading",
-    page: 2,
-  },
-  {
-    key: "points",
-    text: "help.points.heading",
-    page: 3,
-  },
-  {
-    key: "houseRules",
-    text: "help.rules.heading",
-    page: 4,
-  },
-  {
-    key: "homePage",
-    text: "help.home.heading",
-    page: 5,
-  },
-  {
-    key: "lobbyPage",
-    text: "help.lobby.heading",
-    page: 6,
-  },
-  {
-    key: "gamePage",
-    text: "help.game.heading",
-    page: 7,
-  },
-  {
-    key: "gameBar",
-    text: "help.buttons.heading",
-    page: 8,
-  },
-  {
-    key: "settings",
-    text: "help.settings.heading",
-    page: 9,
-  },
-  {
-    key: "installApp",
-    text: "help.install.heading",
-    page: 10,
-  },
+  { key: "unoBasics", text: "help.basics.title", page: 1 },
+  { key: "cards", text: "help.cards.heading", page: 2 },
+  { key: "points", text: "help.points.heading", page: 3 },
+  { key: "houseRules", text: "help.rules.heading", page: 4 },
+  { key: "homePage", text: "help.home.heading", page: 5 },
+  { key: "lobbyPage", text: "help.lobby.heading", page: 6 },
+  { key: "gamePage", text: "help.game.heading", page: 7 },
+  { key: "gameBar", text: "help.buttons.heading", page: 8 },
+  { key: "settings", text: "help.settings.heading", page: 9 },
+  { key: "installApp", text: "help.install.heading", page: 10 },
 ];
 
-const IconButton = ({
-  icon: Icon,
-  url,
-}: {
-  icon: TablerIcon;
-  url: string;
-}) => (
+const IconButton = ({ icon: Icon, url }: { icon: TablerIcon; url: string }) => (
   <ActionIcon
     variant="transparent"
     component="a"
@@ -109,16 +51,8 @@ const LINKS = [
     icon: IconBrandLinkedin,
     url: "https://www.linkedin.com/",
   },
-  {
-    key: "github",
-    icon: IconBrandGithub,
-    url: "http://github.com/",
-  },
-  {
-    key: "briefcase",
-    icon: IconBriefcase,
-    url: "http://google.com/",
-  },
+  { key: "github", icon: IconBrandGithub, url: "http://github.com/" },
+  { key: "briefcase", icon: IconBriefcase, url: "http://google.com/" },
 ];
 
 interface Props {
@@ -152,10 +86,7 @@ export const IndexSlide = ({ embla }: Props) => {
           </Text>
         </Stack>
 
-        <Group
-          justify="center"
-          style={{ userSelect: "none" }}
-        >
+        <Group justify="center" style={{ userSelect: "none" }}>
           {LINKS.map(({ key, icon, url }) => (
             <IconButton key={key} icon={icon} url={url} />
           ))}

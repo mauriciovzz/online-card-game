@@ -1,9 +1,4 @@
-import {
-  useCallback,
-  useEffect,
-  useMemo,
-  useState,
-} from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Box, Group } from "@mantine/core";
 import { useElementSize } from "@mantine/hooks";
 import {
@@ -11,10 +6,7 @@ import {
   type DragEndEvent,
   type DragOverEvent,
 } from "@dnd-kit/react";
-import {
-  PointerSensor,
-  PointerActivationConstraints,
-} from "@dnd-kit/dom";
+import { PointerSensor, PointerActivationConstraints } from "@dnd-kit/dom";
 import { move } from "@dnd-kit/helpers";
 
 import { useRoom } from "@/contexts/RoomContext";
@@ -39,6 +31,7 @@ import {
 import moveHelper from "@shared/utils/moveHelper";
 import type { Card, CardColor } from "@shared/types";
 import { useIsMobile } from "@/hooks";
+import { useSocket } from "@/contexts/SocketContext";
 
 type Cont = HTMLDivElement | null;
 type IsValid = boolean | null;
@@ -54,35 +47,24 @@ export const Game = () => {
   const [picker, setPicker] = useState(false);
   const [penCard, setPenCard] = useState<Card | null>(null);
 
-  const {
-    room,
-    clientColor,
-    winner,
-    clientId,
-    clearWinner,
-  } = useRoom();
+  const { socketId } = useSocket();
 
-  const {
-    game,
-    items,
-    setItems,
-    uno,
-    pendingCardRef,
-    rollbackCard,
-    funcs,
-  } = useGame();
+  const { room, clientColor, winner, clearWinner } = useRoom();
+
+  const { game, items, setItems, uno, pendingCardRef, rollbackCard, funcs } =
+    useGame();
 
   const { turn, myTurn } = useTurn();
 
   useEffect(() => {
-    if (picker) {
-      setPicker(false);
-    }
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setPicker(false);
   }, [turn?.startTime]);
 
   useEffect(() => {
     if (myTurn) return;
 
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setValidMove(null);
 
     if (penCard) {
@@ -93,18 +75,14 @@ export const Game = () => {
 
   const currentPlayerName = useMemo(
     () =>
-      game?.players.find(
-        (player) => player.id === turn?.currentPlayerId
-      )?.name,
-    [game, turn]
+      game?.players.find((player) => player.id === turn?.currentPlayerId)?.name,
+    [game, turn],
   );
 
   const sensors = [
     PointerSensor.configure({
       activationConstraints: [
-        new PointerActivationConstraints.Distance({
-          value: 2,
-        }),
+        new PointerActivationConstraints.Distance({ value: 2 }),
       ],
     }),
   ];
@@ -131,14 +109,10 @@ export const Game = () => {
 
         const validateMove = () =>
           isChainMove
-            ? moveHelper.checkChainMove(
-                topCard,
-                card,
-                room.rules
-              )
+            ? moveHelper.checkChainMove(topCard, card, room.rules)
             : moveHelper.checkMove(topCard, card);
 
-        let isValid = false;
+        let isValid;
 
         if (turn?.effect) {
           isValid = turn.effect === card.type;
@@ -153,10 +127,7 @@ export const Game = () => {
         return;
       }
 
-      setItems((prev) => ({
-        ...prev,
-        cards: move(prev.cards, event),
-      }));
+      setItems((prev) => ({ ...prev, cards: move(prev.cards, event) }));
 
       setValidMove(null);
     },
@@ -167,9 +138,8 @@ export const Game = () => {
       room.rules,
       items.pile,
       items.cards.length,
-      turn?.actions.play,
-      turn?.effect,
-    ]
+      turn,
+    ],
   );
 
   const onDragEnd = useCallback(
@@ -185,9 +155,7 @@ export const Game = () => {
       setItems((prev) => {
         const updated = move(prev, event);
 
-        const index = updated.pile.findIndex(
-          (item) => item.id === card.id
-        );
+        const index = updated.pile.findIndex((item) => item.id === card.id);
 
         updated.pile.push(updated.pile.splice(index, 1)[0]);
 
@@ -196,9 +164,7 @@ export const Game = () => {
 
       setValidMove(null);
 
-      const isWild =
-        card.type === "WILD_CARD" ||
-        card.type === "DRAW_FOUR";
+      const isWild = card.type === "WILD_CARD" || card.type === "DRAW_FOUR";
 
       if (isWild) {
         pendingCardRef.current = card;
@@ -209,36 +175,26 @@ export const Game = () => {
       }
 
       setTimeout(() => {
-        funcs.playCard({
-          ...card,
-          cardId: card.id,
-        });
+        funcs.playCard({ ...card, cardId: card.id });
       }, 300);
     },
-    [myTurn, validMove, setItems, pendingCardRef, funcs]
+    [myTurn, validMove, setItems, pendingCardRef, funcs],
   );
 
   const pickColor = useCallback(
     (color: CardColor) => {
       if (!penCard) return;
 
-      funcs.playCard({
-        ...penCard,
-        cardId: penCard.id,
-        chosenColor: color,
-      });
+      funcs.playCard({ ...penCard, cardId: penCard.id, chosenColor: color });
 
       setPenCard(null);
     },
-    [penCard, funcs]
+    [penCard, funcs],
   );
 
   return (
     <>
-      <div
-        ref={ref}
-        style={{ width: "100%", position: "absolute" }}
-      />
+      <div ref={ref} style={{ width: "100%", position: "absolute" }} />
 
       {!game || !turn || width === 0 ? (
         <Spinner />
@@ -248,16 +204,12 @@ export const Game = () => {
 
           <Group gap="sm">
             <TurnIndicator
-              player={
-                myTurn ? undefined : currentPlayerName
-              }
+              player={myTurn ? undefined : currentPlayerName}
               turnDuration={room.turnDuration}
               startTime={turn.startTime}
             />
 
-            <InfoBox
-              info={<SelectedRules rules={room.rules} />}
-            />
+            <InfoBox info={<SelectedRules rules={room.rules} />} />
           </Group>
 
           <DragDropProvider
@@ -265,17 +217,9 @@ export const Game = () => {
             onDragEnd={onDragEnd}
             onDragOver={onDragOver}
           >
-            <AppBox
-              ref={setContainer}
-              p="sm"
-              pos="relative"
-            >
+            <AppBox ref={setContainer} p="sm" pos="relative">
               <GameSeats
-                data={{
-                  room,
-                  game,
-                  currentPlayerId: turn.currentPlayerId,
-                }}
+                data={{ room, game, currentPlayerId: turn.currentPlayerId }}
                 cutCall={funcs.callCut}
               >
                 <Pile
@@ -305,18 +249,13 @@ export const Game = () => {
               clientColor={clientColor}
             />
 
-            {picker && (
-              <ColorPicker
-                height={height}
-                pick={pickColor}
-              />
-            )}
+            {picker && <ColorPicker height={height} pick={pickColor} />}
           </Box>
 
           {winner && (
             <WinnerOverlay
               winner={winner}
-              clientId={clientId}
+              socketId={socketId}
               onFinished={clearWinner}
             />
           )}

@@ -1,9 +1,4 @@
-import {
-  useEffect,
-  useState,
-  type ReactNode,
-  type RefObject,
-} from "react";
+import { useEffect, useState, type ReactNode, type RefObject } from "react";
 import { Flex, ScrollArea } from "@mantine/core";
 
 import { ScrollDownButton } from "./ScrollDownButton";
@@ -31,20 +26,17 @@ export const Scroll = ({
   scrollToBottom,
   children,
 }: Props) => {
-  const [lastSeenIndex, setLastSeenIndex] = useState<
-    number | null
-  >(null);
+  const [lastSeenIndex, setLastSeenIndex] = useState<number | null>(null);
 
   useEffect(() => {
     if (atBottom) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setLastSeenIndex(messages.length - 1);
     }
   }, [atBottom, messages.length]);
 
   const unread =
-    lastSeenIndex === null
-      ? 0
-      : messages.length - 1 - lastSeenIndex;
+    lastSeenIndex === null ? 0 : messages.length - 1 - lastSeenIndex;
 
   return (
     <ScrollArea
@@ -57,12 +49,7 @@ export const Scroll = ({
       onScrollPositionChange={handleScroll}
       pos="relative"
     >
-      <Flex
-        mih={height}
-        direction="column"
-        justify="flex-end"
-        gap={3}
-      >
+      <Flex mih={height} direction="column" justify="flex-end" gap={3}>
         {children}
       </Flex>
 

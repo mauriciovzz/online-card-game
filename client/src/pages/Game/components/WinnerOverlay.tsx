@@ -7,15 +7,11 @@ import type { FinishedGameInfo } from "@shared/types";
 
 interface Props {
   winner: FinishedGameInfo["winner"];
-  clientId?: string;
+  socketId?: string;
   onFinished: () => void;
 }
 
-export const WinnerOverlay = ({
-  winner,
-  clientId,
-  onFinished,
-}: Props) => {
+export const WinnerOverlay = ({ winner, socketId, onFinished }: Props) => {
   const { t } = useTranslation();
 
   const [seconds, setSeconds] = useState(5);
@@ -33,12 +29,14 @@ export const WinnerOverlay = ({
       });
     }, 1000);
 
-    return () => clearInterval(interval);
+    return () => {
+      clearInterval(interval);
+    };
   }, [onFinished]);
 
   if (!winner) return null;
 
-  const clientWon = winner.id === clientId;
+  const clientWon = winner.id === socketId;
 
   return (
     <Overlay
@@ -69,9 +67,7 @@ export const WinnerOverlay = ({
         <Text size="lg" fw={700}>
           {clientWon
             ? t("game.clientWon")
-            : t("game.someoneWon", {
-                name: winner.name,
-              })}
+            : t("game.someoneWon", { name: winner.name })}
         </Text>
 
         <Text size="lg" fw={700}>

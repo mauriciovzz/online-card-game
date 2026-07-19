@@ -1,11 +1,4 @@
-import {
-  Stack,
-  Paper,
-  Flex,
-  Group,
-  Divider,
-  Text,
-} from "@mantine/core";
+import { Stack, Paper, Flex, Group, Divider, Text } from "@mantine/core";
 import { t } from "i18next";
 
 import { useIsMobile } from "@/hooks";
@@ -24,21 +17,9 @@ export const TurnIndicator = (props: Props) => {
   const size = isMobile ? 42 : 36;
 
   return (
-    <Stack
-      flex={1}
-      miw={0}
-      h="100%"
-      gap={0}
-      style={{ userSelect: "none" }}
-    >
+    <Stack flex={1} miw={0} h="100%" gap={0} style={{ userSelect: "none" }}>
       <Paper h={size} w="100%" withBorder>
-        <Flex
-          w="100%"
-          h="100%"
-          miw={0}
-          align="center"
-          justify="center"
-        >
+        <Flex w="100%" h="100%" miw={0} align="center" justify="center">
           <Group h={20} w="100%" gap={0} wrap="nowrap">
             <Flex
               h={20}

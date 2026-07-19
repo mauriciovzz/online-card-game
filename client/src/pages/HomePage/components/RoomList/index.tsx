@@ -20,13 +20,7 @@ import { useJoinRoom } from "./useJoinRoom";
 
 import type { Room } from "@shared/types";
 
-const RoomButton = ({
-  room,
-  onClick,
-}: {
-  room: Room;
-  onClick: () => void;
-}) => {
+const RoomButton = ({ room, onClick }: { room: Room; onClick: () => void }) => {
   const { hovered, ref } = useHover();
 
   const themeColor = useThemeColor();
@@ -39,13 +33,9 @@ const RoomButton = ({
       h={54}
       px={12}
       style={(theme) => {
-        const normalBg = isDark
-          ? theme.colors.dark[6]
-          : "white";
+        const normalBg = isDark ? theme.colors.dark[6] : "white";
 
-        const hoverBg = isDark
-          ? theme.colors.dark[5]
-          : theme.colors.gray[0];
+        const hoverBg = isDark ? theme.colors.dark[5] : theme.colors.gray[0];
 
         return {
           borderBottom: `1px solid ${themeColor}`,
@@ -67,15 +57,11 @@ const RoomButton = ({
 
         <Flex w={84} h={20} wrap="wrap" gap={4}>
           {room.seats.map((seat) => {
-            const player = room.players.find(
-              (p) => p.pos === seat.pos
-            );
+            const player = room.players.find((p) => p.pos === seat.pos);
 
             const enabled = seat.type !== undefined;
 
-            const color = enabled
-              ? GAME_COLORS[seat.pos - 1].hex
-              : themeColor;
+            const color = enabled ? GAME_COLORS[seat.pos - 1].hex : themeColor;
 
             const variant = enabled
               ? player
@@ -84,12 +70,7 @@ const RoomButton = ({
               : "filled";
 
             return (
-              <Badge
-                variant={variant}
-                color={color}
-                size="sm"
-                radius="sm"
-              />
+              <Badge variant={variant} color={color} size="sm" radius="sm" />
             );
           })}
         </Flex>
@@ -109,13 +90,7 @@ export const RoomList = () => {
   }, [fetchRooms]);
 
   return rooms.length === 0 ? (
-    <Flex
-      w="100%"
-      h="100%"
-      align="center"
-      justify="center"
-      fw={700}
-    >
+    <Flex w="100%" h="100%" align="center" justify="center" fw={700}>
       {t("room.empty")}
     </Flex>
   ) : (
@@ -125,7 +100,9 @@ export const RoomList = () => {
           <RoomButton
             key={room.id}
             room={room}
-            onClick={() => joinRoom(room.id)}
+            onClick={() => {
+              joinRoom(room.id);
+            }}
           />
         ))}
       </Stack>

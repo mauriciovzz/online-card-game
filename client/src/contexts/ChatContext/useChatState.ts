@@ -4,23 +4,19 @@ import {
   useCallback,
   useMemo,
   useRef,
+  type RefObject,
 } from "react";
 import { Socket } from "socket.io-client";
 
-import type {
-  Message,
-  ReadUpdate,
-  Player,
-  PlayerId,
-} from "@shared/types";
+import type { Message, ReadUpdate, Player, PlayerId } from "@shared/types";
 
 type RStype = Record<string, number>;
 type TStype = Set<string>;
 type TTOtype = ReturnType<typeof setTimeout> | null;
 
 export const useChatState = (
-  socket: Socket | null,
-  roomPlayers: Player[]
+  socketRef: RefObject<Socket | null>,
+  roomPlayers: Player[],
 ) => {
   const [chatOpened, setChatOpened] = useState(false);
 
@@ -40,7 +36,7 @@ export const useChatState = (
       setMessages((prev) => [...prev, newMessage]);
       setUnread((prev) => (chatOpened ? prev : prev + 1));
 
-      if (newMessage.senderId !== socket?.id) {
+      if (newMessage.senderId !== socketRef.current?.id) {
         setTypers((prev) => {
           const next = new Set(prev);
           next.delete(newMessage.senderId);
@@ -48,15 +44,15 @@ export const useChatState = (
         });
       }
     },
-    [chatOpened, socket?.id]
+    [chatOpened, socketRef],
   );
 
   // typing handlers ----------
   const startTyping = () => {
-    if (!socket) return;
+    if (!socketRef.current) return;
 
     if (!isTypingRef.current) {
-      socket.emit("chat:typing:start");
+      socketRef.current.emit("chat:typing:start");
       isTypingRef.current = true;
     }
 
@@ -65,41 +61,35 @@ export const useChatState = (
     }
 
     typingTimeoutRef.current = setTimeout(() => {
-      socket.emit("chat:typing:stop");
+      socketRef.current?.emit("chat:typing:stop");
       isTypingRef.current = false;
     }, 1500);
   };
 
   const stopTypingImmediately = () => {
-    if (!socket) return;
+    if (!socketRef.current) return;
 
     if (typingTimeoutRef.current) {
       clearTimeout(typingTimeoutRef.current);
     }
 
     if (isTypingRef.current) {
-      socket.emit("chat:typing:stop");
+      socketRef.current.emit("chat:typing:stop");
       isTypingRef.current = false;
     }
   };
 
-  const handleTypingStart = useCallback(
-    ({ playerId }: PlayerId) => {
-      setTypers((prev) => new Set(prev).add(playerId));
-    },
-    []
-  );
+  const handleTypingStart = useCallback(({ playerId }: PlayerId) => {
+    setTypers((prev) => new Set(prev).add(playerId));
+  }, []);
 
-  const handleTypingStop = useCallback(
-    ({ playerId }: PlayerId) => {
-      setTypers((prev) => {
-        const next = new Set(prev);
-        next.delete(playerId);
-        return next;
-      });
-    },
-    []
-  );
+  const handleTypingStop = useCallback(({ playerId }: PlayerId) => {
+    setTypers((prev) => {
+      const next = new Set(prev);
+      next.delete(playerId);
+      return next;
+    });
+  }, []);
 
   // receips handlers ----------
   const handleReadUpdate = useCallback(
@@ -111,23 +101,23 @@ export const useChatState = (
         return { ...prev, [playerId]: lastReadCreatedAt };
       });
     },
-    []
+    [],
   );
 
   const emitRead = (timestamp: number) => {
-    if (!socket) return;
+    if (!socketRef.current) return;
     if (timestamp <= lastReadRef.current) return;
 
     lastReadRef.current = timestamp;
 
-    socket.emit("chat:read", {
-      lastReadCreatedAt: timestamp,
-    });
+    socketRef.current.emit("chat:read", { lastReadCreatedAt: timestamp });
   };
 
   // sockets ----------
   useEffect(() => {
-    if (!socket) return;
+    if (!socketRef.current) return;
+
+    const socket = socketRef.current;
 
     socket.on("chat:newMessage", handleNewMessage);
     socket.on("chat:typing:start", handleTypingStart);
@@ -141,7 +131,7 @@ export const useChatState = (
       socket.off("chat:readUpdate", handleReadUpdate);
     };
   }, [
-    socket,
+    socketRef,
     handleNewMessage,
     handleTypingStart,
     handleTypingStop,
@@ -150,17 +140,14 @@ export const useChatState = (
 
   // send message ---------
   const sendMessage = (content: string) => {
-    if (!socket) return;
-    socket.emit("chat:sendMessage", { content });
+    if (!socketRef.current) return;
+    socketRef.current.emit("chat:sendMessage", { content });
     stopTypingImmediately();
   };
 
   // message checks ----------
   const messageChecks = useMemo(() => {
-    const map = new Map<
-      string,
-      { playerId: string; isRead: boolean }[]
-    >();
+    const map = new Map<string, { playerId: string; isRead: boolean }[]>();
 
     for (const m of messages) {
       const checks = roomPlayers
@@ -170,9 +157,7 @@ export const useChatState = (
           const lastRead = readState[p.id];
           return {
             playerId: p.id,
-            isRead: lastRead
-              ? m.createdAt <= lastRead
-              : false,
+            isRead: lastRead ? m.createdAt <= lastRead : false,
           };
         });
 
@@ -200,9 +185,8 @@ export const useChatState = (
     startTyping,
 
     emitRead,
-    lastReadTS: lastReadRef.current,
+    lastReadRef,
 
-    getMessageChecks: (id: string) =>
-      messageChecks.get(id) ?? [],
+    getMessageChecks: (id: string) => messageChecks.get(id) ?? [],
   };
 };

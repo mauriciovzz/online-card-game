@@ -25,7 +25,9 @@ export const ColorPicker = ({ height, pick }: Props) => {
           h={42}
           flex={1}
           p="sm"
-          onClick={() => pick(c.cardColor)}
+          onClick={() => {
+            pick(c.cardColor);
+          }}
         >
           <Box h="100%" w="100%" bg={c.hex} bdrs="sm" />
         </ActionIcon>

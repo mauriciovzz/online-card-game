@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { Flex } from "@mantine/core";
 
 interface Props {
@@ -7,19 +7,16 @@ interface Props {
   turnDuration: string;
 }
 
-export const Timer = (props: Props) => {
-  const { size, turnStart, turnDuration } = props;
-
+export const Timer = ({ size, turnStart, turnDuration }: Props) => {
   const [countdown, setCountdown] = useState(0);
-  const serverOffsetRef = useRef(turnStart - Date.now());
 
   useEffect(() => {
     const duration = Number(turnDuration) * 1000;
     const end = turnStart + duration;
+    const offset = turnStart - Date.now();
 
     const update = () => {
-      const serverNow =
-        Date.now() + serverOffsetRef.current;
+      const serverNow = Date.now() + offset;
 
       const remaining = Math.max(0, end - serverNow);
 
@@ -30,14 +27,14 @@ export const Timer = (props: Props) => {
 
     const id = window.setInterval(update, 200);
 
-    return () => clearInterval(id);
+    return () => {
+      clearInterval(id);
+    };
   }, [turnStart, turnDuration]);
 
   return (
-    <>
-      <Flex w={size} h={20} align="center" justify="center">
-        {countdown}
-      </Flex>
-    </>
+    <Flex w={size} h={20} align="center" justify="center">
+      {countdown}
+    </Flex>
   );
 };

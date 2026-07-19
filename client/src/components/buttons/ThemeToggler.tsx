@@ -3,10 +3,7 @@ import { IconMoon, IconSun } from "@tabler/icons-react";
 
 import { AppActionIcon } from "./AppActionIcon";
 
-import {
-  useMantineColorScheme,
-  useComputedColorScheme,
-} from "@mantine/core";
+import { useMantineColorScheme, useComputedColorScheme } from "@mantine/core";
 
 interface Props {
   expand?: boolean;

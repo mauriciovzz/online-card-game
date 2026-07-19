@@ -5,143 +5,74 @@ export interface ErrorConfig {
   redirect?: string;
 }
 
-export const ERROR_METADATA: Record<
-  ErrorCode,
-  ErrorConfig
-> = {
+export const ERROR_METADATA: Record<ErrorCode, ErrorConfig> = {
   // Generic
-  SERVER_ERROR: {
-    message: "errors.room.serverError",
-  },
+  SERVER_ERROR: { message: "errors.room.serverError" },
 
   // User / Room - Name
-  NAME_EMPTY: {
-    message: "errors.name.empty",
-  },
+  NAME_EMPTY: { message: "errors.name.empty" },
 
-  USER_LENGTH: {
-    message: "errors.name.maxLength",
-  },
+  USER_LENGTH: { message: "errors.name.maxLength" },
 
-  NAME_TAKEN: {
-    message: "errors.name.taken",
-  },
+  NAME_TAKEN: { message: "errors.name.taken" },
 
-  ROOM_LENGTH: {
-    message: "errors.room.maxLength",
-  },
+  ROOM_LENGTH: { message: "errors.room.maxLength" },
 
   // Room
-  ROOM_NOT_FOUND: {
-    message: "errors.room.serverError",
-    redirect: "/",
-  },
+  ROOM_NOT_FOUND: { message: "errors.room.serverError", redirect: "/" },
 
-  GAME_STARTED: {
-    message: "errors.room.gameStarted",
-  },
+  GAME_STARTED: { message: "errors.room.gameStarted" },
 
-  ROOM_FULL: {
-    message: "errors.room.isFull",
-  },
+  ROOM_FULL: { message: "errors.room.isFull" },
 
-  NOT_IN_ROOM: {
-    message: "errors.room.notInRoom",
-    redirect: "/",
-  },
+  NOT_IN_ROOM: { message: "errors.room.notInRoom", redirect: "/" },
 
-  NOT_ADMIN: {
-    message: "errors.room.notAdmin",
-  },
+  NOT_ADMIN: { message: "errors.room.notAdmin" },
 
-  NOT_ENOUGH_PLAYERS: {
-    message: "errors.room.notEnoughtPlayers",
-  },
+  NOT_ENOUGH_PLAYERS: { message: "errors.room.notEnoughtPlayers" },
 
-  NOT_ENOUGH_SEATS: {
-    message: "errors.room.notEnoughtSeats",
-  },
+  NOT_ENOUGH_SEATS: { message: "errors.room.notEnoughtSeats" },
 
-  SEAT_TAKEN: {
-    message: "errors.room.seatTaken",
-  },
+  SEAT_TAKEN: { message: "errors.room.seatTaken" },
 
-  PLAYER_NOT_FOUND: {
-    message: "errors.room.playerNotFound",
-  },
+  PLAYER_NOT_FOUND: { message: "errors.room.playerNotFound" },
 
   // Game
-  GAME_NOT_FOUND: {
-    message: "errors.room.serverError",
-    redirect: "/",
-  },
+  GAME_NOT_FOUND: { message: "errors.room.serverError", redirect: "/" },
 
-  TURN_NOT_FOUND: {
-    message: "errors.room.serverError",
-    redirect: "/",
-  },
+  TURN_NOT_FOUND: { message: "errors.room.serverError", redirect: "/" },
 
-  NOT_YOUR_TURN: {
-    message: "errors.game.notYourTurn",
-  },
+  NOT_YOUR_TURN: { message: "errors.game.notYourTurn" },
 
-  TURN_EXPIRED: {
-    message: undefined,
-  },
+  TURN_EXPIRED: { message: undefined },
 
   // Card play
-  CARD_NOT_FOUND: {
-    message: undefined,
-  },
+  CARD_NOT_FOUND: { message: undefined },
 
-  COLOR_MISSING: {
-    message: undefined,
-  },
+  COLOR_MISSING: { message: undefined },
 
-  INVALID_COLOR: {
-    message: undefined,
-  },
+  INVALID_COLOR: { message: undefined },
 
-  HAS_TO_BE_NUMBER: {
-    message: undefined,
-  },
+  HAS_TO_BE_NUMBER: { message: undefined },
 
-  INVALID_MOVE: {
-    message: undefined,
-  },
+  INVALID_MOVE: { message: undefined },
 
   // Turn actions
-  ALREADY_DRAW: {
-    message: undefined,
-  },
+  ALREADY_DRAW: { message: undefined },
 
-  ALREADY_PLAYED: {
-    message: undefined,
-  },
+  ALREADY_PLAYED: { message: undefined },
 
-  TURN_INCOMPLETE: {
-    message: undefined,
-  },
+  TURN_INCOMPLETE: { message: undefined },
 
-  EFFECT_ON: {
-    message: undefined,
-  },
+  EFFECT_ON: { message: undefined },
 
   // UNO
-  INVALID_UNO_CALL: {
-    message: undefined,
-  },
+  INVALID_UNO_CALL: { message: undefined },
 
-  UNO_ALREADY_CALLED: {
-    message: undefined,
-  },
+  UNO_ALREADY_CALLED: { message: undefined },
 
   // Cut
-  INVALID_CUT_CALL: {
-    message: undefined,
-  },
+  INVALID_CUT_CALL: { message: undefined },
 
-  CAN_NOT_SELF_CUT: {
-    message: undefined,
-  },
+  CAN_NOT_SELF_CUT: { message: undefined },
 };

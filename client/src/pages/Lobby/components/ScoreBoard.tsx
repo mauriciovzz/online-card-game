@@ -37,13 +37,7 @@ export const ScoreBoard = ({
   const hasScores = players.some((p) => p.wins > 0);
 
   return (
-    <Flex
-      h="100%"
-      w="100%"
-      p={BOARD_PADDING}
-      align="center"
-      justify="center"
-    >
+    <Flex h="100%" w="100%" p={BOARD_PADDING} align="center" justify="center">
       <Stack gap={0} style={{ userSelect: "none" }}>
         <Group gap={0} justify="space-between">
           <Label text={"room.scores"} />
@@ -65,29 +59,15 @@ export const ScoreBoard = ({
           h={147.19 + 14}
           p={6}
           withBorder
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            gap: 6,
-          }}
+          style={{ display: "flex", flexDirection: "column", gap: 6 }}
         >
           <Stack gap={6}>
             <Group gap={0}>
               <Box h="100%" w={104 - 5} />
-              <Flex
-                h="100%"
-                w={46}
-                align="center"
-                justify="center"
-              >
+              <Flex h="100%" w={46} align="center" justify="center">
                 <IconStar size={14} />
               </Flex>
-              <Flex
-                h="100%"
-                w={20}
-                align="center"
-                justify="center"
-              >
+              <Flex h="100%" w={20} align="center" justify="center">
                 <IconTrophy size={14} />
               </Flex>
             </Group>
@@ -100,38 +80,17 @@ export const ScoreBoard = ({
                 return (
                   <Stack key={p.id} gap={6}>
                     <Group gap={0}>
-                      <Group
-                        w={104 - 5}
-                        gap={0}
-                        justify="space-between"
-                      >
-                        <Text
-                          w={80}
-                          size="sm"
-                          fw={700}
-                          truncate={true}
-                        >
+                      <Group w={104 - 5} gap={0} justify="space-between">
+                        <Text w={80} size="sm" fw={700} truncate={true}>
                           {p.name}
                         </Text>
 
-                        {p.id === winnerId && (
-                          <IconCrown size={14} />
-                        )}
+                        {p.id === winnerId && <IconCrown size={14} />}
                       </Group>
-                      <Text
-                        w={46}
-                        size="xs"
-                        inline={true}
-                        ta="center"
-                      >
+                      <Text w={46} size="xs" inline={true} ta="center">
                         {p.points}
                       </Text>
-                      <Text
-                        w={20}
-                        size="xs"
-                        inline={true}
-                        ta="center"
-                      >
+                      <Text w={20} size="xs" inline={true} ta="center">
                         {p.wins}
                       </Text>
                     </Group>

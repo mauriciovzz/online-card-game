@@ -8,20 +8,14 @@ import {
   useMantineTheme,
 } from "@mantine/core";
 import { useTranslation } from "react-i18next";
-import {
-  IconInfoCircle,
-  type IconProps,
-} from "@tabler/icons-react";
+import { IconInfoCircle, type IconProps } from "@tabler/icons-react";
 
 import { useIsDark } from "@/hooks";
 import type { ComponentType, ReactNode } from "react";
 
 interface Props {
   text: string;
-  description?: {
-    title: string;
-    text: string;
-  };
+  description?: { title: string; text: string };
   data: {
     key: string;
     name: string;
@@ -31,12 +25,7 @@ interface Props {
   error?: ReactNode;
 }
 
-export const LabelWithPopover = ({
-  text,
-  description,
-  data,
-  error,
-}: Props) => {
+export const LabelWithPopover = ({ text, description, data, error }: Props) => {
   const { t } = useTranslation();
 
   const theme = useMantineTheme();
@@ -60,26 +49,18 @@ export const LabelWithPopover = ({
             <ActionIcon
               variant="transparent"
               size="xs"
-              color={
-                isDark ? theme.colors.dark[0] : theme.black
-              }
+              color={isDark ? theme.colors.dark[0] : theme.black}
             >
               <IconInfoCircle size={16} />
             </ActionIcon>
           </Popover.Target>
 
           <Popover.Dropdown p="sm">
-            <Stack
-              gap="sm"
-              w={340}
-              style={{ userSelect: "none" }}
-            >
+            <Stack gap="sm" w={340} style={{ userSelect: "none" }}>
               {description && (
                 <>
                   <Stack gap={0}>
-                    <Text fw={700}>
-                      {t(description.title)}
-                    </Text>
+                    <Text fw={700}>{t(description.title)}</Text>
                     <Text size="sm" ta="justify">
                       {t(description.text)}
                     </Text>
@@ -89,30 +70,19 @@ export const LabelWithPopover = ({
                 </>
               )}
 
-              {data.map(
-                ({
-                  key,
-                  name,
-                  description,
-                  icon: Icon,
-                }) => (
-                  <Group key={key} gap={10}>
-                    <Icon size={30} stroke={1} />
-                    <Stack gap={2}>
-                      <Text
-                        size="sm"
-                        fw={700}
-                        inline={true}
-                      >
-                        {t(name)}
-                      </Text>
-                      <Text size="sm" inline={true}>
-                        {t(description)}
-                      </Text>
-                    </Stack>
-                  </Group>
-                )
-              )}
+              {data.map(({ key, name, description, icon: Icon }) => (
+                <Group key={key} gap={10}>
+                  <Icon size={30} stroke={1} />
+                  <Stack gap={2}>
+                    <Text size="sm" fw={700} inline={true}>
+                      {t(name)}
+                    </Text>
+                    <Text size="sm" inline={true}>
+                      {t(description)}
+                    </Text>
+                  </Stack>
+                </Group>
+              ))}
             </Stack>
           </Popover.Dropdown>
         </Popover>

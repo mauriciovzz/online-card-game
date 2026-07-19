@@ -62,10 +62,7 @@ export const CardsProvider = ({ children }: Props) => {
 
         const parser = new DOMParser();
 
-        const doc = parser.parseFromString(
-          text,
-          "image/svg+xml"
-        );
+        const doc = parser.parseFromString(text, "image/svg+xml");
 
         const groups = doc.querySelectorAll("g[id]");
 
@@ -87,12 +84,7 @@ export const CardsProvider = ({ children }: Props) => {
   }, []);
 
   return (
-    <CardsContext.Provider
-      value={{
-        cardsMap,
-        cardsLoading,
-      }}
-    >
+    <CardsContext.Provider value={{ cardsMap, cardsLoading }}>
       {children}
     </CardsContext.Provider>
   );

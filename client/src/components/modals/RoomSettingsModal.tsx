@@ -34,16 +34,15 @@ export const RoomSettingsModal = () => {
         size={175}
         centered
         zIndex={800}
-        overlayProps={{
-          backgroundOpacity: 0.55,
-          blur: 3,
-        }}
+        overlayProps={{ backgroundOpacity: 0.55, blur: 3 }}
       >
         <Stack gap="sm">
           <Group gap="sm">
             <HelpButton
               expand
-              onClick={() => setHelpOpened(true)}
+              onClick={() => {
+                setHelpOpened(true);
+              }}
             />
 
             <LangToggler expand />
@@ -55,16 +54,15 @@ export const RoomSettingsModal = () => {
             <AppButton text="Lobby" onClick={stopGame} />
           )}
 
-          <AppButton
-            text="room.leave"
-            onClick={leaveRoom}
-          />
+          <AppButton text="room.leave" onClick={leaveRoom} />
         </Stack>
       </Modal>
 
       <HelpModal
         opened={helpOpened}
-        onClose={() => setHelpOpened(false)}
+        onClose={() => {
+          setHelpOpened(false);
+        }}
       />
     </>
   );

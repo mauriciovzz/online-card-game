@@ -1,10 +1,6 @@
 import { useTranslation } from "react-i18next";
 
-import {
-  SlideTitle,
-  SlideParagraph,
-  SlideList,
-} from "../components";
+import { SlideTitle, SlideParagraph, SlideList } from "../components";
 
 export const PointsSlide = () => {
   const { t } = useTranslation();
@@ -19,9 +15,7 @@ export const PointsSlide = () => {
 
       <SlideList
         items={
-          t("help.points.pointValues", {
-            returnObjects: true,
-          }) as string[]
+          t("help.points.pointValues", { returnObjects: true }) as string[]
         }
       />
 

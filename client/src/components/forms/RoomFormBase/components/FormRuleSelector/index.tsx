@@ -1,9 +1,4 @@
-import {
-  Stack,
-  Group,
-  UnstyledButton,
-  Flex,
-} from "@mantine/core";
+import { Stack, Group, UnstyledButton, Flex } from "@mantine/core";
 import type { UseFormReturnType } from "@mantine/form";
 import clsx from "clsx";
 
@@ -30,18 +25,12 @@ export const FormRuleSelector = <T extends WithRules>({
   const isMobile = useIsMobile();
 
   const toggleRule = (rule: keyof RoomRules) => {
-    form.setFieldValue("rules", (prev) => ({
-      ...prev,
-      [rule]: !prev[rule],
-    }));
+    form.setFieldValue("rules", (prev) => ({ ...prev, [rule]: !prev[rule] }));
   };
 
   return (
     <Stack gap={0}>
-      <LabelWithPopover
-        text="rules.title"
-        data={GAME_RULES}
-      />
+      <LabelWithPopover text="rules.title" data={GAME_RULES} />
 
       <Group
         w="100%"
@@ -51,30 +40,26 @@ export const FormRuleSelector = <T extends WithRules>({
         gap={0}
         className={classes.base}
       >
-        {GAME_RULES.map(
-          ({ key, borderRadius, icon: Icon }) => (
-            <UnstyledButton
-              key={key}
-              flex={1}
-              w="100%"
-              h="100%"
-              bdrs={borderRadius}
-              className={clsx(
-                readOnly ? classes.readOnly : classes.inner,
-                form.values.rules[key] && classes.selected
-              )}
-              onClick={() => toggleRule(key)}
-            >
-              <Flex
-                flex={1}
-                align="center"
-                justify="center"
-              >
-                <Icon size={20} stroke={1.5} />
-              </Flex>
-            </UnstyledButton>
-          )
-        )}
+        {GAME_RULES.map(({ key, borderRadius, icon: Icon }) => (
+          <UnstyledButton
+            key={key}
+            flex={1}
+            w="100%"
+            h="100%"
+            bdrs={borderRadius}
+            className={clsx(
+              readOnly ? classes.readOnly : classes.inner,
+              form.values.rules[key] && classes.selected,
+            )}
+            onClick={() => {
+              toggleRule(key);
+            }}
+          >
+            <Flex flex={1} align="center" justify="center">
+              <Icon size={20} stroke={1.5} />
+            </Flex>
+          </UnstyledButton>
+        ))}
       </Group>
     </Stack>
   );

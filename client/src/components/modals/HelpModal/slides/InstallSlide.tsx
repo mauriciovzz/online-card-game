@@ -28,22 +28,16 @@ export const InstallSlide = () => {
         ]}
       />
 
-      <SlideSubTitle
-        text={t(`help.install.${value}.heading`)}
-      />
+      <SlideSubTitle text={t(`help.install.${value}.heading`)} />
 
       <SlideList
         ordered
         items={
-          t(`help.install.${value}.steps`, {
-            returnObjects: true,
-          }) as string[]
+          t(`help.install.${value}.steps`, { returnObjects: true }) as string[]
         }
       />
 
-      <SlideParagraph
-        text={t(`help.install.${value}.tips`)}
-      />
+      <SlideParagraph text={t(`help.install.${value}.tips`)} />
     </>
   );
 };

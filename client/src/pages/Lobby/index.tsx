@@ -12,32 +12,23 @@ import {
   SelectedRules,
   SettingsButton,
 } from "@/components";
-import {
-  RoomUpdateForm,
-  ScoreBoard,
-  LobbySeats,
-} from "./components";
+import { RoomUpdateForm, ScoreBoard, LobbySeats } from "./components";
 
 import type { LobbyView } from "@/types";
 
 export const Lobby = () => {
-  const { room, startGame, isAdmin, resetScores } =
-    useRoom();
+  const { room, startGame, isAdmin, resetScores } = useRoom();
   const { openChat, closeChat } = useChat();
 
   const [view, setView] = useState<LobbyView>("main");
 
   const toggleEdit = useCallback(() => {
-    setView((prevView) =>
-      prevView === "edit" ? "main" : "edit"
-    );
+    setView((prevView) => (prevView === "edit" ? "main" : "edit"));
     closeChat();
   }, [closeChat, setView]);
 
   const toggleChat = useCallback(() => {
-    setView((prevView) =>
-      prevView === "edit" ? "main" : prevView
-    );
+    setView((prevView) => (prevView === "edit" ? "main" : prevView));
     openChat();
   }, [openChat, setView]);
 
@@ -47,10 +38,7 @@ export const Lobby = () => {
         <AppTitle text={room.name} />
 
         <Group gap="sm">
-          <InfoBox
-            text="room.turnDuration"
-            info={room.turnDuration + "s"}
-          />
+          <InfoBox text="room.turnDuration" info={room.turnDuration + "s"} />
 
           <InfoBox
             text={"rules.title"}
@@ -71,7 +59,9 @@ export const Lobby = () => {
           ) : (
             <RoomUpdateForm
               room={room}
-              close={() => setView("main")}
+              close={() => {
+                setView("main");
+              }}
             />
           )}
         </AppBox>
@@ -88,21 +78,14 @@ export const Lobby = () => {
               onClick={startGame}
             />
             <AppButton
-              text={
-                view === "edit"
-                  ? "common.return"
-                  : "room.edit"
-              }
+              text={view === "edit" ? "common.return" : "room.edit"}
               expand
               onClick={toggleEdit}
             />
           </>
         )}
 
-        <ChatButton
-          expand={!isAdmin}
-          onClick={toggleChat}
-        />
+        <ChatButton expand={!isAdmin} onClick={toggleChat} />
 
         <SettingsButton />
       </Group>

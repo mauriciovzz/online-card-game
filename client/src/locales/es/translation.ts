@@ -65,15 +65,13 @@ export const es = {
     title: "Reglas",
     mirror: {
       title: "Espejito",
-      description:
-        "Juega cartas numéricas iguales dos veces.",
+      description: "Juega cartas numéricas iguales dos veces.",
       longDescription:
         "Después de jugar una carta numérica, puedes jugar la misma carta otra vez, solo si sus colores son los mismos (por ejemplo, 4 amarillo → 4 amarillo).",
     },
     stair: {
       title: "Escalerita",
-      description:
-        "Juega cartas numéricas en orden ascendente.",
+      description: "Juega cartas numéricas en orden ascendente.",
       longDescription:
         "Después de jugar una carta numérica, puedes continuar jugando cartas numéricas consecutivas ascendentes, incluso si sus colores son diferentes (por ejemplo, 4 → 5 → 6).",
     },
@@ -107,17 +105,13 @@ export const es = {
     drawEffect: "Carga {{cards}} cartas!",
   },
 
-  chat: {
-    start: "Inicio del chat",
-    newMessages: "Nuevos mensajes",
-  },
+  chat: { start: "Inicio del chat", newMessages: "Nuevos mensajes" },
 
   help: {
     title: "Ayuda",
     index: {
       devBy: "Desarrollado por Mauricio Velázquez",
-      tools:
-        "utilizando React, TypeScript, Mantine y Socket.IO",
+      tools: "utilizando React, TypeScript, Mantine y Socket.IO",
     },
     basics: {
       title: "Conceptos Básicos de Uno",
@@ -130,10 +124,8 @@ export const es = {
         "Número (del 0 al 9)",
         "Símbolo (carta de acción)",
       ],
-      wildCards:
-        "Las cartas comodín se pueden jugar en cualquier momento.",
-      drawInst:
-        "Si no puedes o eliges no jugar, carga una carta del mazo.",
+      wildCards: "Las cartas comodín se pueden jugar en cualquier momento.",
+      drawInst: "Si no puedes o eliges no jugar, carga una carta del mazo.",
       unoHeading: "Declarar UNO",
       unoInst:
         "Cuando te quede una sola carta, presiona el botón 1 para declarar UNO. Si otro jugador te corta antes de declarar UNO, se te penalizara con dos cartas.",
@@ -141,11 +133,9 @@ export const es = {
     cards: {
       heading: "Cartas",
       numberTitle: "Número",
-      numberDescription:
-        "Cartas básicas que van del 0 al 9.",
+      numberDescription: "Cartas básicas que van del 0 al 9.",
       skipTitle: "Salto",
-      skipDescription:
-        "El siguiente jugador pierde su turno.",
+      skipDescription: "El siguiente jugador pierde su turno.",
       reverseTitle: "Reversa",
       reverseDescription:
         "Invierte la dirección del juego. En una partida de dos jugadores, funciona como una carta de Salto.",
@@ -161,8 +151,7 @@ export const es = {
     },
     points: {
       heading: "Puntos",
-      roundEnd:
-        "La ronda termina cuando a un jugador no le quedan cartas.",
+      roundEnd: "La ronda termina cuando a un jugador no le quedan cartas.",
       pointsInst:
         "El ganador recibe puntos iguales al valor de todas las cartas restantes en las manos de los otros jugadores:",
       pointValues: [
@@ -192,11 +181,9 @@ export const es = {
         "Reglas activadas",
         "Asientos disponibles",
       ],
-      roomsAction:
-        "Selecciona una sala para unirte a ella.",
+      roomsAction: "Selecciona una sala para unirte a ella.",
       seatsTitle: "Indicadores de Asiento",
-      seatsDesc:
-        "Cada cuadrado representa un jugador posible.",
+      seatsDesc: "Cada cuadrado representa un jugador posible.",
       seatsCriteria: [
         "Gris: Asiento desactivado",
         "Contorno de color: Asiento disponible",
@@ -211,8 +198,7 @@ export const es = {
       infoDesc:
         "La sala de espera muestra la duración del turno de la sala y las reglas activadas.",
       seatsTitle: "Asientos",
-      seatsDesc:
-        "Cada asiento muestra al jugador que lo ocupa.",
+      seatsDesc: "Cada asiento muestra al jugador que lo ocupa.",
       scoreTitle: "Tablero de Puntuación",
       scoreDesc:
         "El tablero de puntuación muestra los puntos (⭐) y victorias (🏆) de cada jugador dentro de la sala. También destaca al último jugador que ganó una partida con una corona (👑).",
@@ -295,13 +281,8 @@ export const es = {
   },
 
   errors: {
-    common: {
-      empty: "No puede estar vacío",
-    },
-    name: {
-      taken: "Nombre en uso",
-      maxLength: "Máximo 10 caracteres",
-    },
+    common: { empty: "No puede estar vacío" },
+    name: { taken: "Nombre en uso", maxLength: "Máximo 10 caracteres" },
     room: {
       maxLength: "Máximo 15 caracteres",
       gameStarted: "El juego ya ha iniciado",
@@ -314,8 +295,6 @@ export const es = {
       notInRoom: "No forma parte de la sala",
       serverError: "Error del servidor",
     },
-    game: {
-      notYourTurn: "No es tu turno",
-    },
+    game: { notYourTurn: "No es tu turno" },
   },
 } as const;

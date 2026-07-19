@@ -10,23 +10,23 @@ import type { Message } from "@shared/types";
 
 interface Params {
   vpRef: React.RefObject<HTMLDivElement | null>;
-  lastReadTS: number;
+  lastReadRef: RefObject<number>;
   messages: Message[];
   messageRefs: RefObject<Map<string, HTMLDivElement>>;
   typers: Set<string>;
   chatOpened: boolean;
-  myId: string | undefined;
+  socketId: string | undefined;
   threshold?: number;
 }
 
 export const useScroll = ({
   vpRef,
-  lastReadTS,
+  lastReadRef,
   messages,
   messageRefs,
   typers,
   chatOpened,
-  myId,
+  socketId,
   threshold = 150,
 }: Params) => {
   const [atBottom, setAtBottom] = useState(true);
@@ -46,9 +46,7 @@ export const useScroll = ({
 
     const { scrollHeight, clientHeight, scrollTop } = el;
 
-    setAtBottom(
-      scrollHeight - clientHeight <= scrollTop + threshold
-    );
+    setAtBottom(scrollHeight - clientHeight <= scrollTop + threshold);
   };
 
   // scroll helpers -----------
@@ -57,12 +55,9 @@ export const useScroll = ({
       const el = vpRef.current;
       if (!el) return;
 
-      el.scrollTo({
-        top: el.scrollHeight,
-        behavior,
-      });
+      el.scrollTo({ top: el.scrollHeight, behavior });
     },
-    [vpRef]
+    [vpRef],
   );
 
   const centerElement = useCallback(
@@ -74,18 +69,15 @@ export const useScroll = ({
       const offsetTop = el.offsetTop;
       const elHeight = el.offsetHeight;
 
-      const top =
-        offsetTop - containerHeight / 2 + elHeight / 2;
+      const top = offsetTop - containerHeight / 2 + elHeight / 2;
 
       container.scrollTo({ top, behavior: "auto" });
     },
-    [vpRef]
+    [vpRef],
   );
 
   // positioning on open -----------
-  const [firstUnreadIndex, setFirstUnreadIndex] = useState<
-    number | null
-  >(null);
+  const [firstUnreadIndex, setFirstUnreadIndex] = useState<number | null>(null);
 
   const hadMessagesOnOpenRef = useRef(false);
   const hasInitializedRef = useRef(false);
@@ -118,8 +110,7 @@ export const useScroll = ({
       }
 
       const index = messages.findIndex(
-        (m) =>
-          m.createdAt > lastReadTS && m.senderId !== myId
+        (m) => m.createdAt > lastReadRef.current && m.senderId !== socketId,
       );
 
       const finalIndex = index === -1 ? null : index;
@@ -140,12 +131,12 @@ export const useScroll = ({
     }, 0);
   }, [
     chatOpened,
-    lastReadTS,
     messages,
     messageRefs,
     centerElement,
     scrollToBottom,
-    myId,
+    socketId,
+    lastReadRef,
   ]);
 
   // Reset on close
@@ -153,6 +144,7 @@ export const useScroll = ({
     if (!chatOpened) {
       hasInitializedRef.current = false;
       hadMessagesOnOpenRef.current = false;
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setFirstUnreadIndex(null);
     }
   }, [chatOpened]);
@@ -165,19 +157,14 @@ export const useScroll = ({
     if (!hasInitializedRef.current) return;
 
     const lastMsg = messages[messages.length - 1];
-    const isMine = lastMsg.senderId === myId;
+    const isMine = lastMsg.senderId === socketId;
 
     if (isMine || atBottomRef.current) {
       requestAnimationFrame(() => {
         scrollToBottom();
       });
     }
-  }, [messages, typers, myId, scrollToBottom, chatOpened]);
+  }, [messages, typers, socketId, scrollToBottom, chatOpened]);
 
-  return {
-    atBottom,
-    scrollToBottom,
-    handleScroll,
-    firstUnreadIndex,
-  };
+  return { atBottom, scrollToBottom, handleScroll, firstUnreadIndex };
 };

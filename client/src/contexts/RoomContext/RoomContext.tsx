@@ -11,7 +11,6 @@ interface RoomContextTypes {
   clientColor: string;
 
   winner: NotificationInfo | null;
-  clientId: string | undefined;
   clearWinner: () => void;
 
   leaveRoom: () => void;
@@ -23,16 +22,14 @@ interface RoomContextTypes {
   closeSettings: () => void;
 }
 
-export const RoomContext = createContext<
-  RoomContextTypes | undefined
->(undefined);
+export const RoomContext = createContext<RoomContextTypes | undefined>(
+  undefined,
+);
 
 export const useRoom = () => {
   const context = useContext(RoomContext);
   if (!context) {
-    throw new Error(
-      "useRoom must be used within a TasksProvider"
-    );
+    throw new Error("useRoom must be used within a TasksProvider");
   }
   return context;
 };

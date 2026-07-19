@@ -9,12 +9,12 @@ import type { RoomId, SocketRes } from "@shared/types";
 
 export const useJoinRoom = () => {
   const navigate = useNavigate();
-  const { socket, fetchRooms } = useSocket();
+  const { socketRef, fetchRooms } = useSocket();
   const { errorNoti } = useNotification();
 
   const joinRoom = useCallback(
     (roomId: string) => {
-      socket?.emit(
+      socketRef.current?.emit(
         "room:join",
         { roomId },
         (res: SocketRes<RoomId>) => {
@@ -28,10 +28,10 @@ export const useJoinRoom = () => {
 
             errorNoti(meta.message);
           }
-        }
+        },
       );
     },
-    [errorNoti, fetchRooms, navigate, socket]
+    [errorNoti, fetchRooms, navigate, socketRef],
   );
 
   return { joinRoom };

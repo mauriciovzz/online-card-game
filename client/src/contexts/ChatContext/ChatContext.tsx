@@ -1,4 +1,4 @@
-import { createContext, useContext } from "react";
+import { createContext, useContext, type RefObject } from "react";
 
 import type { Message } from "@shared/types";
 
@@ -16,26 +16,19 @@ interface ChatContextTypes {
   startTyping: () => void;
 
   emitRead: (timestamp: number) => void;
-  lastReadTS: number;
+  lastReadRef: RefObject<number>;
 
-  getMessageChecks: (id: string) => {
-    playerId: string;
-    isRead: boolean;
-  }[];
-
-  myId: string | undefined;
+  getMessageChecks: (id: string) => { playerId: string; isRead: boolean }[];
 }
 
-export const ChatContext = createContext<
-  ChatContextTypes | undefined
->(undefined);
+export const ChatContext = createContext<ChatContextTypes | undefined>(
+  undefined,
+);
 
 export const useChat = () => {
   const context = useContext(ChatContext);
   if (!context) {
-    throw new Error(
-      "useChat must be used within a TasksProvider"
-    );
+    throw new Error("useChat must be used within a TasksProvider");
   }
   return context;
 };

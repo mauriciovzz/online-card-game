@@ -53,8 +53,7 @@ export const HelpModal = ({ opened, onClose }: Props) => {
   const isMobile = useIsMobile();
   const { colorScheme } = useMantineColorScheme();
 
-  const [embla, setEmbla] =
-    useState<EmblaCarouselType | null>(null);
+  const [embla, setEmbla] = useState<EmblaCarouselType | null>(null);
 
   return (
     <Modal
@@ -64,18 +63,9 @@ export const HelpModal = ({ opened, onClose }: Props) => {
       size={isMobile ? "100%" : 340}
       centered
       zIndex={900}
-      overlayProps={{
-        backgroundOpacity: 0.55,
-        blur: 3,
-      }}
+      overlayProps={{ backgroundOpacity: 0.55, blur: 3 }}
     >
-      <Paper
-        h="100%"
-        w="100%"
-        p="sm"
-        withBorder
-        style={{ display: "flex" }}
-      >
+      <Paper h="100%" w="100%" p="sm" withBorder style={{ display: "flex" }}>
         <Carousel
           height="100%"
           w="100%"
@@ -84,14 +74,9 @@ export const HelpModal = ({ opened, onClose }: Props) => {
           withIndicators
           getEmblaApi={setEmbla}
           styles={{
-            indicators: {
-              bottom: 0,
-            },
+            indicators: { bottom: 0 },
             indicator: {
-              backgroundColor:
-                colorScheme === "dark"
-                  ? undefined
-                  : "black",
+              backgroundColor: colorScheme === "dark" ? undefined : "black",
             },
           }}
         >

@@ -9,9 +9,7 @@ export const CreateRoomForm = () => {
       form={form}
       onSubmit={createRoom}
       showSeats
-      submitButtom={
-        <AppButton type="submit" text={"room.create"} />
-      }
+      submitButtom={<AppButton type="submit" text={"room.create"} />}
     />
   );
 };

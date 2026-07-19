@@ -12,23 +12,17 @@ interface Params {
   isMobile: boolean;
 }
 
-export const useScrollHeight = ({
-  layoutHeight,
-  isMobile,
-}: Params) => {
+export const useScrollHeight = ({ layoutHeight, isMobile }: Params) => {
   const gap = SIZES.gap;
   const top = SIZES.header + gap;
 
-  const buttonSize = isMobile
-    ? SIZES.buttonMobile
-    : SIZES.buttonDesktop;
+  const buttonSize = isMobile ? SIZES.buttonMobile : SIZES.buttonDesktop;
 
   const bottom = gap + buttonSize;
 
   const outerHeight = layoutHeight - top - bottom;
 
-  const innerHeight =
-    outerHeight - buttonSize - 5 - SIZES.innerPadding;
+  const innerHeight = outerHeight - buttonSize - 5 - SIZES.innerPadding;
 
   return { top, outerHeight, innerHeight };
 };

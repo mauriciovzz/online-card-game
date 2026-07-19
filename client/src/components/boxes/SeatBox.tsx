@@ -5,15 +5,9 @@ import type { BoardPosition } from "@/types";
 
 const BOARD_POSITIONS = {
   bottom: { bottom: 12 },
-  left: {
-    left: -98,
-    transform: "rotate(-90deg)",
-  },
+  left: { left: -98, transform: "rotate(-90deg)" },
   top: { top: 12 },
-  right: {
-    right: -98,
-    transform: "rotate(90deg)",
-  },
+  right: { right: -98, transform: "rotate(90deg)" },
 } satisfies Record<BoardPosition, React.CSSProperties>;
 
 interface Props {
@@ -22,11 +16,7 @@ interface Props {
   children?: ReactNode;
 }
 
-export const SeatBox = ({
-  pos,
-  borderColor,
-  children,
-}: Props) => (
+export const SeatBox = ({ pos, borderColor, children }: Props) => (
   <Paper
     w={249}
     h={26}
@@ -40,12 +30,8 @@ export const SeatBox = ({
       display: "flex",
       alignItems: "center",
       justifyContent: "center",
-      ...(pos
-        ? { position: "absolute", ...BOARD_POSITIONS[pos] }
-        : {}),
-      ...(borderColor
-        ? { border: `1px solid ${borderColor}` }
-        : {}),
+      ...(pos ? { position: "absolute", ...BOARD_POSITIONS[pos] } : {}),
+      ...(borderColor ? { border: `1px solid ${borderColor}` } : {}),
     }}
   >
     {children}

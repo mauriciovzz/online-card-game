@@ -13,15 +13,12 @@ interface Props {
   isSmall?: boolean;
 }
 
-export const SelectedRules = ({
-  rules,
-  isSmall,
-}: Props) => {
+export const SelectedRules = ({ rules, isSmall }: Props) => {
   const themeColor = useThemeColor();
 
   const renderIcon = (
     name: keyof RoomRules,
-    Icon: ComponentType<IconProps>
+    Icon: ComponentType<IconProps>,
   ) => (
     <Icon
       key={name}
@@ -41,9 +38,7 @@ export const SelectedRules = ({
       {GAME_RULES.map(({ key, icon: Icon }, i) => (
         <React.Fragment key={key}>
           {renderIcon(key, Icon)}
-          {!isSmall && i < 2 && (
-            <Divider orientation="vertical" />
-          )}
+          {!isSmall && i < 2 && <Divider orientation="vertical" />}
         </React.Fragment>
       ))}
     </Flex>

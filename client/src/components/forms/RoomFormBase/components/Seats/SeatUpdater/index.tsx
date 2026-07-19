@@ -5,18 +5,9 @@ import { IconX } from "@tabler/icons-react";
 import { GAME_COLORS, PLAYER_TYPES } from "@/constants";
 import { useUpdateSeats } from "./useUpdateSeats";
 import { LabelWithPopover } from "@/components";
-import {
-  SeatCreator,
-  SeatGrid,
-  PlayerContent,
-  SeatFrame,
-} from "../components";
+import { SeatCreator, SeatGrid, PlayerContent, SeatFrame } from "../components";
 
-import type {
-  Player,
-  PlayerType,
-  Room,
-} from "@shared/types";
+import type { Player, PlayerType, Room } from "@shared/types";
 
 interface Props {
   room: Room;
@@ -25,8 +16,7 @@ interface Props {
 export const SeatUpdater = ({ room }: Props) => {
   const [seatError, setSeatError] = useState("");
 
-  const { openSeat, closeSeat, kickPlayerOut } =
-    useUpdateSeats(setSeatError);
+  const { openSeat, closeSeat, kickPlayerOut } = useUpdateSeats(setSeatError);
 
   const playersByPos = useMemo(() => {
     const map: Partial<Record<number, Player>> = {};
@@ -63,15 +53,8 @@ export const SeatUpdater = ({ room }: Props) => {
 
           if (player?.id === room.adminId) {
             return (
-              <SeatFrame
-                key={color}
-                pos={pos}
-                color={color}
-              >
-                <PlayerContent
-                  text={player.name}
-                  color={color}
-                />
+              <SeatFrame key={color} pos={pos} color={color}>
+                <PlayerContent text={player.name} color={color} />
               </SeatFrame>
             );
           }
@@ -82,9 +65,9 @@ export const SeatUpdater = ({ room }: Props) => {
                 key={color}
                 color={color}
                 pos={pos}
-                onSelect={(type: PlayerType) =>
-                  openSeat({ pos, type })
-                }
+                onSelect={(type: PlayerType) => {
+                  openSeat({ pos, type });
+                }}
               />
             );
           }
@@ -98,14 +81,15 @@ export const SeatUpdater = ({ room }: Props) => {
                 icon: hasPlayer ? IconX : undefined,
                 corner: true,
                 onClick: hasPlayer
-                  ? () => kickPlayerOut(pos)
-                  : () => closeSeat(pos),
+                  ? () => {
+                      kickPlayerOut(pos);
+                    }
+                  : () => {
+                      closeSeat(pos);
+                    },
               }}
             >
-              <PlayerContent
-                text={player?.name}
-                color={color}
-              />
+              <PlayerContent text={player?.name} color={color} />
             </SeatFrame>
           );
         })}

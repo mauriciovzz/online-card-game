@@ -16,9 +16,7 @@ export const RoomUpdateForm = ({ room }: Props) => {
       form={form}
       onSubmit={updateRoom}
       room={room}
-      submitButtom={
-        <AppButton type="submit" text={"common.save"} />
-      }
+      submitButtom={<AppButton type="submit" text={"common.save"} />}
     />
   );
 };

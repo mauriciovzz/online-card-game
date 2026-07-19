@@ -5,12 +5,8 @@ import { useRoom } from "../RoomContext";
 import { ChatContext } from "./ChatContext";
 import { useChatState } from "./useChatState";
 
-export const ChatProvider = ({
-  children,
-}: {
-  children: ReactNode;
-}) => {
-  const { socket } = useSocket();
+export const ChatProvider = ({ children }: { children: ReactNode }) => {
+  const { socketRef } = useSocket();
   const { room } = useRoom();
 
   const {
@@ -27,10 +23,10 @@ export const ChatProvider = ({
     startTyping,
 
     emitRead,
-    lastReadTS,
+    lastReadRef,
 
     getMessageChecks,
-  } = useChatState(socket, room.players);
+  } = useChatState(socketRef, room.players);
 
   return (
     <ChatContext.Provider
@@ -48,11 +44,9 @@ export const ChatProvider = ({
         startTyping,
 
         emitRead,
-        lastReadTS,
+        lastReadRef,
 
         getMessageChecks,
-
-        myId: socket?.id,
       }}
     >
       {children}

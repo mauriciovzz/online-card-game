@@ -25,10 +25,9 @@ const DIRECTION_CONFIG = {
   },
 } as const;
 
-const SLOT_COLORS: Record<CardColor, string> =
-  Object.fromEntries(
-    GAME_COLORS.map((slot) => [slot.cardColor, slot.hex])
-  ) as Record<CardColor, string>;
+const SLOT_COLORS: Record<CardColor, string> = Object.fromEntries(
+  GAME_COLORS.map((slot) => [slot.cardColor, slot.hex]),
+) as Record<CardColor, string>;
 
 interface Props {
   direction: Direction;
@@ -36,11 +35,7 @@ interface Props {
   size?: number;
 }
 
-export const DirectionArrows = ({
-  direction,
-  color,
-  size = 40,
-}: Props) => {
+export const DirectionArrows = ({ direction, color, size = 40 }: Props) => {
   const config = DIRECTION_CONFIG[direction];
 
   const LeftIcon = config.leftIcon;

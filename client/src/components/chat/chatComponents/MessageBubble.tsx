@@ -1,10 +1,4 @@
-import {
-  Group,
-  Stack,
-  Flex,
-  Text,
-  Box,
-} from "@mantine/core";
+import { Group, Stack, Flex, Text, Box } from "@mantine/core";
 import dayjs from "dayjs";
 import { IconCheck } from "@tabler/icons-react";
 
@@ -33,38 +27,24 @@ export const MessageBubble = ({
   const { room } = useRoom();
 
   const getPlayerColor = (playerId: string) => {
-    const player = room.players.find(
-      (p) => p.id === playerId
-    );
+    const player = room.players.find((p) => p.id === playerId);
 
-    return player
-      ? GAME_COLORS[player.pos - 1].hex
-      : undefined;
+    return player ? GAME_COLORS[player.pos - 1].hex : undefined;
   };
 
   return (
-    <Group
-      ref={msgRef}
-      w="100%"
-      justify={isMine ? "right" : "left"}
-    >
+    <Group ref={msgRef} w="100%" justify={isMine ? "right" : "left"}>
       <Stack
         gap={0}
         maw="80%"
         p={8}
         style={{
           border: `1px solid ${themeColor}`,
-          borderRadius: isMine
-            ? "8px 8px 0px 8px"
-            : "8px 8px 8px 0px",
+          borderRadius: isMine ? "8px 8px 0px 8px" : "8px 8px 8px 0px",
         }}
       >
         {!isMine && showUsername && (
-          <Text
-            size="xs"
-            c={getPlayerColor(message.senderId)}
-            fw={700}
-          >
+          <Text size="xs" c={getPlayerColor(message.senderId)} fw={700}>
             {message.senderName}
           </Text>
         )}
@@ -80,15 +60,9 @@ export const MessageBubble = ({
           {message.content}
         </Text>
 
-        <Group
-          gap={2}
-          justify={!isMine ? "flex-start" : "flex-end"}
-        >
+        <Group gap={2} justify={!isMine ? "flex-start" : "flex-end"}>
           <Flex h={15} align="flex-end">
-            <Text
-              size="10px"
-              ta={isMine ? "right" : "left"}
-            >
+            <Text size="10px" ta={isMine ? "right" : "left"}>
               {dayjs(message.createdAt).format("HH:mm")}
             </Text>
           </Flex>
@@ -99,19 +73,12 @@ export const MessageBubble = ({
                 <Box
                   key={message.id + playerId}
                   h={15}
-                  style={{
-                    marginLeft: i === 0 ? 0 : -10,
-                    zIndex: i * 10,
-                  }}
+                  style={{ marginLeft: i === 0 ? 0 : -10, zIndex: i * 10 }}
                 >
                   <IconCheck
                     size={15}
                     stroke={1.5}
-                    color={
-                      isRead
-                        ? getPlayerColor(playerId)
-                        : themeColor
-                    }
+                    color={isRead ? getPlayerColor(playerId) : themeColor}
                   />
                 </Box>
               ))}

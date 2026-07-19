@@ -10,19 +10,11 @@ interface Props {
   children: ReactNode;
 }
 
-export const CardPile = ({
-  ref,
-  validMove,
-  children,
-}: Props) => {
+export const CardPile = ({ ref, validMove, children }: Props) => {
   const themeColor = useThemeColor();
 
   const borderColor = useMemo(() => {
-    return validMove == null
-      ? themeColor
-      : validMove
-        ? "green"
-        : "red";
+    return validMove == null ? themeColor : validMove ? "green" : "red";
   }, [themeColor, validMove]);
 
   return (

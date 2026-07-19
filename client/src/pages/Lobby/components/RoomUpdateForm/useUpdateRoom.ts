@@ -3,27 +3,16 @@ import { useTranslation } from "react-i18next";
 import { useForm } from "@mantine/form";
 
 import { ERROR_CODES } from "@shared/constants";
-import {
-  ERROR_METADATA,
-  RESPONSE_METADATA,
-} from "@/constants";
+import { ERROR_METADATA, RESPONSE_METADATA } from "@/constants";
 import { useSocket } from "@/contexts/SocketContext";
-import {
-  useNotification,
-  useRoomErrorHandler,
-} from "@/hooks";
+import { useNotification, useRoomErrorHandler } from "@/hooks";
 
-import type {
-  RoomInfo,
-  Room,
-  SocketRes,
-  EmptyResponse,
-} from "@shared/types";
+import type { RoomInfo, Room, SocketRes, EmptyResponse } from "@shared/types";
 
 export const useUpdateRoom = (room: Room) => {
   const { t } = useTranslation();
 
-  const { socket } = useSocket();
+  const { socketRef } = useSocket();
 
   const handleError = useRoomErrorHandler();
   const { successNoti } = useNotification();
@@ -38,10 +27,8 @@ export const useUpdateRoom = (room: Room) => {
 
     validate: {
       name: (value) => {
-        if (value.length < 1)
-          return t("errors.common.empty");
-        if (value.length > 15)
-          return t("errors.room.maxLength");
+        if (value.length < 1) return t("errors.common.empty");
+        if (value.length > 15) return t("errors.room.maxLength");
         return null;
       },
     },
@@ -56,11 +43,10 @@ export const useUpdateRoom = (room: Room) => {
       };
 
       const dataChanged =
-        JSON.stringify(newData) !==
-        JSON.stringify(currentData);
+        JSON.stringify(newData) !== JSON.stringify(currentData);
 
       if (dataChanged) {
-        socket?.emit(
+        socketRef.current?.emit(
           "room:update",
           newData,
           (res: SocketRes<EmptyResponse>) => {
@@ -73,10 +59,7 @@ export const useUpdateRoom = (room: Room) => {
                   const meta = ERROR_METADATA[res.error];
                   if (!meta.message) return;
 
-                  form.setFieldError(
-                    "name",
-                    t(meta.message)
-                  );
+                  form.setFieldError("name", t(meta.message));
                   return;
                 }
 
@@ -85,11 +68,11 @@ export const useUpdateRoom = (room: Room) => {
                   return;
               }
             }
-          }
+          },
         );
       }
     },
-    [room, socket, successNoti, handleError, form, t]
+    [room, socketRef, successNoti, handleError, form, t],
   );
 
   return { form, updateRoom };

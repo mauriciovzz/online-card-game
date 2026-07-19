@@ -14,9 +14,7 @@ export const LangToggler = ({ expand }: Props) => {
     void (async () => {
       const currentLanguage = i18n.language;
 
-      await i18n.changeLanguage(
-        currentLanguage === "en" ? "es" : "en"
-      );
+      await i18n.changeLanguage(currentLanguage === "en" ? "es" : "en");
     })();
 
   return (

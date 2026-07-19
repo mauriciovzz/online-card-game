@@ -20,9 +20,7 @@ export const CardItem = ({ svg }: Props) => {
         xmlns="http://www.w3.org/2000/svg"
         width={CARD.innerWidth}
         height={CARD.innerHeight}
-        dangerouslySetInnerHTML={{
-          __html: svg,
-        }}
+        dangerouslySetInnerHTML={{ __html: svg }}
       />
     </Box>
   );

@@ -7,7 +7,5 @@ export const useThemeColor = () => {
 
   const isDark = useIsDark();
 
-  return isDark
-    ? theme.colors.dark[4]
-    : theme.colors.gray[3];
+  return isDark ? theme.colors.dark[4] : theme.colors.gray[3];
 };

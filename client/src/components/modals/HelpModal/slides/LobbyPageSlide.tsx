@@ -1,11 +1,7 @@
 import { Stack } from "@mantine/core";
 import { useTranslation } from "react-i18next";
 
-import {
-  SlideTitle,
-  SlideParagraph,
-  SlideSubTitle,
-} from "../components";
+import { SlideTitle, SlideParagraph, SlideSubTitle } from "../components";
 
 export const LobbyPageSlide = () => {
   const { t } = useTranslation();

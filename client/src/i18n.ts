@@ -5,14 +5,7 @@ import LanguageDetector from "i18next-browser-languagedetector";
 import { en } from "./locales/en/translation";
 import { es } from "./locales/es/translation";
 
-const resources = {
-  en: {
-    translation: en,
-  },
-  es: {
-    translation: es,
-  },
-};
+const resources = { en: { translation: en }, es: { translation: es } };
 
 await i18n
   .use(LanguageDetector)
@@ -21,9 +14,7 @@ await i18n
     resources,
     debug: false,
     fallbackLng: "en",
-    interpolation: {
-      escapeValue: false,
-    },
+    interpolation: { escapeValue: false },
   });
 
 export default i18n;

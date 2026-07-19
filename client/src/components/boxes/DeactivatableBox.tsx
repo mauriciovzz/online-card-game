@@ -4,11 +4,7 @@ import { useTranslation } from "react-i18next";
 import { useIsDark, useThemeColor } from "@/hooks";
 import { AppBox } from "./AppBox";
 
-const DisabledOverlay = ({
-  isDark,
-}: {
-  isDark: boolean;
-}) => {
+const DisabledOverlay = ({ isDark }: { isDark: boolean }) => {
   const { t } = useTranslation();
 
   return (
@@ -17,9 +13,7 @@ const DisabledOverlay = ({
       align={undefined}
       style={(theme) => ({
         inset: 0,
-        backgroundColor: isDark
-          ? theme.colors.dark[6]
-          : theme.colors.gray[2],
+        backgroundColor: isDark ? theme.colors.dark[6] : theme.colors.gray[2],
         zIndex: 50,
       })}
     >
@@ -28,9 +22,7 @@ const DisabledOverlay = ({
         fw={700}
         style={(theme) => ({
           userSelect: "none",
-          color: isDark
-            ? theme.colors.dark[3]
-            : theme.colors.gray[5],
+          color: isDark ? theme.colors.dark[3] : theme.colors.gray[5],
         })}
       >
         {t("user.name.finishUpdate")}
@@ -44,10 +36,7 @@ interface Props {
   children: React.ReactNode;
 }
 
-export const DeactivatableBox = ({
-  disabled,
-  children,
-}: Props) => {
+export const DeactivatableBox = ({ disabled, children }: Props) => {
   const isDark = useIsDark();
   const themeColor = useThemeColor();
 
@@ -61,10 +50,7 @@ export const DeactivatableBox = ({
             : theme.colors.gray[2]
           : themeColor;
 
-        return {
-          overflow: "hidden",
-          border: `1px solid ${borderColor}`,
-        };
+        return { overflow: "hidden", border: `1px solid ${borderColor}` };
       }}
     >
       {children}

@@ -21,9 +21,7 @@ export const UnoBasicsSlide = () => {
         <SlideParagraph text={t("help.basics.turnInst")} />
         <SlideList
           items={
-            t("help.basics.matchCriteria", {
-              returnObjects: true,
-            }) as string[]
+            t("help.basics.matchCriteria", { returnObjects: true }) as string[]
           }
         />
         <SlideParagraph text={t("help.basics.wildCards")} />

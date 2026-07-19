@@ -7,7 +7,7 @@ import type { Turn } from "@shared/types";
 
 export const useTurn = () => {
   const { roomId } = useParams();
-  const { socket } = useSocket();
+  const { socketRef, socketId } = useSocket();
 
   const [turn, setTurn] = useState<Turn | null>(null);
   const [myTurn, setMyTurn] = useState(false);
@@ -15,23 +15,22 @@ export const useTurn = () => {
   const handleNewTurn = useCallback(
     (newTurn: Turn) => {
       setTurn(newTurn);
-      setMyTurn(newTurn.currentPlayerId === socket?.id);
+      setMyTurn(newTurn.currentPlayerId === socketId);
     },
-    [socket?.id]
+    [socketId],
   );
 
   useEffect(() => {
-    if (!socket) return;
+    if (!socketRef.current) return;
+
+    const socket = socketRef.current;
 
     socket.on("game:newTurn", handleNewTurn);
 
     return () => {
       socket.off("game:newTurn", handleNewTurn);
     };
-  }, [socket, roomId, handleNewTurn]);
+  }, [socketRef, roomId, handleNewTurn]);
 
-  return {
-    turn,
-    myTurn,
-  };
+  return { turn, myTurn };
 };

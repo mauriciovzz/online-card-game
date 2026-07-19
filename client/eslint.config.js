@@ -1,18 +1,19 @@
-import eslint from '@eslint/js'
-import globals from 'globals'
-import reactHooks from 'eslint-plugin-react-hooks'
-import reactRefresh from 'eslint-plugin-react-refresh'
-import tseslint from 'typescript-eslint'
-import prettier from 'eslint-config-prettier'
-import eslintPluginPrettier from 'eslint-plugin-prettier'
-import { defineConfig, globalIgnores } from 'eslint/config'
+import { defineConfig, globalIgnores } from "eslint/config";
+import js from "@eslint/js";
+import globals from "globals";
+import tseslint from "typescript-eslint";
+import reactHooks from "eslint-plugin-react-hooks";
+import reactRefresh from "eslint-plugin-react-refresh";
+import eslintConfigPrettier from "eslint-config-prettier/flat";
 
 export default defineConfig([
-  globalIgnores(['dist']),
+  globalIgnores(["**/dist/**"]),
+
   {
-    files: ['**/*.{ts,tsx}'],
+    files: ["**/*.{ts,tsx}"],
+
     extends: [
-      eslint.configs.recommended,
+      js.configs.recommended,
       tseslint.configs.stylisticTypeChecked,
       tseslint.configs.strictTypeChecked,
       {
@@ -22,28 +23,12 @@ export default defineConfig([
             tsconfigRootDir: import.meta.dirname,
           },
         },
-      },      
-      reactHooks.configs['recommended-latest'],
-      reactRefresh.configs.vite,
-      prettier,
-      {
-        plugins: {
-          prettier: eslintPluginPrettier,
-        },
-        rules: {
-          'prettier/prettier': 'error',
-        },
       },
+      reactHooks.configs.flat.recommended,
+      reactRefresh.configs.vite,
+      eslintConfigPrettier,
     ],
-    languageOptions: {
-      ecmaVersion: 2020,
-      globals: globals.browser,
-    },
-    rules: {
-      "@typescript-eslint/no-confusing-void-expression": [
-        "error",
-        { ignoreArrowShorthand: true },
-      ],
-    }
+
+    languageOptions: { ecmaVersion: 2020, globals: globals.browser },
   },
-])
+]);

@@ -8,11 +8,7 @@ import { FormRuleSelector } from "./components/FormRuleSelector";
 import { FormSegmentedControl } from "./components/FormSegmentedControl";
 import { FormSeatSelector } from "./components/Seats/FormSeatSelector";
 
-import type {
-  CreateRoomProps,
-  Room,
-  RoomInfo,
-} from "@shared/types";
+import type { CreateRoomProps, Room, RoomInfo } from "@shared/types";
 import type { ReactNode } from "react";
 import { SeatUpdater } from "./components/Seats/SeatUpdater";
 
@@ -53,16 +49,8 @@ export const RoomFormBase = <T extends RoomFormValues>({
           </Text>
 
           <Stack gap={0}>
-            <Label
-              size="sm"
-              text={"room.name"}
-              error={form.errors.name}
-            />
-            <FormInput
-              form={form}
-              formKey="name"
-              blurOnEnter
-            />
+            <Label size="sm" text={"room.name"} error={form.errors.name} />
+            <FormInput form={form} formKey="name" blurOnEnter />
           </Stack>
 
           <FormSegmentedControl
@@ -76,9 +64,7 @@ export const RoomFormBase = <T extends RoomFormValues>({
 
           {showSeats && "seats" in form.values && (
             <FormSeatSelector
-              form={
-                form as UseFormReturnType<CreateRoomProps>
-              }
+              form={form as UseFormReturnType<CreateRoomProps>}
             />
           )}
 

@@ -1,27 +1,13 @@
 import { useMemo, useRef } from "react";
 import { useTranslation } from "react-i18next";
-import {
-  TextInput,
-  Stack,
-  Divider,
-  Flex,
-  Text,
-  Paper,
-} from "@mantine/core";
+import { TextInput, Stack, Divider, Flex, Text, Paper } from "@mantine/core";
 import { useForm } from "@mantine/form";
 
 import { useChat } from "@/contexts/ChatContext";
 import { useIsMobile, useThemeColor } from "@/hooks";
-import {
-  useReadObserver,
-  useScroll,
-  useScrollHeight,
-} from "./chatHooks";
-import {
-  MessageBubble,
-  Scroll,
-  TypingIndicator,
-} from "./chatComponents";
+import { useReadObserver, useScroll, useScrollHeight } from "./chatHooks";
+import { MessageBubble, Scroll, TypingIndicator } from "./chatComponents";
+import { useSocket } from "@/contexts/SocketContext";
 
 type MsgsRef = Map<string, HTMLDivElement>;
 
@@ -35,9 +21,12 @@ export const Chat = ({ layoutHeight }: Props) => {
   const isMobile = useIsMobile();
   const themeColor = useThemeColor();
 
-  const { top, outerHeight, innerHeight } = useScrollHeight(
-    { layoutHeight, isMobile }
-  );
+  const { top, outerHeight, innerHeight } = useScrollHeight({
+    layoutHeight,
+    isMobile,
+  });
+
+  const { socketId } = useSocket();
 
   const {
     chatOpened,
@@ -47,20 +36,15 @@ export const Chat = ({ layoutHeight }: Props) => {
     typers,
     emitRead,
     getMessageChecks,
-    lastReadTS,
-    myId,
+    lastReadRef,
   } = useChat();
 
   // input
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const form = useForm({
-    initialValues: { newMessage: "" },
-  });
+  const form = useForm({ initialValues: { newMessage: "" } });
 
-  const handleKeyDown = (
-    e: React.KeyboardEvent<HTMLInputElement>
-  ) => {
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
 
@@ -81,33 +65,28 @@ export const Chat = ({ layoutHeight }: Props) => {
 
   const showUsernameMap = useMemo(() => {
     return messages.map(
-      (m, i) =>
-        i === 0 || m.senderId !== messages[i - 1].senderId
+      (m, i) => i === 0 || m.senderId !== messages[i - 1].senderId,
     );
   }, [messages]);
 
-  const {
-    atBottom,
-    scrollToBottom,
-    handleScroll,
-    firstUnreadIndex,
-  } = useScroll({
-    vpRef,
-    lastReadTS,
-    messages,
-    messageRefs,
-    typers,
-    chatOpened,
-    myId,
-  });
+  const { atBottom, scrollToBottom, handleScroll, firstUnreadIndex } =
+    useScroll({
+      vpRef,
+      lastReadRef,
+      messages,
+      messageRefs,
+      typers,
+      chatOpened,
+      socketId,
+    });
 
   useReadObserver({
     chatOpened,
     vpRef,
     messages,
     messageRefs,
-    lastReadTS,
-    myId,
+    lastReadRef,
+    socketId,
     emitRead,
   });
 
@@ -165,12 +144,8 @@ export const Chat = ({ layoutHeight }: Props) => {
 
                 <MessageBubble
                   message={msg}
-                  isMine={msg.senderId === myId}
-                  showUsername={
-                    isFirstUnread
-                      ? true
-                      : showUsernameMap[i]
-                  }
+                  isMine={msg.senderId === socketId}
+                  showUsername={isFirstUnread ? true : showUsernameMap[i]}
                   checks={getMessageChecks(msg.id)}
                   themeColor={themeColor}
                   msgRef={(el) => {
@@ -187,10 +162,7 @@ export const Chat = ({ layoutHeight }: Props) => {
           })}
 
           {typers.size !== 0 && (
-            <TypingIndicator
-              typers={typers}
-              themeColor={themeColor}
-            />
+            <TypingIndicator typers={typers} themeColor={themeColor} />
           )}
         </Scroll>
 

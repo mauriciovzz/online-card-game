@@ -7,10 +7,7 @@ import { SortableCard } from "./SortableCard";
 import type { Card } from "@shared/types";
 import { useMemo } from "react";
 
-const LAYOUT = {
-  cardsPerRow: 7,
-  rowOffset: 25,
-} as const;
+const LAYOUT = { cardsPerRow: 7, rowOffset: 25 } as const;
 
 interface Props {
   width: number;
@@ -18,11 +15,7 @@ interface Props {
   container: HTMLDivElement | null;
 }
 
-export const Hand = ({
-  width,
-  cards,
-  container,
-}: Props) => {
+export const Hand = ({ width, cards, container }: Props) => {
   const { cardsMap } = useCardsMap();
 
   const { overlapX, height } = useMemo(() => {
@@ -30,22 +23,13 @@ export const Hand = ({
     const spaceLeft = totalCardWidth - width;
     const spacesBetweenCards = LAYOUT.cardsPerRow - 1;
 
-    const overlapX = Math.max(
-      0,
-      spaceLeft / spacesBetweenCards
-    );
+    const overlapX = Math.max(0, spaceLeft / spacesBetweenCards);
 
-    const rows = Math.ceil(
-      cards.length / LAYOUT.cardsPerRow
-    );
+    const rows = Math.ceil(cards.length / LAYOUT.cardsPerRow);
 
-    const height =
-      CARD.height + (rows - 1) * LAYOUT.rowOffset;
+    const height = CARD.height + (rows - 1) * LAYOUT.rowOffset;
 
-    return {
-      overlapX,
-      height,
-    };
+    return { overlapX, height };
   }, [width, cards.length]);
 
   const positionedCards = useMemo(() => {
@@ -72,20 +56,18 @@ export const Hand = ({
       style={{ zIndex: 15 }}
     >
       <Flex w="100%" h="100%" pos="relative">
-        {positionedCards.map(
-          ({ index, card, top, left }) => {
-            return (
-              <SortableCard
-                key={card.id}
-                index={index}
-                card={card}
-                svg={cardsMap[card.raw]}
-                styles={{ top, left }}
-                container={container}
-              />
-            );
-          }
-        )}
+        {positionedCards.map(({ index, card, top, left }) => {
+          return (
+            <SortableCard
+              key={card.id}
+              index={index}
+              card={card}
+              svg={cardsMap[card.raw]}
+              styles={{ top, left }}
+              container={container}
+            />
+          );
+        })}
       </Flex>
     </Flex>
   );
