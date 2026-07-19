@@ -14,9 +14,9 @@ const httpServer = createServer(app);
 
 const allowedOrigins = [
   "http://localhost:5173",
-  "http://192.168.100.73/5173",
   "http://localhost:4173",
-  "http://192.168.100.73/4173",
+  "http://192.168.100.73:5173",
+  "http://192.168.100.73:4173",
 ];
 
 if (process.env.CLIENT_URL) {
@@ -33,7 +33,7 @@ io.on("connection", (socket) => {
   registerSocketHandlers(io, socket);
 });
 
-const PORT = process.env.PORT ?? 3000;
+const PORT = process.env.PORT ?? 3003;
 
 httpServer.listen(PORT, () => {
   console.log(`Server running on port ${PORT.toString()}`);
