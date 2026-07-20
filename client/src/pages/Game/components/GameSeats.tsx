@@ -128,14 +128,7 @@ const GameSeat = memo(
         style={{ zIndex: 10, userSelect: "none", ...BOARD_POSITIONS[pos] }}
       >
         <SeatBox borderColor={color}>
-          <Text
-            w={80}
-            size="sm"
-            fw={700}
-            ta="center"
-            ml={5}
-            truncate="end"
-          >
+          <Text w={80} size="sm" fw={700} ta="center" ml={5} truncate="end">
             {name}
           </Text>
 
