@@ -1,0 +1,5 @@
+#!/usr/bin/env sh
+
+npm --prefix client run build
+
+# npm --prefix server run build
