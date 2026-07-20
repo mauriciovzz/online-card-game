@@ -22,7 +22,7 @@ const adjustPlayerIndex = (
   currentPlayerIndex: number,
   removedIndex: number,
   playersLeft: number,
-  direction: 1 | -1
+  direction: 1 | -1,
 ): number => {
   if (removedIndex < currentPlayerIndex) {
     return currentPlayerIndex - 1;
@@ -33,9 +33,7 @@ const adjustPlayerIndex = (
       return currentPlayerIndex % playersLeft;
     }
 
-    return (
-      (currentPlayerIndex - 1 + playersLeft) % playersLeft
-    );
+    return (currentPlayerIndex - 1 + playersLeft) % playersLeft;
   }
 
   return currentPlayerIndex;
@@ -56,9 +54,7 @@ const createGame = (room: Room) => {
 
   const firstPlayer = room.currWinner ?? room.adminId;
 
-  const currPlayerIndex = room.players.findIndex(
-    (p) => p.id === firstPlayer
-  );
+  const currPlayerIndex = room.players.findIndex((p) => p.id === firstPlayer);
 
   const game: Game = {
     players,
@@ -82,7 +78,7 @@ const createTurn = (
   roomId: string,
   turnDuration: number,
   currentPlayerId: string,
-  effect: CardEffect
+  effect: CardEffect,
 ) => {
   const now = new Date().getTime();
 
@@ -148,7 +144,7 @@ const autoDraw = (game: Game): HandState => {
   const updatedHand = deckHelper.draw(
     game.players[game.currPlayerIndex],
     cardsToDraw,
-    game
+    game,
   );
 
   return updatedHand;
@@ -167,7 +163,7 @@ const skipTurn = (game: Game): HandState | undefined => {
     updatedHand = deckHelper.draw(
       game.players[game.currPlayerIndex],
       game.currDrawStack,
-      game
+      game,
     );
 
     game.currDrawStack = 0;
@@ -216,7 +212,7 @@ const leave = (game: Game, playerId: string) => {
     game.currPlayerIndex,
     playerIndex,
     game.players.length - 1,
-    game.direction
+    game.direction,
   );
 
   game.currEffect = null;

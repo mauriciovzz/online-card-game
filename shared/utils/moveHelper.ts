@@ -18,16 +18,14 @@ const checkMove = (top: Card, played: Card) => {
 const checkChainMove = (
   top: Card,
   played: Card,
-  rules: Room["rules"]
+  rules: Room["rules"],
 ): boolean => {
   const { type: tType } = top;
   const { type: pType } = played;
 
-  if (tType !== "NUMBER" || pType !== "NUMBER")
-    return false;
+  if (tType !== "NUMBER" || pType !== "NUMBER") return false;
 
-  if (rules.stair && played.number === top.number + 1)
-    return true;
+  if (rules.stair && played.number === top.number + 1) return true;
 
   if (rules.mirror && top.raw === played.raw) return true;
 

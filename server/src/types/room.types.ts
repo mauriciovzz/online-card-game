@@ -16,56 +16,42 @@ interface RoomError {
 }
 
 export interface RoomClientEvents {
-  "room:getAvailable": (
-    callback: SocketCallback<AvailableRooms>
-  ) => void;
+  "room:getAvailable": (callback: SocketCallback<AvailableRooms>) => void;
 
   "room:create": (
     payload: CreateRoomProps,
-    callback: SocketCallback<RoomId>
+    callback: SocketCallback<RoomId>,
   ) => void;
 
-  "room:join": (
-    payload: RoomId,
-    callback: SocketCallback<RoomId>
-  ) => void;
+  "room:join": (payload: RoomId, callback: SocketCallback<RoomId>) => void;
 
-  "room:getData": (
-    payload: RoomId,
-    callback: SocketCallback<Room>
-  ) => void;
+  "room:getData": (payload: RoomId, callback: SocketCallback<Room>) => void;
 
   "room:update": (
     payload: RoomInfo,
-    callback: SocketCallback<EmptyResponse>
+    callback: SocketCallback<EmptyResponse>,
   ) => void;
 
   "room:openSeat": (
     payload: RoomSeat,
-    callback: SocketCallback<EmptyResponse>
+    callback: SocketCallback<EmptyResponse>,
   ) => void;
 
   "room:closeSeat": (
     payload: { pos: PlayerPos },
-    callback: SocketCallback<EmptyResponse>
+    callback: SocketCallback<EmptyResponse>,
   ) => void;
 
   "room:kickPlayer": (
     payload: { pos: PlayerPos },
-    callback: SocketCallback<EmptyResponse>
+    callback: SocketCallback<EmptyResponse>,
   ) => void;
 
-  "room:resetScores": (
-    callback: SocketCallback<Room>
-  ) => void;
+  "room:resetScores": (callback: SocketCallback<Room>) => void;
 
-  "room:startGame": (
-    callback: SocketCallback<EmptyResponse>
-  ) => void;
+  "room:startGame": (callback: SocketCallback<EmptyResponse>) => void;
 
-  "room:stopGame": (
-    callback: SocketCallback<EmptyResponse>
-  ) => void;
+  "room:stopGame": (callback: SocketCallback<EmptyResponse>) => void;
 
   "room:leave": (payload: RoomId) => void;
 }

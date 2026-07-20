@@ -21,17 +21,11 @@ export default {
   },
 
   playCard(player: string, card: string, hand: string[]) {
-    write(
-      `[${player}] PLAYED ${card} | HAND [${hand.join(
-        ", "
-      )}]`
-    );
+    write(`[${player}] PLAYED ${card} | HAND [${hand.join(", ")}]`);
   },
 
   drawCard(player: string, card: string, hand: string[]) {
-    write(
-      `[${player}] DRAW ${card} | HAND [${hand.join(", ")}]`
-    );
+    write(`[${player}] DRAW ${card} | HAND [${hand.join(", ")}]`);
   },
 
   info(msg: string) {

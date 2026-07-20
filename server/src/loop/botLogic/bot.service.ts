@@ -1,17 +1,9 @@
 import moveHelper from "@shared/utils/moveHelper";
 
-import {
-  Room,
-  Game,
-  PlayerState,
-  Card,
-  CardColor,
-} from "@shared/types";
+import { Room, Game, PlayerState, Card, CardColor } from "@shared/types";
 
-const countColor = (
-  player: PlayerState,
-  color: Card["color"]
-) => player.cards.filter((c) => c.color === color).length;
+const countColor = (player: PlayerState, color: Card["color"]) =>
+  player.cards.filter((c) => c.color === color).length;
 
 const mirrorBonus = (player: PlayerState, card: Card) => {
   if (card.type !== "NUMBER") {
@@ -19,7 +11,7 @@ const mirrorBonus = (player: PlayerState, card: Card) => {
   }
 
   const count = player.cards.filter(
-    (c) => c.id !== card.id && c.raw === card.raw
+    (c) => c.id !== card.id && c.raw === card.raw,
   ).length;
 
   return count * 50;
@@ -31,8 +23,7 @@ const stairBonus = (player: PlayerState, card: Card) => {
   }
 
   const next = player.cards.find(
-    (c) =>
-      c.type === "NUMBER" && c.number === card.number + 1
+    (c) => c.type === "NUMBER" && c.number === card.number + 1,
   );
 
   return next ? 30 : 0;
@@ -52,9 +43,7 @@ const chooseColor = (player: PlayerState) => {
     }
   }
 
-  return Object.entries(counts).sort(
-    (a, b) => b[1] - a[1]
-  )[0][0] as CardColor;
+  return Object.entries(counts).sort((a, b) => b[1] - a[1])[0][0] as CardColor;
 };
 
 const scoreCard = (player: PlayerState, card: Card) => {
@@ -103,20 +92,15 @@ const scoreCard = (player: PlayerState, card: Card) => {
 const getMove = (game: Game, player: PlayerState) => {
   let playable: Card[];
 
-  if (
-    player.cards.length === 1 &&
-    player.cards[0].type !== "NUMBER"
-  ) {
+  if (player.cards.length === 1 && player.cards[0].type !== "NUMBER") {
     return null;
   }
 
   if (game.currEffect) {
-    playable = player.cards.filter(
-      (c) => c.type === game.currEffect
-    );
+    playable = player.cards.filter((c) => c.type === game.currEffect);
   } else {
     playable = player.cards.filter((card) =>
-      moveHelper.checkMove(game.topCard, card)
+      moveHelper.checkMove(game.topCard, card),
     );
   }
 
@@ -124,9 +108,7 @@ const getMove = (game: Game, player: PlayerState) => {
     return null;
   }
 
-  playable.sort(
-    (a, b) => scoreCard(player, b) - scoreCard(player, a)
-  );
+  playable.sort((a, b) => scoreCard(player, b) - scoreCard(player, a));
 
   const card = playable[0];
 
@@ -147,20 +129,14 @@ const getChainMove = (turnData: {
   const { room, game, state } = turnData;
 
   const playable = state.cards.filter((card) =>
-    moveHelper.checkChainMove(
-      game.topCard,
-      card,
-      room.rules
-    )
+    moveHelper.checkChainMove(game.topCard, card, room.rules),
   );
 
   if (playable.length === 0) {
     return null;
   }
 
-  playable.sort(
-    (a, b) => scoreCard(state, b) - scoreCard(state, a)
-  );
+  playable.sort((a, b) => scoreCard(state, b) - scoreCard(state, a));
 
   return playable[0];
 };

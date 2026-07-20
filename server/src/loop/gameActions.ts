@@ -10,14 +10,7 @@ import {
   emitCutInfo,
 } from "@/utils/emiterHelper";
 
-import {
-  Room,
-  Game,
-  Turn,
-  PlayerState,
-  Card,
-  PlayedCard,
-} from "@shared/types";
+import { Room, Game, Turn, PlayerState, Card, PlayedCard } from "@shared/types";
 
 import { AppServer, AppSocket } from "@/types";
 import { startTurn, endGame } from "./gameLoop";
@@ -29,7 +22,7 @@ export const drawCard = (
     game: Game;
     turn: Turn;
     state: PlayerState;
-  }
+  },
 ) => {
   const { room, game, turn, state } = turnData;
 
@@ -44,11 +37,7 @@ export const drawCard = (
   return updatedHand;
 };
 
-export const endTurn = (
-  io: AppServer,
-  roomId: string,
-  game: Game
-) => {
+export const endTurn = (io: AppServer, roomId: string, game: Game) => {
   gameService.advanceTurn(game);
   startTurn(io, roomId);
 };
@@ -60,7 +49,7 @@ export const endStack = (
     game: Game;
     turn: Turn;
     state: PlayerState;
-  }
+  },
 ) => {
   const { room, game, turn, state } = turnData;
 
@@ -87,11 +76,9 @@ const botCut = (
   room: Room,
   game: Game,
   targetId: string,
-  cutter: PlayerState
+  cutter: PlayerState,
 ) => {
-  const target = game.players.find(
-    (p) => p.id === targetId
-  );
+  const target = game.players.find((p) => p.id === targetId);
 
   if (!target) return;
   if (target.calledUno) return;
@@ -112,10 +99,10 @@ const scheduleBotCuts = (
   io: AppServer,
   room: Room,
   game: Game,
-  targetId: string
+  targetId: string,
 ) => {
   const bots = game.players.filter(
-    (p) => p.type === "bot" && p.id !== targetId
+    (p) => p.type === "bot" && p.id !== targetId,
   );
 
   for (const bot of bots) {
@@ -136,7 +123,7 @@ export const playCard = (
     turn: Turn;
     state: PlayerState;
   },
-  playedCard: PlayedCard
+  playedCard: PlayedCard,
 ) => {
   const { room, game, turn, state } = turnData;
   const { cardId, chosenColor } = playedCard;
@@ -174,10 +161,7 @@ export const playCard = (
   }
 
   // handle reverse card with 2 players
-  if (
-    room.players.length === 2 &&
-    card.type === "REVERSE"
-  ) {
+  if (room.players.length === 2 && card.type === "REVERSE") {
     gameService.advanceTurn(game);
 
     const player = game.players[game.currPlayerIndex];
@@ -209,7 +193,7 @@ export const callUno = (
     game: Game;
     state: PlayerState;
   },
-  socket?: AppSocket
+  socket?: AppSocket,
 ) => {
   const { room, game, state } = turnData;
 
@@ -234,7 +218,7 @@ export const callCut = (
     cutter: PlayerState;
     cutted: PlayerState;
   },
-  socket?: AppSocket
+  socket?: AppSocket,
 ) => {
   const { room, game, cutter, cutted } = turnData;
 

@@ -1,17 +1,15 @@
 {
   "devDependencies": {
     "husky": "^9.1.7",
-    "lint-staged": "^16.4.0"
+    "lint-staged": "^16.4.0",
+    "prettier": "^3.9.5"
   },
   "scripts": {
-    "prepare": "husky"
+    "format": "prettier . --write",
+    "format:check": "prettier . --check"
   },
   "lint-staged": {
-    "client/**/*.{ts,tsx,js,jsx}": [
-      "eslint --fix",
-      "prettier --write"
-    ],
-    "client/**/*.{json,css}": [
+    "**/*.{ts,tsx,js,jsx,json,css,mjs}": [
       "prettier --write"
     ]
   }

@@ -11,44 +11,28 @@ import {
   emitTurn,
   emitGameEnded,
 } from "@/utils/emiterHelper";
-import {
-  getGameData,
-  getTurnData,
-  isInRoom,
-} from "@/utils/guards";
+import { getGameData, getTurnData, isInRoom } from "@/utils/guards";
 
-import {
-  Room,
-  Game,
-  PlayerState,
-  Player,
-} from "@shared/types";
+import { Room, Game, PlayerState, Player } from "@shared/types";
 import { AppServer, AppSocket } from "@/types";
 import { startBotTurn } from "./botLogic/BotLoop";
 import { endTurn } from "./gameActions";
 import { isRoomFull } from "@/utils/seatsHelper";
 
-const timeout = (
-  io: AppServer,
-  roomId: string,
-  playerId: string
-) => {
+const timeout = (io: AppServer, roomId: string, playerId: string) => {
   const turnData = getTurnData(io, roomId);
   if (!turnData) return;
 
   const { room, game, turn, state } = turnData;
 
-  const hasStackEffect =
-    room.rules.stack && game.currEffect;
+  const hasStackEffect = room.rules.stack && game.currEffect;
 
   if (hasStackEffect) {
     emitEffect(
       io,
       state.id,
       state.pos,
-      game.currEffect !== "SKIP"
-        ? game.currDrawStack
-        : undefined
+      game.currEffect !== "SKIP" ? game.currDrawStack : undefined,
     );
   } else {
     const hadToDraw = turn.actions.draw;
@@ -67,11 +51,7 @@ const timeout = (
   endTurn(io, roomId, game);
 };
 
-const applyPendingEffect = (
-  io: AppServer,
-  room: Room,
-  game: Game
-) => {
+const applyPendingEffect = (io: AppServer, room: Room, game: Game) => {
   const { players, currEffect, currPlayerIndex } = game;
 
   const affectedPlayer = players[currPlayerIndex];
@@ -86,7 +66,7 @@ const applyPendingEffect = (
     io,
     affectedPlayer.id,
     affectedPlayer.pos,
-    updatedHand?.cards.length
+    updatedHand?.cards.length,
   );
 };
 
@@ -105,9 +85,7 @@ const startTurn = (io: AppServer, roomId: string) => {
 
       const affectedPlayer = players[currPlayerIndex];
 
-      const canPlay = affectedPlayer.cards.some(
-        (c) => c.type === currEffect
-      );
+      const canPlay = affectedPlayer.cards.some((c) => c.type === currEffect);
 
       const hasOneCard = affectedPlayer.cards.length === 1;
 
@@ -126,7 +104,7 @@ const startTurn = (io: AppServer, roomId: string) => {
     room.id,
     Number(room.turnDuration) * 1000,
     currPlayerId,
-    game.currEffect
+    game.currEffect,
   );
 
   emitTurn(io, room.id, turn);
@@ -152,18 +130,14 @@ const endGame = (
   room: Room,
   winner?: PlayerState,
   losers?: PlayerState[],
-  playerThatLeft?: string
+  playerThatLeft?: string,
 ) => {
   gameService.cleanUp(room.id);
 
   let score = undefined;
 
   if (winner && losers) {
-    score = roomService.updateScore(
-      room,
-      winner.id,
-      losers
-    );
+    score = roomService.updateScore(room, winner.id, losers);
   }
 
   room.currWinner = winner ? winner.id : null;
@@ -201,9 +175,7 @@ const handleExit = (io: AppServer, socket: AppSocket) => {
   void socket.leave(room.id);
   socket.data.roomId = undefined;
 
-  const realPlayers = room.players.filter(
-    (p) => p.type === "human"
-  ).length;
+  const realPlayers = room.players.filter((p) => p.type === "human").length;
 
   if (realPlayers === 1) {
     rooms.delete(room.id);

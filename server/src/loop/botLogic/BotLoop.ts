@@ -1,18 +1,11 @@
 import botService from "./bot.service";
-import {
-  playCard,
-  endTurn,
-  endStack,
-  drawCard,
-  callUno,
-} from "../gameActions";
+import { playCard, endTurn, endStack, drawCard, callUno } from "../gameActions";
 import { getTurnData } from "@/utils/guards";
 
 import { AppServer } from "@/types";
 import { Game, PlayerState, Room } from "@shared/types";
 
-const sleep = (ms: number) =>
-  new Promise((resolve) => setTimeout(resolve, ms));
+const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 // ---------
 
@@ -23,17 +16,14 @@ const botUnoCall = (
     room: Room;
     game: Game;
     state: PlayerState;
-  }
+  },
 ) => {
   if (state.cards.length === 1 && Math.random() <= 0.7) {
     callUno(io, turnData);
   }
 };
 
-export const startBotTurn = async (
-  io: AppServer,
-  roomId: string
-) => {
+export const startBotTurn = async (io: AppServer, roomId: string) => {
   const turnData = getTurnData(io, roomId);
   if (!turnData) return;
 
@@ -121,8 +111,7 @@ export const startBotTurn = async (
         return;
       }
 
-      const nextMove =
-        botService.getChainMove(currTurnData);
+      const nextMove = botService.getChainMove(currTurnData);
 
       if (!nextMove) {
         endTurn(io, room.id, currTurnData.game);

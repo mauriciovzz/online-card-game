@@ -4,7 +4,7 @@ import { SocketCallback } from "@/types";
 export interface UserClientEvents {
   "user:updateName": (
     { newName }: { newName: string },
-    callback: SocketCallback<UserName>
+    callback: SocketCallback<UserName>,
   ) => void;
 }
 

@@ -15,39 +15,27 @@ import {
 import { SocketCallback } from "@/types";
 
 export interface GameClientEvents {
-  "game:getData": (
-    callback: SocketCallback<InitialGameData>
-  ) => void;
+  "game:getData": (callback: SocketCallback<InitialGameData>) => void;
 
   "game:playCard": (
     playerCard: PlayedCard,
-    callback: SocketCallback<EmptyResponse>
+    callback: SocketCallback<EmptyResponse>,
   ) => void;
 
-  "game:drawCard": (
-    callback: SocketCallback<EmptyResponse>
-  ) => void;
+  "game:drawCard": (callback: SocketCallback<EmptyResponse>) => void;
 
-  "game:endTurn": (
-    callback: SocketCallback<EmptyResponse>
-  ) => void;
+  "game:endTurn": (callback: SocketCallback<EmptyResponse>) => void;
 
-  "game:endStack": (
-    callback: SocketCallback<EmptyResponse>
-  ) => void;
+  "game:endStack": (callback: SocketCallback<EmptyResponse>) => void;
 
-  "game:unoCall": (
-    callback: SocketCallback<NotificationInfo>
-  ) => void;
+  "game:unoCall": (callback: SocketCallback<NotificationInfo>) => void;
 
   "game:cutCall": (
     playerId: PlayerId,
-    callback: SocketCallback<NotificationInfo>
+    callback: SocketCallback<NotificationInfo>,
   ) => void;
 
-  "game:leave": (
-    callback: SocketCallback<EmptyResponse>
-  ) => void;
+  "game:leave": (callback: SocketCallback<EmptyResponse>) => void;
 }
 
 export interface GameServerEvents {

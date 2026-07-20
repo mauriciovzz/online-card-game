@@ -2,29 +2,15 @@ import type { ErrorCode } from "@shared/constants/errorCodes";
 
 /* CARDS */
 
-export type CardColor = 
-  | "R"
-  | "Y"
-  | "G"
-  | "B"
-  | "W";
+export type CardColor = "R" | "Y" | "G" | "B" | "W";
 
 export type CardType =
-  | "NUMBER"
-  | "SKIP"
-  | "REVERSE"
-  | "DRAW_TWO"
-  | "DRAW_FOUR"
-  | "WILD_CARD";
+  "NUMBER" | "SKIP" | "REVERSE" | "DRAW_TWO" | "DRAW_FOUR" | "WILD_CARD";
 
-export type CardEffect =
-  | "SKIP"
-  | "DRAW_TWO"
-  | "DRAW_FOUR"
-  | null;
+export type CardEffect = "SKIP" | "DRAW_TWO" | "DRAW_FOUR" | null;
 
 interface CardInfo {
-  id: string
+  id: string;
   raw: string;
   color: CardColor;
 }
@@ -48,11 +34,11 @@ export interface PlayedCard {
 /* PLAYERS */
 export type PlayerPos = 1 | 2 | 3 | 4;
 
-export type PlayerType = "human"  | "bot";
+export type PlayerType = "human" | "bot";
 
 export interface Player {
   id: string;
-  type: PlayerType
+  type: PlayerType;
   pos: PlayerPos;
   name: string;
   joinedAt: number;
@@ -105,7 +91,7 @@ export interface Room extends RoomInfo {
 }
 
 export interface CreateRoomProps extends RoomInfo {
-  seats: RoomSeat[]
+  seats: RoomSeat[];
 }
 
 /* GAME */
@@ -147,7 +133,7 @@ export interface Turn {
     draw: boolean;
     play: boolean;
     end: boolean;
-  }
+  };
 }
 
 /* CHAT */
@@ -254,6 +240,4 @@ export interface ErrorResponse {
   error: ErrorCode;
 }
 
-export type SocketRes<T> =
-  | SuccessResponse<T>
-  | ErrorResponse;
+export type SocketRes<T> = SuccessResponse<T> | ErrorResponse;

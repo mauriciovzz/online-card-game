@@ -17,10 +17,7 @@ import { Card, PlayerState } from "@shared/types";
 import { AppServer, AppSocket } from "@/types";
 import { ERROR_CODES } from "@shared/constants";
 
-export const gameSocket = (
-  io: AppServer,
-  socket: AppSocket
-) => {
+export const gameSocket = (io: AppServer, socket: AppSocket) => {
   socket.on("game:getData", (callback) => {
     const gameData = gameGuard(socket, callback);
     if (!gameData) return;
@@ -84,11 +81,7 @@ export const gameSocket = (
 
     // stair on / mirror on
     else if (canChain && !turn.actions.play) {
-      const isValid = moveHelper.checkChainMove(
-        game.topCard,
-        card,
-        rules
-      );
+      const isValid = moveHelper.checkChainMove(game.topCard, card, rules);
 
       if (!isValid) {
         notOk(callback, ERROR_CODES.INVALID_MOVE);
@@ -103,10 +96,7 @@ export const gameSocket = (
         return;
       }
 
-      const isValid = moveHelper.checkMove(
-        game.topCard,
-        card
-      );
+      const isValid = moveHelper.checkMove(game.topCard, card);
 
       if (!isValid) {
         notOk(callback, ERROR_CODES.INVALID_MOVE);

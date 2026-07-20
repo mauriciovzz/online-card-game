@@ -1,8 +1,4 @@
-import {
-  CARD_COLORS,
-  CARD_NUMBERS,
-  CARD_TYPES,
-} from "@shared/constants";
+import { CARD_COLORS, CARD_NUMBERS, CARD_TYPES } from "@shared/constants";
 import {
   Card,
   CardColor,
@@ -66,9 +62,7 @@ const createDeck = () => {
     for (const value of CARD_TYPES) {
       const raw = value + color;
 
-      const getCardType = (
-        val: string
-      ): "SKIP" | "REVERSE" | "DRAW_TWO" => {
+      const getCardType = (val: string): "SKIP" | "REVERSE" | "DRAW_TWO" => {
         switch (val) {
           case "S":
             return "SKIP";
@@ -116,11 +110,7 @@ const createDeck = () => {
   return { deck, pile };
 };
 
-const draw = (
-  state: PlayerState,
-  numCards: number,
-  game: Game
-): HandState => {
+const draw = (state: PlayerState, numCards: number, game: Game): HandState => {
   const { deck, pile } = game;
 
   if (numCards > deck.length) {

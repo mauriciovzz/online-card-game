@@ -3,10 +3,7 @@ import { chatService } from "@/services";
 
 import { AppServer, AppSocket } from "@/types";
 
-export const chatSocket = (
-  io: AppServer,
-  socket: AppSocket
-) => {
+export const chatSocket = (io: AppServer, socket: AppSocket) => {
   socket.on("chat:sendMessage", ({ content }) => {
     const room = getRoom({ socket });
     if (!room) return;
@@ -14,11 +11,7 @@ export const chatSocket = (
     const player = isInRoom(socket.id, room);
     if (!player) return;
 
-    const newMessage = chatService.createMessage(
-      socket,
-      player.name,
-      content
-    );
+    const newMessage = chatService.createMessage(socket, player.name, content);
 
     io.to(room.id).emit("chat:newMessage", newMessage);
   });

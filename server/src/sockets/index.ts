@@ -5,10 +5,7 @@ import { chatSocket } from "./chat.socket";
 
 import { AppServer, AppSocket } from "@/types";
 
-export const registerSocketHandlers = (
-  io: AppServer,
-  socket: AppSocket
-) => {
+export const registerSocketHandlers = (io: AppServer, socket: AppSocket) => {
   userSocket(io, socket);
   roomSocket(io, socket);
   chatSocket(io, socket);

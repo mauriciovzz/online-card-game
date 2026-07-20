@@ -47,5 +47,4 @@ export const ERROR_CODES = {
   CAN_NOT_SELF_CUT: "CAN_NOT_SELF_CUT",
 } as const;
 
-export type ErrorCode =
-  (typeof ERROR_CODES)[keyof typeof ERROR_CODES];
+export type ErrorCode = (typeof ERROR_CODES)[keyof typeof ERROR_CODES];

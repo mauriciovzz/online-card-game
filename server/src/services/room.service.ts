@@ -10,10 +10,7 @@ import {
   RoomSeat,
   PlayerState,
 } from "@shared/types";
-import {
-  getSeatPlayer,
-  updateRoomState,
-} from "@/utils/seatsHelper";
+import { getSeatPlayer, updateRoomState } from "@/utils/seatsHelper";
 
 const BOTS_METADATA = {
   1: {
@@ -39,16 +36,10 @@ const BOTS_METADATA = {
 } as const;
 
 const generateId = () => {
-  return crypto
-    .randomBytes(4)
-    .toString("hex")
-    .toUpperCase();
+  return crypto.randomBytes(4).toString("hex").toUpperCase();
 };
 
-const create = (
-  payload: CreateRoomProps,
-  playerId: string
-) => {
+const create = (payload: CreateRoomProps, playerId: string) => {
   let id = generateId();
   while (rooms.has(id)) id = generateId();
 
@@ -58,9 +49,7 @@ const create = (
   const bots: Player[] = [];
 
   for (let i = 2; i < 5; i++) {
-    const seat = payload.seats.find(
-      (seat) => seat.pos === i
-    );
+    const seat = payload.seats.find((seat) => seat.pos === i);
     if (!seat) break;
 
     if (seat.type === "bot") {
@@ -119,10 +108,7 @@ const update = (room: Room, newData: RoomInfo) => {
   room.rules = newData.rules;
 };
 
-const updateSeat = (
-  room: Room,
-  { pos, type }: RoomSeat
-) => {
+const updateSeat = (room: Room, { pos, type }: RoomSeat) => {
   const index = room.seats.findIndex((s) => s.pos === pos);
 
   if (room.seats[index].type === "bot" && !type) {
@@ -149,38 +135,29 @@ const updateSeat = (
   updateRoomState(room);
 };
 
-const updateScore = (
-  room: Room,
-  winnerId: string,
-  losers: PlayerState[]
-) => {
-  const player = room.players.find(
-    (p) => p.id === winnerId
-  );
+const updateScore = (room: Room, winnerId: string, losers: PlayerState[]) => {
+  const player = room.players.find((p) => p.id === winnerId);
 
   if (player) {
     const score = losers.reduce((total, player) => {
-      const handScore = player.cards.reduce(
-        (score, card) => {
-          switch (card.type) {
-            case "NUMBER":
-              return score + card.number;
+      const handScore = player.cards.reduce((score, card) => {
+        switch (card.type) {
+          case "NUMBER":
+            return score + card.number;
 
-            case "SKIP":
-            case "REVERSE":
-            case "DRAW_TWO":
-              return score + 20;
+          case "SKIP":
+          case "REVERSE":
+          case "DRAW_TWO":
+            return score + 20;
 
-            case "DRAW_FOUR":
-            case "WILD_CARD":
-              return score + 50;
+          case "DRAW_FOUR":
+          case "WILD_CARD":
+            return score + 50;
 
-            default:
-              return score;
-          }
-        },
-        0
-      );
+          default:
+            return score;
+        }
+      }, 0);
 
       return total + handScore;
     }, 0);
@@ -204,9 +181,9 @@ const resetScores = (room: Room) => {
 };
 
 const getAvailable = () => {
-  const availableRooms: Room[] = Array.from(
-    rooms.values()
-  ).filter((room) => room.state === "WAITING");
+  const availableRooms: Room[] = Array.from(rooms.values()).filter(
+    (room) => room.state === "WAITING",
+  );
 
   return { availableRooms };
 };
@@ -236,9 +213,7 @@ const join = (room: Room, playerId: string) => {
 };
 
 const leave = (room: Room, playerId: string) => {
-  room.players = room.players.filter(
-    (p) => p.id !== playerId
-  );
+  room.players = room.players.filter((p) => p.id !== playerId);
 
   if (room.adminId === playerId) {
     const nextAdmin = room.players

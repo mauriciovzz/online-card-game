@@ -6,10 +6,7 @@ import { handleExit } from "@/loop/gameLoop";
 import { AppServer, AppSocket } from "@/types";
 import { checkUserName } from "@/utils/guards";
 
-export const userSocket = (
-  io: AppServer,
-  socket: AppSocket
-) => {
+export const userSocket = (io: AppServer, socket: AppSocket) => {
   let name = userService.generateName(socket.id);
   socket.emit("user:connected", { name });
 

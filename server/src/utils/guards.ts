@@ -1,6 +1,7 @@
 import { games, rooms, turns, users } from "@/stores";
 import { ERROR_CODES } from "@shared/constants";
 import { notOk } from "./emiterHelper";
+import { getSeatPlayer, isSeatOccupied } from "./seatsHelper";
 
 import {
   Room,
@@ -11,21 +12,13 @@ import {
   PlayerPos,
   RoomSeat,
 } from "@shared/types";
-import {
-  AppServer,
-  AppSocket,
-  SocketCallback,
-} from "@/types";
-import {
-  getSeatPlayer,
-  isSeatOccupied,
-} from "./seatsHelper";
+import { AppServer, AppSocket, SocketCallback } from "@/types";
 
 const BOT_NAMES = ["BOT-1", "BOT-2", "BOT-3", "BOT-4"];
 
 export const checkUserName = <T>(
   newName: string,
-  callback: SocketCallback<T>
+  callback: SocketCallback<T>,
 ) => {
   if (newName.length < 1) {
     notOk(callback, ERROR_CODES.NAME_EMPTY);
@@ -37,10 +30,7 @@ export const checkUserName = <T>(
     return false;
   }
 
-  const isTaken = [
-    ...users.values(),
-    ...BOT_NAMES,
-  ].includes(newName);
+  const isTaken = [...users.values(), ...BOT_NAMES].includes(newName);
 
   if (isTaken) {
     notOk(callback, ERROR_CODES.NAME_TAKEN);
@@ -50,10 +40,7 @@ export const checkUserName = <T>(
   return true;
 };
 
-export const checkRoomName = <T>(
-  name: string,
-  callback: SocketCallback<T>
-) => {
+export const checkRoomName = <T>(name: string, callback: SocketCallback<T>) => {
   const trimmedName = name.trim();
 
   if (trimmedName.length < 1) {
@@ -71,7 +58,7 @@ export const checkRoomName = <T>(
 
 export const checkSeatsCount = <T>(
   seats: RoomSeat[],
-  callback: SocketCallback<T>
+  callback: SocketCallback<T>,
 ) => {
   const numSeats = seats.filter((s) => s.type).length;
 
@@ -86,7 +73,7 @@ export const checkSeatsCount = <T>(
 export const isSeatTaken = <T>(
   room: Room,
   position: PlayerPos,
-  callback: SocketCallback<T>
+  callback: SocketCallback<T>,
 ) => {
   const isOccupied = isSeatOccupied(room, position);
 
@@ -101,7 +88,7 @@ export const isSeatTaken = <T>(
 export const isSeatTakenByHuman = <T>(
   room: Room,
   position: PlayerPos,
-  callback: SocketCallback<T>
+  callback: SocketCallback<T>,
 ) => {
   const player = getSeatPlayer(room, position);
 
@@ -142,11 +129,9 @@ export const getRoom = <T>({
 export const isInRoom = <T>(
   playerId: string,
   room: Room,
-  callback?: SocketCallback<T>
+  callback?: SocketCallback<T>,
 ): Player | null => {
-  const player = room.players.find(
-    (p) => p.id === playerId
-  );
+  const player = room.players.find((p) => p.id === playerId);
 
   if (!player) {
     if (callback) {
@@ -162,7 +147,7 @@ export const isInRoom = <T>(
 export const isPlayerAdmin = <T>(
   socket: AppSocket,
   room: Room,
-  callback: SocketCallback<T>
+  callback: SocketCallback<T>,
 ) => {
   const isAdmin = socket.id === room.adminId;
 
@@ -176,7 +161,7 @@ export const isPlayerAdmin = <T>(
 
 export const getGame = <T>(
   roomId: string,
-  callback: SocketCallback<T>
+  callback: SocketCallback<T>,
 ): Game | null => {
   const game = games.get(roomId);
 
@@ -190,7 +175,7 @@ export const getGame = <T>(
 
 export const getTurn = <T>(
   roomId: string,
-  callback: SocketCallback<T>
+  callback: SocketCallback<T>,
 ): Turn | null => {
   const turn = turns.get(roomId);
 
@@ -204,7 +189,7 @@ export const getTurn = <T>(
 
 export const gameGuard = <T>(
   socket: AppSocket,
-  callback: SocketCallback<T>
+  callback: SocketCallback<T>,
 ) => {
   const room = getRoom({ socket, callback });
   if (!room) return null;
@@ -224,7 +209,7 @@ export const gameGuard = <T>(
 
 export const turnGuard = <T>(
   socket: AppSocket,
-  callback: SocketCallback<T>
+  callback: SocketCallback<T>,
 ) => {
   const data = gameGuard(socket, callback);
   if (!data) return null;
@@ -245,10 +230,7 @@ export const turnGuard = <T>(
   return { ...data, turn };
 };
 
-export const getGameData = (
-  io: AppServer,
-  roomId: string
-) => {
+export const getGameData = (io: AppServer, roomId: string) => {
   const room = rooms.get(roomId);
   const game = games.get(roomId);
 
@@ -264,10 +246,7 @@ export const getGameData = (
   return { room, game };
 };
 
-export const getTurnData = (
-  io: AppServer,
-  roomId: string
-) => {
+export const getTurnData = (io: AppServer, roomId: string) => {
   const gameData = getGameData(io, roomId);
   if (!gameData) return null;
 

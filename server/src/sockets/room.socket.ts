@@ -1,9 +1,5 @@
 import { gameService, roomService } from "@/services";
-import {
-  startTurn,
-  handleExit,
-  endGame,
-} from "@/loop/gameLoop";
+import { startTurn, handleExit, endGame } from "@/loop/gameLoop";
 import {
   getRoom,
   isInRoom,
@@ -24,10 +20,7 @@ import {
 import { ERROR_CODES } from "@shared/constants";
 import { AppServer, AppSocket } from "@/types";
 
-export const roomSocket = (
-  io: AppServer,
-  socket: AppSocket
-) => {
+export const roomSocket = (io: AppServer, socket: AppSocket) => {
   socket.on("room:getAvailable", (callback) => {
     ok(callback, roomService.getAvailable());
   });
@@ -135,13 +128,9 @@ export const roomSocket = (
     const isAdmin = isPlayerAdmin(socket, room, callback);
     if (!isAdmin) return;
 
-    const playerId = room.players.find(
-      (p) => p.pos === pos
-    )?.id;
+    const playerId = room.players.find((p) => p.pos === pos)?.id;
 
-    const memberSocket = io.sockets.sockets.get(
-      playerId ?? ""
-    );
+    const memberSocket = io.sockets.sockets.get(playerId ?? "");
 
     if (!playerId || !memberSocket) {
       notOk(callback, ERROR_CODES.PLAYER_NOT_FOUND);

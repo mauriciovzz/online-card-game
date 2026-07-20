@@ -1,9 +1,4 @@
-import {
-  PlayerId,
-  Message,
-  LastRead,
-  ReadUpdate,
-} from "@shared/types";
+import { PlayerId, Message, LastRead, ReadUpdate } from "@shared/types";
 
 interface Content {
   content: string;
