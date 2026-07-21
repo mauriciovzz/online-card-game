@@ -5,8 +5,8 @@ node_modules/
 .env
 
 # Build output
-dist/
-build/
+client/dist/
+server/build/
 
 # Editor files
 .vscode/
