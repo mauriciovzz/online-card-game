@@ -1,4 +1,5 @@
 #!/usr/bin/env sh
 
-npm --prefix client run build
-npm --prefix server run build
+npm run lint
+npm run build:client
+npm run build:server
