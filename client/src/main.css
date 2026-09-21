@@ -1,0 +1,69 @@
+html,
+body,
+#root {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  background-color: var(--mantine-color-body);
+}
+
+html,
+body {
+  overflow: hidden;
+  overscroll-behavior: none;
+}
+
+/* Mobile landscape */
+@media (pointer: coarse) and (orientation: landscape) {
+  .app-content {
+    visibility: hidden;
+  }
+
+  .rotate-device-overlay {
+    display: flex !important;
+  }
+}
+
+/* Desktop window too short */
+@media (not (pointer: coarse)) and (max-height: 630px) {
+  .app-content {
+    visibility: hidden;
+  }
+
+  .resize-window-overlay {
+    display: flex !important;
+  }
+}
+
+/* Mobile padding */
+
+.mobile-padding {
+  padding: 12px;
+}
+
+@media (max-width: 480px) and (display-mode: standalone) {
+  .mobile-padding {
+    padding-bottom: 34px;
+  }
+}
+
+/* Supress mobile long press */
+
+.mantine-Button-root,
+.mantine-Text-root,
+.mantine-Group-root,
+.mantine-Modal-root,
+.mantine-Divider-root,
+.mantine-List-root,
+.mantine-ColorSwatch-root,
+.mantine-FileInput-root,
+.mantine-Calendar-root,
+.mantine-Calendar-weekday,
+.mantine-SegmentedControl-root,
+.mantine-Carousel-root,
+.mantine-Title-root,
+.disable-long-touch {
+  user-select: none !important;
+  -webkit-user-select: none !important;
+  -webkit-touch-callout: none !important;
+}

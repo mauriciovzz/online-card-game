@@ -126,6 +126,7 @@ const GameSeat = memo(
         h={26}
         pos="absolute"
         style={{ zIndex: 10, userSelect: "none", ...BOARD_POSITIONS[pos] }}
+        className="disable-long-touch"
       >
         <SeatBox borderColor={color}>
           <Text w={80} size="sm" fw={700} ta="center" ml={5} truncate="end">

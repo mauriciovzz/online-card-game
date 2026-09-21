@@ -253,7 +253,16 @@ export const es = {
       ],
       host: "Si eres el anfitrión de la sala durante una partida, también puedes regresar a todos a la sala de espera.",
     },
-    install: {
+    updates: {
+      heading: "Actualizar el Juego",
+      description:
+        "El juego busca nuevas versiones cuando abres Configuración. Si hay una actualización disponible, el botón <strong>Actualización disponible</strong> estará habilitado.",
+      update:
+        "Pulsa <strong>Actualización disponible</strong> para instalar la versión más reciente del juego. El juego se recargará automáticamente después de la actualización.",
+      latest:
+        "Si el juego está actualizado, el botón de actualización estará deshabilitado y mostrará <strong>El juego está actualizado</strong>.",
+    },
+    installation: {
       heading: "Instalar la Aplicación",
       android: {
         heading: "Android (Chrome)",
@@ -276,6 +285,16 @@ export const es = {
           'Pulsa "Agregar". El juego aparecerá en tu pantalla de inicio y podrás abrirlo como una aplicación nativa.',
         ],
         tips: "En iPhone y iPad solo es posible instalar aplicaciones web desde Safari.",
+      },
+      desktop: {
+        heading: "Ordenador",
+        steps: [
+          "Abre el juego en un navegador compatible.",
+          "Busca el icono de instalación en la barra de direcciones.",
+          'Haz clic en el icono de instalación y selecciona "Instalar".',
+          "El juego se instalará y podrás abrirla como una aplicación de escritorio normal.",
+        ],
+        tips: "La opción de instalación puede aparecer de forma diferente según el navegador. Si no aparece una opción de instalación, es posible que tu navegador no sea compatible con la instalación de aplicaciones web.",
       },
     },
   },

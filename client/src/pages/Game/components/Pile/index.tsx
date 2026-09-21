@@ -23,7 +23,14 @@ export const Pile = ({ width, pile, validMove, game, container }: Props) => {
   const { ref } = useDroppable({ id: "pile" });
 
   return (
-    <Flex w={width} h={width} align="center" justify="center" pos="relative">
+    <Flex
+      w={width}
+      h={width}
+      align="center"
+      justify="center"
+      pos="relative"
+      className="disable-long-touch"
+    >
       <CardPile ref={ref} validMove={validMove}>
         <Flex w={CARD.width} h={CARD.height}>
           {pile.map((card, index) => (

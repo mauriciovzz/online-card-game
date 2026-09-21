@@ -15,6 +15,7 @@ export const CardItem = ({ svg }: Props) => {
       h={CARD.height}
       bd={`${CARD.border.toString()}px solid black`}
       bdrs="md"
+      className="disable-long-touch"
     >
       <svg
         xmlns="http://www.w3.org/2000/svg"

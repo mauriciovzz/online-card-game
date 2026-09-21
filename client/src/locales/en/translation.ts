@@ -249,7 +249,16 @@ export const en = {
       ],
       host: "If you are the room host during a game, you can also return everyone to the lobby.",
     },
-    install: {
+    updates: {
+      heading: "Updating the Game",
+      description:
+        "The game checks for new versions when you open Settings. If an update is available, the <strong>Update available</strong> button will be enabled.",
+      update:
+        "Tap <strong>Update available</strong> to install the newest version of the game. The game will reload automatically after the update.",
+      latest:
+        "If the game is up to date, the update button will be disabled and show <strong>Game is up to date</strong>.",
+    },
+    installation: {
       heading: "Install the App",
       android: {
         heading: "Android (Chrome)",
@@ -272,6 +281,16 @@ export const en = {
           'Tap "Add". The game will appear on your home screen and can be opened like a native app.',
         ],
         tips: "Installing the app on iOS only works in Safari.",
+      },
+      desktop: {
+        heading: "Desktop",
+        steps: [
+          "Open the game in a supported browser.",
+          "Look for the install icon in the address bar.",
+          'Click the install icon and select "Install".',
+          "The game will be installed and you can open it like a regular desktop application.",
+        ],
+        tips: "The installation option may look different depending on your browser. If you don't see an install option, your browser may not support installing the application.",
       },
     },
   },

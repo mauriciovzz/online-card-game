@@ -91,7 +91,7 @@ export const RoomList = () => {
 
   return rooms.length === 0 ? (
     <Flex w="100%" h="100%" align="center" justify="center" fw={700}>
-      {t("room.empty")}
+      <Text fw={700}>{t("room.empty")}</Text>
     </Flex>
   ) : (
     <ScrollArea w="100%" h="100%">
