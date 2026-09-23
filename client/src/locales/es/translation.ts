@@ -4,10 +4,14 @@ export const es = {
     save: "Guardar Cambios",
     lang: "ES",
     you: "Tú",
-    rotate: "Gira tu dispositivo",
-    rotateDesc:
-      "Este juego está diseñado para jugarse en modo vertical en pantallas pequeñas",
   },
+
+  rotate: "Gira tu dispositivo",
+  rotateDesc:
+    "Esta app está diseñada para usarse en modo vertical en pantallas pequeñas",
+
+  windowHeight: "Ventana demasiado pequeña",
+  windowHeightDesc: "Amplía la ventana para continuar",
 
   user: {
     name: {
@@ -252,15 +256,6 @@ export const es = {
         "Salir de la sala",
       ],
       host: "Si eres el anfitrión de la sala durante una partida, también puedes regresar a todos a la sala de espera.",
-    },
-    updates: {
-      heading: "Actualizar el Juego",
-      description:
-        "El juego busca nuevas versiones cuando abres Configuración. Si hay una actualización disponible, el botón <strong>Actualización disponible</strong> estará habilitado.",
-      update:
-        "Pulsa <strong>Actualización disponible</strong> para instalar la versión más reciente del juego. El juego se recargará automáticamente después de la actualización.",
-      latest:
-        "Si el juego está actualizado, el botón de actualización estará deshabilitado y mostrará <strong>El juego está actualizado</strong>.",
     },
     installation: {
       heading: "Instalar la Aplicación",

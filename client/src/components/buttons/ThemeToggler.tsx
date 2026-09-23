@@ -1,4 +1,4 @@
-import { useCallback } from "react";
+import { useCallback, useEffect } from "react";
 import { IconMoon, IconSun } from "@tabler/icons-react";
 
 import { AppActionIcon } from "./AppActionIcon";
@@ -18,6 +18,16 @@ export const ThemeToggler = ({ expand }: Props) => {
   const toggleColor = useCallback(() => {
     setColorScheme(isDark ? "light" : "dark");
   }, [isDark, setColorScheme]);
+
+  useEffect(() => {
+    const meta = document.querySelector('meta[name="theme-color"]');
+
+    if (!meta) {
+      return;
+    }
+
+    meta.setAttribute("content", isDark ? "#242424" : "#fff");
+  }, [isDark]);
 
   return (
     <AppActionIcon expand={expand} onClick={toggleColor}>

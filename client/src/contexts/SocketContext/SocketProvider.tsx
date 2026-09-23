@@ -7,7 +7,6 @@ import {
 } from "react";
 import { io, Socket } from "socket.io-client";
 
-import { MainLayout } from "@/layouts";
 import { SocketContext } from "./SocketContext";
 import { useCardsMap } from "../CardsContext";
 import { Spinner } from "@/components";
@@ -85,11 +84,7 @@ export const SocketProvider = ({ children }: Props) => {
   }, [handleAvailable, handleConnected, fetchRooms]);
 
   if (cardsLoading || !isNameReady || !areRoomsReady || rooms === null) {
-    return (
-      <MainLayout>
-        <Spinner />
-      </MainLayout>
-    );
+    return <Spinner />;
   }
 
   return (

@@ -4,10 +4,14 @@ export const en = {
     save: "Save Changes",
     lang: "EN",
     you: "You",
-    rotate: "Rotate your device",
-    rotateDesc:
-      "This game is designed to be played in portrait mode on smaller screens",
   },
+
+  rotate: "Rotate your device",
+  rotateDesc:
+    "This app is designed to be used in portrait mode on smaller screens",
+
+  windowHeight: "Window too small",
+  windowHeightDesc: "Make the window taller to continue",
 
   user: {
     name: {
@@ -248,15 +252,6 @@ export const en = {
         "Leave the room",
       ],
       host: "If you are the room host during a game, you can also return everyone to the lobby.",
-    },
-    updates: {
-      heading: "Updating the Game",
-      description:
-        "The game checks for new versions when you open Settings. If an update is available, the <strong>Update available</strong> button will be enabled.",
-      update:
-        "Tap <strong>Update available</strong> to install the newest version of the game. The game will reload automatically after the update.",
-      latest:
-        "If the game is up to date, the update button will be disabled and show <strong>Game is up to date</strong>.",
     },
     installation: {
       heading: "Install the App",

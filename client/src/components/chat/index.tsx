@@ -11,18 +11,14 @@ import { useSocket } from "@/contexts/SocketContext";
 
 type MsgsRef = Map<string, HTMLDivElement>;
 
-interface Props {
-  layoutHeight: number;
-}
-
-export const Chat = ({ layoutHeight }: Props) => {
+export const Chat = () => {
   const { t } = useTranslation();
 
   const isMobile = useIsMobile();
   const themeColor = useThemeColor();
 
   const { top, outerHeight, innerHeight } = useScrollHeight({
-    layoutHeight,
+    layoutHeight: 605,
     isMobile,
   });
 

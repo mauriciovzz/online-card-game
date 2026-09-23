@@ -1,6 +1,5 @@
 import { useState } from "react";
-import { useTranslation } from "react-i18next";
-import { Group, Modal, Stack } from "@mantine/core";
+import { Group } from "@mantine/core";
 
 import { useRoom } from "@/contexts/RoomContext";
 import {
@@ -10,10 +9,9 @@ import {
   HelpModal,
   HelpButton,
 } from "@/components";
+import { AppModal } from "./AppModal";
 
 export const RoomSettingsModal = () => {
-  const { t } = useTranslation();
-
   const {
     isAdmin,
     roomView,
@@ -27,36 +25,32 @@ export const RoomSettingsModal = () => {
 
   return (
     <>
-      <Modal
+      <AppModal
         opened={settingsOpened}
-        onClose={closeSettings}
-        title={t("room.settings")}
-        size={175}
-        centered
-        zIndex={800}
-        overlayProps={{ backgroundOpacity: 0.55, blur: 3 }}
+        close={closeSettings}
+        title="room.settings"
+        width={235}
+        index={800}
       >
-        <Stack gap="sm">
-          <Group gap="sm">
-            <HelpButton
-              expand
-              onClick={() => {
-                setHelpOpened(true);
-              }}
-            />
+        <Group gap="sm">
+          <HelpButton
+            expand
+            onClick={() => {
+              setHelpOpened(true);
+            }}
+          />
 
-            <LangToggler expand />
+          <LangToggler expand />
 
-            <ThemeToggler expand />
-          </Group>
+          <ThemeToggler expand />
+        </Group>
 
-          {isAdmin && roomView === "game" && (
-            <AppButton text="Lobby" onClick={stopGame} />
-          )}
+        {isAdmin && roomView === "game" && (
+          <AppButton text="Lobby" onClick={stopGame} />
+        )}
 
-          <AppButton text="room.leave" onClick={leaveRoom} />
-        </Stack>
-      </Modal>
+        <AppButton text="room.leave" onClick={leaveRoom} />
+      </AppModal>
 
       <HelpModal
         opened={helpOpened}

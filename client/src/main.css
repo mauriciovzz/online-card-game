@@ -36,9 +36,8 @@ body {
 }
 
 /* Mobile padding */
-
 .mobile-padding {
-  padding: 12px;
+  padding: 24px;
 }
 
 @media (max-width: 480px) and (display-mode: standalone) {
@@ -48,7 +47,6 @@ body {
 }
 
 /* Supress mobile long press */
-
 .mantine-Button-root,
 .mantine-Text-root,
 .mantine-Group-root,

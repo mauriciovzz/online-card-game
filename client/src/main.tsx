@@ -11,22 +11,26 @@ import "./main.css";
 
 import { CardsProvider } from "./contexts/CardsContext";
 import { SocketProvider } from "@/contexts/SocketContext";
+import { MainLayout } from "./layouts";
 import { App } from "./App";
 
 const theme = createTheme({ primaryColor: "gray" });
+
 const rootElement = document.getElementById("root");
 
 if (rootElement) {
   createRoot(rootElement).render(
     <StrictMode>
       <MantineProvider theme={theme}>
-        <BrowserRouter>
-          <CardsProvider>
-            <SocketProvider>
-              <App />
-            </SocketProvider>
-          </CardsProvider>
-        </BrowserRouter>
+        <MainLayout>
+          <BrowserRouter>
+            <CardsProvider>
+              <SocketProvider>
+                <App />
+              </SocketProvider>
+            </CardsProvider>
+          </BrowserRouter>{" "}
+        </MainLayout>
       </MantineProvider>
     </StrictMode>,
   );
