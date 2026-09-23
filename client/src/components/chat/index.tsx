@@ -1,6 +1,14 @@
 import { useMemo, useRef } from "react";
 import { useTranslation } from "react-i18next";
-import { TextInput, Stack, Divider, Flex, Text, Paper } from "@mantine/core";
+import {
+  TextInput,
+  Stack,
+  Divider,
+  Flex,
+  Text,
+  Paper,
+  Box,
+} from "@mantine/core";
 import { useForm } from "@mantine/form";
 
 import { useChat } from "@/contexts/ChatContext";
@@ -8,17 +16,19 @@ import { useIsMobile, useThemeColor } from "@/hooks";
 import { useReadObserver, useScroll, useScrollHeight } from "./chatHooks";
 import { MessageBubble, Scroll, TypingIndicator } from "./chatComponents";
 import { useSocket } from "@/contexts/SocketContext";
+import { useResizeObserver } from "@mantine/hooks";
 
 type MsgsRef = Map<string, HTMLDivElement>;
 
 export const Chat = () => {
   const { t } = useTranslation();
+  const [ref, rect] = useResizeObserver();
 
   const isMobile = useIsMobile();
   const themeColor = useThemeColor();
 
   const { top, outerHeight, innerHeight } = useScrollHeight({
-    layoutHeight: 605,
+    layoutHeight: rect.height,
     isMobile,
   });
 
@@ -87,92 +97,95 @@ export const Chat = () => {
   });
 
   return (
-    <Paper
-      w="100%"
-      maw={335}
-      h={outerHeight}
-      withBorder
-      bdrs="md"
-      style={{
-        top,
-        visibility: chatOpened ? "visible" : "hidden",
-        position: "absolute",
-        pointerEvents: chatOpened ? "auto" : "none",
-        zIndex: 700,
-        contentBox: "border-box",
-      }}
-    >
-      <Stack w="100%" gap={5} p="sm">
-        <Scroll
-          vpRef={vpRef}
-          height={innerHeight}
-          isMobile={isMobile}
-          handleScroll={handleScroll}
-          messages={messages}
-          atBottom={atBottom}
-          scrollToBottom={scrollToBottom}
-        >
-          <Flex justify="center" align="center">
-            <Text
-              size="xs"
-              ta="center"
-              p={2}
-              px={10}
-              bd={`1px solid ${themeColor}`}
-              bdrs="md"
-            >
-              {t("chat.start")}
-            </Text>
-          </Flex>
+    <>
+      <Box ref={ref} h="100%" pos="absolute" />
 
-          {messages.map((msg, i) => {
-            const isFirstUnread = i === firstUnreadIndex;
+      <Paper
+        w="100%"
+        h={outerHeight}
+        withBorder
+        bdrs="md"
+        style={{
+          top,
+          visibility: chatOpened ? "visible" : "hidden",
+          position: "absolute",
+          pointerEvents: chatOpened ? "auto" : "none",
+          zIndex: 700,
+          contentBox: "border-box",
+        }}
+      >
+        <Stack w="100%" gap={5} p="sm">
+          <Scroll
+            vpRef={vpRef}
+            height={innerHeight}
+            isMobile={isMobile}
+            handleScroll={handleScroll}
+            messages={messages}
+            atBottom={atBottom}
+            scrollToBottom={scrollToBottom}
+          >
+            <Flex justify="center" align="center">
+              <Text
+                size="xs"
+                ta="center"
+                p={2}
+                px={10}
+                bd={`1px solid ${themeColor}`}
+                bdrs="md"
+              >
+                {t("chat.start")}
+              </Text>
+            </Flex>
 
-            return (
-              <div key={msg.id}>
-                {isFirstUnread && (
-                  <Divider
-                    size="xs"
-                    label={t("chat.newMessages")}
-                    labelPosition="center"
+            {messages.map((msg, i) => {
+              const isFirstUnread = i === firstUnreadIndex;
+
+              return (
+                <div key={msg.id}>
+                  {isFirstUnread && (
+                    <Divider
+                      size="xs"
+                      label={t("chat.newMessages")}
+                      labelPosition="center"
+                    />
+                  )}
+
+                  <MessageBubble
+                    message={msg}
+                    isMine={msg.senderId === socketId}
+                    showUsername={isFirstUnread ? true : showUsernameMap[i]}
+                    checks={getMessageChecks(msg.id)}
+                    themeColor={themeColor}
+                    msgRef={(el) => {
+                      if (el) {
+                        el.setAttribute("data-id", msg.id);
+                        messageRefs.current.set(msg.id, el);
+                      } else {
+                        messageRefs.current.delete(msg.id);
+                      }
+                    }}
                   />
-                )}
+                </div>
+              );
+            })}
 
-                <MessageBubble
-                  message={msg}
-                  isMine={msg.senderId === socketId}
-                  showUsername={isFirstUnread ? true : showUsernameMap[i]}
-                  checks={getMessageChecks(msg.id)}
-                  themeColor={themeColor}
-                  msgRef={(el) => {
-                    if (el) {
-                      el.setAttribute("data-id", msg.id);
-                      messageRefs.current.set(msg.id, el);
-                    } else {
-                      messageRefs.current.delete(msg.id);
-                    }
-                  }}
-                />
-              </div>
-            );
-          })}
+            {typers.size !== 0 && (
+              <TypingIndicator typers={typers} themeColor={themeColor} />
+            )}
+          </Scroll>
 
-          {typers.size !== 0 && (
-            <TypingIndicator typers={typers} themeColor={themeColor} />
-          )}
-        </Scroll>
-
-        <form>
-          <TextInput
-            ref={inputRef}
-            size={isMobile ? "md" : "sm"}
-            mr={isMobile ? undefined : 8}
-            radius="md"
-            {...form.getInputProps("newMessage")}
-            onKeyDown={handleKeyDown}
-          />
-        </form>
-      </Stack>
-    </Paper>
+          <form>
+            <TextInput
+              ref={inputRef}
+              size={isMobile ? "md" : "sm"}
+              mr={isMobile ? undefined : 8}
+              radius="md"
+              {...form.getInputProps("newMessage")}
+              onKeyDown={handleKeyDown}
+            />
+          </form>
+        </Stack>
+      </Paper>
+    </>
   );
 };
