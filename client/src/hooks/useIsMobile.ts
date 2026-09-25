@@ -1,8 +1,7 @@
-import { em } from "@mantine/core";
 import { useMediaQuery } from "@mantine/hooks";
 
 export const useIsMobile = () => {
-  const isMobile = useMediaQuery(`(max-width: ${em(650)})`);
+  const isMobile = useMediaQuery(`(max-width: 30em)`);
 
   return isMobile;
 };

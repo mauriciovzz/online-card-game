@@ -14,7 +14,12 @@ import { SocketProvider } from "@/contexts/SocketContext";
 import { MainLayout } from "./layouts";
 import { App } from "./App";
 
-const theme = createTheme({ primaryColor: "gray" });
+const theme = createTheme({
+  primaryColor: "gray",
+  breakpoints: {
+    xs: "30em",
+  },
+});
 
 const rootElement = document.getElementById("root");
 

@@ -78,29 +78,54 @@ const ResizeWindowOverlay = () => {
   );
 };
 
+const TARGET_WIDTH = 500;
+const TARGET_HEIGHT = 604;
+const TOLERANCE = 2;
+
+const initializeDesktopWindow = () => {
+  const isStandalone = window.matchMedia("(display-mode: standalone)").matches;
+
+  if (!isStandalone) {
+    return;
+  }
+
+  const isDesktop = window.matchMedia("(min-width: 481px)").matches;
+
+  if (!isDesktop) {
+    return;
+  }
+
+  if (localStorage.getItem("uo-window-initialized") === "true") {
+    return;
+  }
+
+  const widthDifference = TARGET_WIDTH - window.innerWidth;
+  const heightDifference = TARGET_HEIGHT - window.innerHeight;
+
+  if (widthDifference !== 0 || heightDifference !== 0) {
+    window.resizeBy(widthDifference, heightDifference);
+  }
+
+  requestAnimationFrame(() => {
+    const widthCorrect =
+      Math.abs(window.innerWidth - TARGET_WIDTH) <= TOLERANCE;
+
+    const heightCorrect =
+      Math.abs(window.innerHeight - TARGET_HEIGHT) <= TOLERANCE;
+
+    if (widthCorrect && heightCorrect) {
+      localStorage.setItem("uo-window-initialized", "true");
+    }
+  });
+};
+
 interface Props {
   children: ReactNode;
 }
 
 export const MainLayout = ({ children }: Props) => {
   useEffect(() => {
-    const isStandalone = window.matchMedia(
-      "(display-mode: standalone)",
-    ).matches;
-
-    if (!isStandalone) {
-      return;
-    }
-
-    const hasSetInitialSize = localStorage.getItem("card-game-size-set");
-
-    if (hasSetInitialSize) {
-      return;
-    }
-
-    window.resizeTo(500, 580);
-
-    localStorage.setItem("card-game-size-set", "true");
+    initializeDesktopWindow();
   }, []);
 
   return (
@@ -116,9 +141,8 @@ export const MainLayout = ({ children }: Props) => {
     >
       <Stack
         h="100%"
-        w="100%"
         mah={{ base: "none", xs: 580 }}
-        maw={335}
+        w={335}
         gap="sm"
         pos="relative"
         style={{
